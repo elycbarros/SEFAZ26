@@ -463,42 +463,48 @@ const EDITAL_DATA = {
       nome: "Estrutura Organizacional do Estado de SC",
       cargos: ["A01", "E05"],
       importancia: "Crítica",
-      resumo: "Define os órgãos da administração direta e indireta do Poder Executivo catarinense e o papel central da SEF/SC."
+      resumo: "Define os órgãos da administração direta e indireta do Poder Executivo catarinense e o papel central da SEF/SC.",
+      url: "https://leisestaduais.com.br/sc/lei-complementar-n-741-2019-santa-catarina"
     },
     {
       sigla: "Lei nº 6.745/1985",
       nome: "Estatuto dos Servidores Públicos Civis de SC",
       cargos: ["A01", "E05"],
       importancia: "Crítica",
-      resumo: "Regula deveres, direitos, licenças, regime disciplinar e processo administrativo dos servidores de SC."
+      resumo: "Regula deveres, direitos, licenças, regime disciplinar e processo administrativo dos servidores de SC.",
+      url: "https://leisestaduais.com.br/sc/lei-n-6745-1985-santa-catarina"
     },
     {
       sigla: "Decreto nº 2.094/2022",
       nome: "Regimento Interno da SEF/SC",
       cargos: ["E05"],
       importancia: "Alta",
-      resumo: "Regulamento interno definindo competências operacionais e estrutura dos sistemas financeiro e contábil da SEF/SC."
+      resumo: "Regulamento interno definindo competências operacionais e estrutura dos sistemas financeiro e contábil da SEF/SC.",
+      url: "https://www.sef.sc.gov.br/legislacao"
     },
     {
       sigla: "LC nº 898/2026",
       nome: "Execução de Emendas Parlamentares em SC",
       cargos: ["E05"],
       importancia: "Alta (Novidade)",
-      resumo: "Norma catarinense de 2026 regulando o rito das emendas orçamentárias no âmbito estadual."
+      resumo: "Norma catarinense de 2026 regulando o rito das emendas orçamentárias no âmbito estadual.",
+      url: "https://alesc.sc.gov.br/legislacao"
     },
     {
       sigla: "LC nº 412/2008",
       nome: "Regime Próprio de Previdência de SC (RPPS/SC)",
       cargos: ["E05"],
       importancia: "Alta",
-      resumo: "Regula o IPREV e o regime de previdência funcional dos servidores catarinenses."
+      resumo: "Regula o IPREV e o regime de previdência funcional dos servidores catarinenses.",
+      url: "https://leisestaduais.com.br/sc/lei-complementar-n-412-2008-santa-catarina"
     },
     {
       sigla: "Lei nº 7.541/1988",
       nome: "Lei das Taxas do Estado de Santa Catarina",
       cargos: ["E05"],
       importancia: "Média",
-      resumo: "Tabelas e hipóteses de incidência de taxas por atos de polícia e prestação de serviços estaduais."
+      resumo: "Tabelas e hipóteses de incidência de taxas por atos de polícia e prestação de serviços estaduais.",
+      url: "https://leisestaduais.com.br/sc/lei-n-7541-1988-santa-catarina"
     }
   ]
 };

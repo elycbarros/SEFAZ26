@@ -1155,3 +1155,407 @@ footer {
   font-size: 0.82rem;
   margin-top: 4rem;
 }
+
+/* ============================================================
+   F1.4 — COUNTDOWN URGÊNCIA VISUAL
+============================================================ */
+.countdown-box.urgent-amber {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: var(--accent-gold);
+  animation: urgentPulse 2s infinite;
+}
+
+.countdown-box.urgent-red {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.5);
+  color: var(--accent-rose);
+  animation: urgentPulse 1.2s infinite;
+}
+
+@keyframes urgentPulse {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.3); }
+}
+
+/* ============================================================
+   F1.2 — BOTÃO DELETAR LOG
+============================================================ */
+.btn-delete-log {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  opacity: 0.4;
+  transition: var(--transition);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.btn-delete-log:hover {
+  opacity: 1;
+  background: rgba(244, 63, 94, 0.15);
+}
+
+/* ============================================================
+   F2.1 / F2.2 — GRID CHARTS + DICAS NO DASHBOARD
+============================================================ */
+.charts-dicas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+/* F2.6 — progress bar rose (meta semanal) */
+.progress-bar-fill.rose {
+  background: linear-gradient(90deg, #be123c, var(--accent-rose));
+}
+
+.metric-card.rose::before {
+  background: linear-gradient(90deg, var(--accent-rose), transparent);
+}
+
+/* F2.3 — Container curvas normais */
+#normalCurveP1, #normalCurveP2 {
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* ============================================================
+   F3.2 — BOTÃO DE NOTA NO TÓPICO
+============================================================ */
+.btn-note {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 4px 6px;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.btn-note:hover {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: var(--accent-gold);
+}
+
+.btn-note.has-note {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: var(--accent-gold);
+}
+
+/* ============================================================
+   F3.2 — MODAL DE ANOTAÇÕES
+============================================================ */
+.note-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.note-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.note-modal-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  transform: scale(0.95);
+  transition: transform 0.25s ease;
+}
+
+.note-modal-overlay.open .note-modal-box {
+  transform: scale(1);
+}
+
+.note-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.note-modal-header h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+}
+
+.note-textarea {
+  width: 100%;
+  min-height: 220px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding: 0.85rem 1rem;
+  resize: vertical;
+  outline: none;
+  transition: var(--transition);
+}
+
+.note-textarea:focus {
+  border-color: var(--accent-gold);
+}
+
+/* ============================================================
+   F3.1 — REVISÃO ESPAÇADA
+============================================================ */
+.revisao-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.revisao-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  transition: var(--transition);
+  flex-wrap: wrap;
+}
+
+.revisao-card:hover {
+  border-color: var(--border-focus);
+}
+
+.revisao-badge {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+
+.revisao-badge.r1 {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: var(--accent-emerald);
+}
+
+.revisao-badge.r7 {
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.5);
+  color: var(--primary-light);
+}
+
+.revisao-badge.r30 {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: var(--accent-gold);
+}
+
+.revisao-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.revisao-disc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.revisao-topico {
+  font-size: 0.92rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.revisao-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ============================================================
+   F3.3 — PLACAR A01 vs E05
+============================================================ */
+.placar-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.placar-table th,
+.placar-table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.placar-table th {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.placar-table td {
+  color: var(--text-secondary);
+}
+
+.placar-table td.winner {
+  color: var(--accent-emerald);
+  font-weight: 700;
+}
+
+.placar-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ============================================================
+   F3.4 — MODO FOCO TOTAL
+============================================================ */
+.focus-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-base);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.focus-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.focus-timer-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Esconder navbar durante foco total */
+body.focus-mode .top-navbar,
+body.focus-mode .nav-tabs,
+body.focus-mode footer {
+  visibility: hidden;
+}
+
+/* ============================================================
+   F3.5 — @MEDIA PRINT (Exportar PDF)
+============================================================ */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .top-navbar,
+  .nav-tabs,
+  .edital-controls,
+  footer,
+  .toast-container,
+  .note-modal-overlay,
+  .focus-overlay,
+  .btn-action,
+  .btn-note,
+  .btn-mark-all,
+  .topico-acoes {
+    display: none !important;
+  }
+
+  .tab-view {
+    display: block !important;
+  }
+
+  #view-dashboard, #view-pomodoro, #view-simulador,
+  #view-legislacao, #view-backup, #view-placar, #view-revisoes {
+    display: none !important;
+  }
+
+  #view-edital {
+    display: block !important;
+  }
+
+  .disciplina-card {
+    border: 1px solid #ccc !important;
+    background: #fff !important;
+    break-inside: avoid;
+    margin-bottom: 0.5rem;
+  }
+
+  .disciplina-header {
+    background: #f3f4f6 !important;
+    color: #000 !important;
+  }
+
+  .disciplina-title, .disciplina-stats {
+    color: #000 !important;
+  }
+
+  .topicos-list {
+    display: block !important;
+  }
+
+  .topico-texto {
+    color: #333 !important;
+    font-size: 0.85rem;
+  }
+
+  .prova-section-header {
+    background: #4f46e5 !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .check-label.checked::after {
+    content: " ✓";
+  }
+
+  .cargo-banner {
+    background: #e0e7ff !important;
+    border: 1px solid #6366f1 !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
