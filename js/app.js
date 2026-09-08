@@ -58,7 +58,7 @@ const AppState = {
     sound: 'beep',
     pomoDuration: 25,
     geminiApiKey: '',
-    geminiModel: 'gemini-2.5-flash-lite',
+    geminiModel: 'gemini-3.5-flash-lite',
   },
 
   quiz: {

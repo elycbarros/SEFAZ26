@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
       status: 'ok',
       service: 'SEFAZ/SC 2026 — Gemini AI Gateway',
       serverKeyConfigured: hasEnvKey,
-      defaultModel: 'gemini-2.5-flash-lite'
+      defaultModel: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite'
     });
   }
 
@@ -53,9 +53,9 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Modelo padrão: Gemini Flash Lite
-    const model = requestedModel || 'gemini-2.5-flash-lite';
-    const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    // Modelo padrão solicitado: Gemini 3.5 Flash Lite
+    const model = requestedModel || process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+    let targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const requestBody = {
       contents: [
@@ -77,7 +77,7 @@ module.exports = async (req, res) => {
       };
     }
 
-    const apiResponse = await fetch(targetUrl, {
+    let apiResponse = await fetch(targetUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -85,7 +85,22 @@ module.exports = async (req, res) => {
       body: JSON.stringify(requestBody)
     });
 
-    const data = await apiResponse.json();
+    let data = await apiResponse.json();
+
+    // Se o modelo 3.5 ainda não estiver liberado na API v1beta do Google para esta chave, faz fallback transparente
+    if (apiResponse.status === 404 && model.includes('3.5')) {
+      const fallbackModel = 'gemini-2.5-flash-lite';
+      const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${fallbackModel}:generateContent?key=${apiKey}`;
+      const fallbackResp = await fetch(fallbackUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+      if (fallbackResp.ok) {
+        apiResponse = fallbackResp;
+        data = await fallbackResp.json();
+      }
+    }
 
     if (!apiResponse.ok) {
       const errorMsg = data?.error?.message || 'Erro ao comunicar com a API do Google Gemini.';

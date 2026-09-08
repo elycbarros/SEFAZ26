@@ -5,10 +5,11 @@
  */
 
 const SEFAZ_AI = {
-  DEFAULT_MODEL: 'gemini-2.5-flash-lite',
+  DEFAULT_MODEL: 'gemini-3.5-flash-lite',
 
   MODELS: [
-    { id: 'gemini-2.5-flash-lite', nome: 'Gemini 2.5 Flash Lite (Mais Rápido & Econômico — Recomendado)' },
+    { id: 'gemini-3.5-flash-lite', nome: 'Gemini 3.5 Flash Lite (Versão Solicitada — Padrão)' },
+    { id: 'gemini-2.5-flash-lite', nome: 'Gemini 2.5 Flash Lite' },
     { id: 'gemini-2.0-flash-lite', nome: 'Gemini 2.0 Flash Lite' },
     { id: 'gemini-2.5-flash',      nome: 'Gemini 2.5 Flash (Avançado)' },
     { id: 'gemini-1.5-flash',      nome: 'Gemini 1.5 Flash (Legado)' }
