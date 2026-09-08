@@ -391,6 +391,7 @@ function initPWA() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').then((reg) => {
+        reg.update();
         console.log('PWA ServiceWorker registrado com sucesso:', reg.scope);
       }).catch((err) => {
         console.warn('Falha no registro do ServiceWorker:', err);
@@ -590,15 +591,15 @@ function renderCronograma() {
 
   container.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1rem;text-align:center;">
-      <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
+      <div style="background:var(--surface-2);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
         <span style="font-size:0.75rem;color:var(--text-muted);display:block;">Tópicos Pendentes</span>
-        <strong style="font-size:1.3rem;color:#fff;">${pendentes}</strong>
+        <strong style="font-size:1.3rem;color:var(--text-strong);">${pendentes}</strong>
       </div>
-      <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
+      <div style="background:var(--surface-2);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
         <span style="font-size:0.75rem;color:var(--text-muted);display:block;">Dias até 22/11</span>
         <strong style="font-size:1.3rem;color:var(--accent-gold);">${diffDays} d</strong>
       </div>
-      <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
+      <div style="background:var(--surface-2);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
         <span style="font-size:0.75rem;color:var(--text-muted);display:block;">Meta Diária Sugerida</span>
         <strong style="font-size:1.3rem;color:var(--accent-emerald);">${horasPorDia}h/dia</strong>
       </div>
@@ -826,8 +827,8 @@ function renderQuizCard() {
     wrapper.innerHTML = `
       <div class="flashcard flashcard-empty" style="justify-content:center;text-align:center;">
         ${ic('note', 40)}
-        <h3>Nenhum flashcard neste filtro</h3>
-        <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">
+        <h3 style="color:#000000;font-weight:700;">Nenhum flashcard neste filtro</h3>
+        <p style="color:#1e293b;font-size:0.88rem;margin-top:0.5rem;font-weight:500;">
           ${filter === 'notes-only' ? 'Adicione anotações no botão de anotação de qualquer tópico do Edital.' : 'Selecione outro filtro para continuar o quiz.'}
         </p>
       </div>`;
@@ -846,39 +847,39 @@ function renderQuizCard() {
   wrapper.innerHTML = `
     <div class="flashcard ${isFlipped ? 'flipped' : ''}" onclick="toggleQuizCardFlip()">
       <div class="flashcard-header">
-        <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;">
+        <span style="font-size:0.82rem;color:#0f172a;font-weight:700;text-transform:uppercase;">
           ${current.disc} ${freqBadge}
         </span>
-        <span style="font-size:0.8rem;color:var(--primary-light);">
+        <span style="font-size:0.82rem;color:#046a4d;font-weight:700;">
           Card ${AppState.quiz.currentCardIndex + 1}/${filtered.length}
         </span>
       </div>
 
       <div class="flashcard-body">
         ${!isFlipped
-          ? `<div>
-              <span style="display:block;font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">O que você lembra sobre:</span>
-              <strong style="font-size:1.05rem;">${current.topico}</strong>
+          ? `<div style="width:100%;">
+              <span style="display:block;font-size:0.88rem;color:#1e293b;font-weight:600;margin-bottom:8px;">O que você lembra sobre:</span>
+              <strong style="font-size:1.12rem;color:#000000;font-weight:700;line-height:1.4;display:block;">${current.topico}</strong>
               ${current.topicoObj?.flashcard?.pergunta ? `
-                <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.04);border-radius:8px;font-size:0.88rem;color:var(--text);border-left:3px solid var(--accent);text-align:left;">
-                  <strong style="color:var(--accent);">Desafio FCC:</strong> ${current.topicoObj.flashcard.pergunta}
+                <div style="margin-top:0.85rem;padding:0.85rem;background:#ffffff;border-radius:8px;font-size:0.92rem;color:#000000;border:1px solid #cbd5e1;border-left:4px solid var(--accent);text-align:left;">
+                  <strong style="color:#046a4d;font-weight:700;">Desafio FCC:</strong> <span style="color:#000000;font-weight:500;">${current.topicoObj.flashcard.pergunta}</span>
                 </div>
               ` : ''}
             </div>`
-          : `<div>
-              <span style="display:block;font-size:0.82rem;color:var(--accent-emerald, #10b981);margin-bottom:8px;font-weight:700;">VERSO / CONCEITO:</span>
-              <div style="font-size:0.92rem;font-weight:400;color:#f8fafc;text-align:left;background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);max-height:200px;overflow-y:auto;line-height:1.6;">
+          : `<div style="width:100%;">
+              <span style="display:block;font-size:0.85rem;color:#046a4d;margin-bottom:8px;font-weight:800;letter-spacing:0.5px;">VERSO / CONCEITO:</span>
+              <div style="font-size:0.95rem;font-weight:500;color:#000000;text-align:left;background:#ffffff;padding:1rem;border-radius:8px;border:1px solid #cbd5e1;max-height:220px;overflow-y:auto;line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
                 ${current.topicoObj?.flashcard?.resposta
-                  ? `<div style="margin-bottom:0.75rem;"><strong style="color:var(--primary-light);">Fundamento / Resposta:</strong><br>${current.topicoObj.flashcard.resposta}</div>`
-                  : (current.topicoObj?.resumo ? `<div style="margin-bottom:0.75rem;"><strong style="color:var(--primary-light);">Resumo:</strong><br>${current.topicoObj.resumo}</div>` : '')
+                  ? `<div style="margin-bottom:0.75rem;"><strong style="color:#046a4d;font-weight:700;">Fundamento / Resposta:</strong><br><span style="color:#000000;font-weight:500;">${current.topicoObj.flashcard.resposta}</span></div>`
+                  : (current.topicoObj?.resumo ? `<div style="margin-bottom:0.75rem;"><strong style="color:#046a4d;font-weight:700;">Resumo:</strong><br><span style="color:#000000;font-weight:500;">${current.topicoObj.resumo}</span></div>` : '')
                 }
-                ${current.note ? `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px dashed rgba(255,255,255,0.15);"><strong style="color:#fbbf24;">Sua anotação pessoal:</strong><br>${current.note}</div>` : (!current.topicoObj?.flashcard && !current.topicoObj?.resumo ? '<i>Sem anotação pessoal salva. Revise a legislação aplicável e conceitos fundamentais do Edital FCC.</i>' : '')}
+                ${current.note ? `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px dashed #cbd5e1;"><strong style="color:#b45309;font-weight:700;">Sua anotação pessoal:</strong><br><span style="color:#000000;font-weight:600;">${current.note}</span></div>` : (!current.topicoObj?.flashcard && !current.topicoObj?.resumo ? '<div style="color:#000000;font-weight:500;font-style:normal;display:block;padding:0.4rem 0;line-height:1.5;">Sem anotação pessoal salva. Revise a legislação aplicável e conceitos fundamentais do Edital FCC.</div>' : '')}
               </div>
             </div>`
         }
       </div>
 
-      <div class="flashcard-footer">
+      <div class="flashcard-footer" style="color:#0f172a;font-weight:600;">
         ${!isFlipped ? 'Toque no card para ver o verso / anotação' : 'Classifique sua lembrança abaixo:'}
       </div>
     </div>
@@ -1046,19 +1047,19 @@ window.finishSimulado = function() {
       <div class="sim-card" style="margin-bottom:1.5rem;border-color:var(--primary-light);">
         <h3 style="font-size:1.4rem;">Resultado do Simulado</h3>
         <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:1rem;margin:1.5rem 0;text-align:center;">
-          <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
+          <div style="background:var(--surface-2);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
             <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Acertos</span>
             <strong style="font-size:1.6rem;color:var(--accent-emerald);">${correct}/${total}</strong>
           </div>
-          <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
+          <div style="background:var(--surface-2);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
             <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Aproveitamento</span>
-            <strong style="font-size:1.6rem;color:#fff;">${perc}%</strong>
+            <strong style="font-size:1.6rem;color:var(--text-strong);">${perc}%</strong>
           </div>
-          <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
+          <div style="background:var(--surface-2);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
             <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Tempo Gasto</span>
             <strong style="font-size:1.6rem;color:var(--accent-gold);">${timeSpentMin} min</strong>
           </div>
-          <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
+          <div style="background:var(--surface-2);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
             <span style="font-size:0.8rem;color:var(--text-muted);display:block;">NP Estimada FCC</span>
             <strong style="font-size:1.6rem;color:var(--primary-light);">${npEstimada.toFixed(1)} pts</strong>
           </div>
@@ -1089,7 +1090,7 @@ window.finishSimulado = function() {
               <strong>Gabarito Oficial: Letra ${String.fromCharCode(65 + q.correta)}</strong>
               ${userChoice !== undefined ? `(Sua resposta: Letra ${String.fromCharCode(65 + userChoice)})` : '(Não respondida)'}
             </div>
-            <div style="background:rgba(255,255,255,0.02);padding:0.75rem;border-radius:6px;font-size:0.85rem;color:var(--text-secondary);border:1px solid var(--border-subtle);line-height:1.5;">
+            <div style="background:var(--surface-2);padding:0.75rem;border-radius:6px;font-size:0.85rem;color:var(--text-secondary);border:1px solid var(--border-subtle);line-height:1.5;">
               <b>Comentário e fundamentação FCC:</b> ${q.explicacao}
             </div>
           </div>
@@ -1206,9 +1207,9 @@ window.showCalendarDayDetails = function(dateStr, dayNum) {
 
   if (dateStr === '2026-11-22') {
     details.innerHTML = `
-      <div style="background:rgba(244,63,94,0.15);padding:0.6rem;border-radius:6px;border:1px solid rgba(244,63,94,0.4);color:#fff;">
+      <div style="background:rgba(244,63,94,0.12);padding:0.6rem;border-radius:6px;border:1px solid rgba(244,63,94,0.3);color:var(--danger, #be123c);">
         ${ic('flag', 14)} <b>22/11/2026 — Dia da Prova SEFAZ/SC</b><br>
-        <span style="font-size:0.75rem;color:var(--text-muted);">Manhã: P1 (80Q) • Tarde: P2 (100Q). Florianópolis/SC.</span>
+        <span style="font-size:0.75rem;color:var(--text-secondary);">Manhã: P1 (80Q) • Tarde: P2 (100Q). Florianópolis/SC.</span>
       </div>`;
     return;
   }
@@ -2703,7 +2704,7 @@ function renderStudyLogs() {
   container.innerHTML = logs.slice(0, 15).map(log => `
     <div class="log-item">
       <div>
-        <strong style="color:#fff;">${log.subject}</strong>
+        <strong style="color:var(--text-strong);">${log.subject}</strong>
         <span style="display:block;font-size:0.75rem;color:var(--text-muted);">${log.date}${log.manual ? ' · manual' : ''}</span>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;">
