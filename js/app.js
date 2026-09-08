@@ -5,7 +5,7 @@
  * FASE 4-A — Performance & Conteúdo:
  * 4A.1 PWA Offline com Service Worker (sw.js) e banner de instalação
  * 4A.2 Horas por disciplina no Dashboard (Top 5 com barras proporcionais)
- * 4A.3 Classificador e badges de calor/incidência FCC (🔥 Alta / ⚡ Média)
+ * 4A.3 Classificador e badges de calor/incidência FCC (Alta / Média)
  * 4A.4 Cronograma inteligente automático (cálculo semafórico de ritmo diário)
  * 4A.5 Modo Quiz & Flashcards de recuperação ativa por anotações e tópicos FCC
  *
@@ -41,7 +41,7 @@ const AppState = {
   notificationsEnabled: false, // 4B.1
 
   config: {
-    theme: 'indigo',
+    theme: 'emerald',
     sound: 'beep',
     pomoDuration: 25,
   },
@@ -101,6 +101,21 @@ const AppState = {
 };
 
 /* ============================================================
+   UTILIDADES — ícones SVG & datas locais
+============================================================ */
+function ic(name, size) {
+  const s = size || 16;
+  return `<svg class="ic" viewBox="0 0 24 24" width="${s}" height="${s}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+}
+
+function localDateKey(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/* ============================================================
    PERSISTÊNCIA & CONFIGURAÇÃO
 ============================================================ */
 function loadProfilesData() {
@@ -135,9 +150,9 @@ function saveProfilesData() {
     localStorage.setItem('sefaz_config', JSON.stringify(AppState.config));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
-      showToast('⚠️ Armazenamento cheio! Exporte um backup JSON.', 'warning', 6000);
+      showToast('Armazenamento cheio! Exporte um backup JSON.', 'warning', 6000);
     } else {
-      showToast('❌ Falha ao salvar dados.', 'error');
+      showToast('Falha ao salvar dados.', 'error');
     }
   }
 }
@@ -153,12 +168,11 @@ function showToast(message, type = 'info', duration = 3500) {
   const container = document.getElementById('toastContainer');
   if (!container) return;
   const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
+  toast.className = `toast toast-item ${type}`;
   toast.textContent = message;
   container.appendChild(toast);
   setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(10px)';
+    toast.classList.add('hiding');
     setTimeout(() => toast.remove(), 300);
   }, duration);
 }
@@ -250,7 +264,7 @@ function updateNotificationUI(enabled) {
   const statusEl = document.getElementById('configNotifStatus');
   if (btn) btn.classList.toggle('active', enabled);
   if (statusEl) {
-    statusEl.textContent = enabled ? '✅ Ativas e permitidas' : '⚠️ Bloqueadas ou pendentes';
+    statusEl.textContent = enabled ? 'Ativas e permitidas' : 'Bloqueadas ou pendentes';
     statusEl.style.color = enabled ? 'var(--accent-emerald)' : 'var(--accent-gold)';
   }
 }
@@ -265,7 +279,7 @@ function requestNotificationPermission() {
       AppState.notificationsEnabled = true;
       updateNotificationUI(true);
       sendNotification('SEFAZ/SC 2026', 'Notificações ativadas com sucesso! Você receberá alertas de revisão e foco.');
-      showToast('🔔 Notificações ativadas!', 'success');
+      showToast('Notificações ativadas.', 'success');
     } else {
       AppState.notificationsEnabled = false;
       updateNotificationUI(false);
@@ -313,7 +327,7 @@ function initPWA() {
     const btnInstall = document.getElementById('btnInstallPwa');
     if (btnInstall) btnInstall.style.display = 'none';
     AppState.pwaPrompt = null;
-    showToast('🎉 SEFAZ/SC instalado no seu dispositivo!', 'success', 5000);
+    showToast('SEFAZ/SC instalado no dispositivo.', 'success', 5000);
   });
 }
 
@@ -328,7 +342,7 @@ function initCountdown() {
   function update() {
     const diff = target - Date.now();
     if (diff <= 0) {
-      el.innerHTML = '🏁 Prova Hoje!';
+      showToast('Prova hoje!', 'warning');
       el.className = 'countdown-box urgent';
       return;
     }
@@ -352,7 +366,7 @@ function calculateStreaks(studyLogs) {
   const daySet = new Set();
   studyLogs.forEach(log => {
     if (log._ts) {
-      const d = new Date(log._ts).toISOString().split('T')[0];
+      const d = localDateKey(new Date(log._ts));
       daySet.add(d);
     } else if (log.date) {
       const parts = log.date.split(' ')[0].split('/');
@@ -365,15 +379,15 @@ function calculateStreaks(studyLogs) {
   const sortedDays = Array.from(daySet).sort().reverse();
   if (sortedDays.length === 0) return { current: 0, max: 0 };
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const todayStr = localDateKey(new Date());
+  const yesterday = localDateKey(new Date(Date.now() - 86400000));
 
   let currentStreak = 0;
   let checkDate = sortedDays.includes(todayStr) ? new Date(todayStr) : sortedDays.includes(yesterday) ? new Date(yesterday) : null;
 
   if (checkDate) {
     while (true) {
-      const dateStr = checkDate.toISOString().split('T')[0];
+      const dateStr = localDateKey(checkDate);
       if (daySet.has(dateStr)) {
         currentStreak++;
         checkDate.setDate(checkDate.getDate() - 1);
@@ -428,25 +442,25 @@ function renderGamificationBadges() {
   const notesCount = Object.keys(profile.notes || {}).length;
 
   const BADGES = [
-    { id: 'b1', icon: '🎖️', name: 'Primeira Sessão', unlocked: logs.length >= 1 },
-    { id: 'b2', icon: '🔥', name: 'Chama Acesa (3d)', unlocked: streaks.current >= 3 || streaks.max >= 3 },
-    { id: 'b3', icon: '🏆', name: 'Guerreiro (7d)', unlocked: streaks.current >= 7 || streaks.max >= 7 },
-    { id: 'b4', icon: '⏱️', name: 'Foco 10h+', unlocked: totalHours >= 10 },
-    { id: 'b5', icon: '📜', name: '25% do Edital', unlocked: percTeoria >= 25 },
-    { id: 'b6', icon: '🌟', name: '50% do Edital', unlocked: percTeoria >= 50 },
-    { id: 'b7', icon: '🎯', name: 'Praticante 20Q', unlocked: questoesCount >= 20 },
-    { id: 'b8', icon: '📝', name: 'Flashcards 5+', unlocked: notesCount >= 5 },
+    { id: 'b1', icon: 'medal', name: 'Primeira Sessão', unlocked: logs.length >= 1 },
+    { id: 'b2', icon: 'flame', name: 'Chama Acesa (3d)', unlocked: streaks.current >= 3 || streaks.max >= 3 },
+    { id: 'b3', icon: 'trophy', name: 'Guerreiro (7d)', unlocked: streaks.current >= 7 || streaks.max >= 7 },
+    { id: 'b4', icon: 'timer', name: 'Foco 10h+', unlocked: totalHours >= 10 },
+    { id: 'b5', icon: 'doc', name: '25% do Edital', unlocked: percTeoria >= 25 },
+    { id: 'b6', icon: 'star', name: '50% do Edital', unlocked: percTeoria >= 50 },
+    { id: 'b7', icon: 'target', name: 'Praticante 20Q', unlocked: questoesCount >= 20 },
+    { id: 'b8', icon: 'note', name: 'Flashcards 5+', unlocked: notesCount >= 5 },
   ];
 
   container.innerHTML = BADGES.map(b => `
-    <div class="badge-chip ${b.unlocked ? 'unlocked' : ''}" title="${b.unlocked ? 'Conquista Desbloqueada!' : 'Em progresso...'}">
-      <span>${b.icon}</span> <span>${b.name}</span>
+    <div class="badge-chip ${b.unlocked ? 'unlocked' : ''}" title="${b.unlocked ? 'Conquista desbloqueada' : 'Em progresso'}">
+      ${ic(b.icon, 14)}<span>${b.name}</span>
     </div>
   `).join('');
 
   // Update header and dashboard streak
   const headerStreak = document.getElementById('headerStreakBadge');
-  if (headerStreak) headerStreak.textContent = `🔥 ${streaks.current} ${streaks.current === 1 ? 'dia' : 'dias'}`;
+  if (headerStreak) headerStreak.innerHTML = `${ic('flame', 14)}<strong>${streaks.current}</strong> ${streaks.current === 1 ? 'dia' : 'dias'}`;
 
   const metricStreak = document.getElementById('metricStreakDays');
   if (metricStreak) metricStreak.textContent = `${streaks.current} d`;
@@ -479,16 +493,16 @@ function renderCronograma() {
   const horasPorDia = ((pendentes * 50) / (diffDays * 60)).toFixed(1); // ~50min por tópico c/ questões
 
   let semaforoClass = 'verde';
-  let semaforoText = '🟢 Ritmo Viável e Sustentável';
+  let semaforoText = 'Ritmo Viável e Sustentável';
   let semaforoDesc = 'Com dedicação regular de 2 a 3 horas diárias, você cobrirá 100% do edital antes da prova.';
 
   if (horasPorDia > 4.5) {
     semaforoClass = 'vermelho';
-    semaforoText = '🔴 Ritmo Crítico — Alta Intensidade';
-    semaforoDesc = 'Atenção: priorize os tópicos com 🔥 Alta Frequência FCC e resolva questões diretamente.';
+    semaforoText = 'Ritmo Crítico — Alta Intensidade';
+    semaforoDesc = 'Atenção: priorize os tópicos de Alta Frequência FCC e resolva questões diretamente.';
   } else if (horasPorDia > 2.5) {
     semaforoClass = 'amarelo';
-    semaforoText = '🟡 Ritmo Moderado / Intenso';
+    semaforoText = 'Ritmo Moderado / Intenso';
     semaforoDesc = 'Mantenha consistência. Reserve fins de semana para bater as matérias mais extensas de P2.';
   }
 
@@ -574,7 +588,7 @@ function renderHeatmap() {
   logs.forEach(l => {
     let dStr = '';
     if (l._ts) {
-      dStr = new Date(l._ts).toISOString().split('T')[0];
+      dStr = localDateKey(new Date(l._ts));
     } else if (l.date) {
       const parts = l.date.split(' ')[0].split('/');
       if (parts.length === 2) dStr = `2026-${parts[1]}-${parts[0]}`;
@@ -603,17 +617,17 @@ function renderHeatmap() {
       const mins = dayMinutes[curStr] || 0;
       const hours = (mins / 60).toFixed(1);
 
-      let fill = 'rgba(255,255,255,0.05)';
-      if (mins > 180) fill = '#34d399';
-      else if (mins > 120) fill = '#10b981';
-      else if (mins > 60) fill = '#059669';
-      else if (mins > 0) fill = '#064e3b';
+      let lvl = '--hm0';
+      if (mins > 180) lvl = '--hm4';
+      else if (mins > 120) lvl = '--hm3';
+      else if (mins > 60) lvl = '--hm2';
+      else if (mins > 0) lvl = '--hm1';
 
       const x = w * (cellSize + gap) + 24;
       const y = d * (cellSize + gap) + 16;
 
       cells += `
-        <rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" fill="${fill}">
+        <rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" style="fill:var(${lvl})">
           <title>${curStr}: ${hours}h estudadas (${mins} min)</title>
         </rect>
       `;
@@ -623,9 +637,9 @@ function renderHeatmap() {
 
   container.innerHTML = `
     <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-      <text x="0" y="26" fill="#64748b" font-size="9" font-family="Inter,sans-serif">Seg</text>
-      <text x="0" y="56" fill="#64748b" font-size="9" font-family="Inter,sans-serif">Qua</text>
-      <text x="0" y="86" fill="#64748b" font-size="9" font-family="Inter,sans-serif">Sex</text>
+      <text x="0" y="26" style="fill:var(--text-dim2)" font-size="9" font-family="IBM Plex Mono,monospace">Seg</text>
+      <text x="0" y="56" style="fill:var(--text-dim2)" font-size="9" font-family="IBM Plex Mono,monospace">Qua</text>
+      <text x="0" y="86" style="fill:var(--text-dim2)" font-size="9" font-family="IBM Plex Mono,monospace">Sex</text>
       ${cells}
     </svg>
   `;
@@ -651,7 +665,7 @@ window.applySimulatorPreset = function(preset) {
     mediaP2.value = 60;
     desvioP1.value = 8;
     desvioP2.value = 10;
-    showToast('🟢 Cenário Otimista aplicado: Top 5% dos candidatos!', 'success');
+    showToast('Cenário otimista aplicado: top 5% dos candidatos.', 'success');
   } else if (preset === 'realista') {
     p1Acertos.value = 52;
     p2Acertos.value = 65;
@@ -659,7 +673,7 @@ window.applySimulatorPreset = function(preset) {
     mediaP2.value = 60;
     desvioP1.value = 8;
     desvioP2.value = 10;
-    showToast('🟡 Cenário Realista aplicado: candidato na média alta!', 'info');
+    showToast('Cenário realista aplicado: candidato na média alta.', 'info');
   } else if (preset === 'corte') {
     p1Acertos.value = 48; // NP1 = 50
     p2Acertos.value = 60; // NP2 = 50 -> 50 + 50*2 = 150 pontos exatos
@@ -667,7 +681,7 @@ window.applySimulatorPreset = function(preset) {
     mediaP2.value = 60;
     desvioP1.value = 8;
     desvioP2.value = 10;
-    showToast('🔴 Cenário Linha de Corte aplicado: exatamente 150 pontos!', 'warning');
+    showToast('Cenário linha de corte aplicado: exatamente 150 pontos.', 'warning');
   }
 
   // Atualiza labels numéricos
@@ -725,11 +739,11 @@ function renderQuizCard() {
 
   if (filtered.length === 0) {
     wrapper.innerHTML = `
-      <div class="flashcard" style="justify-content:center;text-align:center;">
-        <span style="font-size:2.5rem;display:block;margin-bottom:0.75rem;">📝</span>
+      <div class="flashcard flashcard-empty" style="justify-content:center;text-align:center;">
+        ${ic('note', 40)}
         <h3>Nenhum flashcard neste filtro</h3>
         <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">
-          ${filter === 'notes-only' ? 'Adicione anotações clicando no botão 📝 de qualquer tópico do Edital!' : 'Selecione outro filtro para continuar o quiz.'}
+          ${filter === 'notes-only' ? 'Adicione anotações no botão de anotação de qualquer tópico do Edital.' : 'Selecione outro filtro para continuar o quiz.'}
         </p>
       </div>`;
     return;
@@ -742,7 +756,7 @@ function renderQuizCard() {
   const current = filtered[AppState.quiz.currentCardIndex];
   const isFlipped = AppState.quiz.isFlipped;
 
-  const freqBadge = current.freq === 'alta' ? '<span class="fcc-badge alta">🔥 Alta FCC</span>' : '<span class="fcc-badge media">⚡ Média</span>';
+  const freqBadge = current.freq === 'alta' ? '<span class="fcc-badge alta">Alta FCC</span>' : '<span class="fcc-badge media">Média</span>';
 
   wrapper.innerHTML = `
     <div class="flashcard ${isFlipped ? 'flipped' : ''}" onclick="toggleQuizCardFlip()">
@@ -771,15 +785,15 @@ function renderQuizCard() {
       </div>
 
       <div class="flashcard-footer">
-        ${!isFlipped ? '👆 Toque no card para ver o verso / anotação' : 'Classifique sua lembrança abaixo:'}
+        ${!isFlipped ? 'Toque no card para ver o verso / anotação' : 'Classifique sua lembrança abaixo:'}
       </div>
     </div>
 
     ${isFlipped ? `
       <div class="quiz-rating-buttons" style="margin-top:1rem;">
-        <button class="btn-rating errei" onclick="rateQuizCard(0)">❌ Não lembrei</button>
-        <button class="btn-rating medio" onclick="rateQuizCard(1)">🤔 Mais ou menos</button>
-        <button class="btn-rating acertei" onclick="rateQuizCard(2)">✅ Lembrei com clareza</button>
+        <button class="btn-rating errei" onclick="rateQuizCard(0)">Não lembrei</button>
+        <button class="btn-rating medio" onclick="rateQuizCard(1)">Mais ou menos</button>
+        <button class="btn-rating acertei" onclick="rateQuizCard(2)">Lembrei com clareza</button>
       </div>
     ` : ''}
   `;
@@ -805,7 +819,7 @@ window.rateQuizCard = function(score) {
   AppState.quiz.isFlipped = false;
   AppState.quiz.currentCardIndex++;
   renderQuizCard();
-  showToast(score === 2 ? 'Dominado! 🎯' : score === 1 ? 'Quase lá! 👍' : 'Agendado para revisão! 🔄', 'info', 1500);
+  showToast(score === 2 ? 'Dominado!' : score === 1 ? 'Quase lá!' : 'Agendado para revisão.', 'info', 1500);
 };
 
 /* ============================================================
@@ -907,7 +921,10 @@ window.selectSimuladoOption = function(qIdx, optIdx) {
 
 window.scrollToSimuladoQuestion = function(qIdx) {
   const el = document.getElementById(`sim-q-${qIdx}`);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (el) {
+    el.setAttribute('tabindex', '-1');
+    el.focus({ preventScroll: true });
+  }
 };
 
 window.finishSimulado = function() {
@@ -933,7 +950,7 @@ window.finishSimulado = function() {
     resultArea.style.display = 'block';
     resultArea.innerHTML = `
       <div class="sim-card" style="margin-bottom:1.5rem;border-color:var(--primary-light);">
-        <h3 style="font-size:1.4rem;">🏁 Resultado do Simulado</h3>
+        <h3 style="font-size:1.4rem;">Resultado do Simulado</h3>
         <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:1rem;margin:1.5rem 0;text-align:center;">
           <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
             <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Acertos</span>
@@ -955,15 +972,15 @@ window.finishSimulado = function() {
 
         <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
           <button class="btn-action primary" onclick="logSimuladoAsStudy(${timeSpentMin})">
-            💾 Gravar ${timeSpentMin} min no Histórico de Estudos
+            ${ic('save', 14)} Gravar ${timeSpentMin} min no histórico de estudos
           </button>
           <button class="btn-action" onclick="startSimulado()">
-            ↺ Fazer Outro Simulado
+            ${ic('repeat', 14)} Fazer outro simulado
           </button>
         </div>
       </div>
 
-      <h3 style="margin-bottom:1rem;">📖 Gabarito Comentado da Banca FCC:</h3>
+      <h3 style="margin-bottom:1rem;">Gabarito comentado da banca FCC:</h3>
       ${AppState.simulado.questions.map((q, idx) => {
         const userChoice = AppState.simulado.answers[idx];
         const isRight = userChoice === q.correta;
@@ -971,7 +988,7 @@ window.finishSimulado = function() {
           <div class="sim-card" style="margin-bottom:1rem;border-left:4px solid ${isRight ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
             <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-muted);margin-bottom:6px;">
               <span>Questão ${idx + 1} — ${q.disciplina}</span>
-              <span>${isRight ? '✅ Você Acertou' : '❌ Você Errou'}</span>
+              <span>${isRight ? 'Você acertou' : 'Você errou'}</span>
             </div>
             <p style="font-size:0.95rem;margin-bottom:0.75rem;">${q.enunciado}</p>
             <div style="font-size:0.88rem;margin-bottom:0.5rem;">
@@ -979,13 +996,14 @@ window.finishSimulado = function() {
               ${userChoice !== undefined ? `(Sua resposta: Letra ${String.fromCharCode(65 + userChoice)})` : '(Não respondida)'}
             </div>
             <div style="background:rgba(255,255,255,0.02);padding:0.75rem;border-radius:6px;font-size:0.85rem;color:var(--text-secondary);border:1px solid var(--border-subtle);line-height:1.5;">
-              <b>💡 Comentário & Fundamentação FCC:</b> ${q.explicacao}
+              <b>Comentário e fundamentação FCC:</b> ${q.explicacao}
             </div>
           </div>
         `;
       }).join('')}
     `;
-    resultArea.scrollIntoView({ behavior: 'smooth' });
+    resultArea.setAttribute('tabindex', '-1');
+    resultArea.focus({ preventScroll: true });
   }
 
   playBeep();
@@ -1008,7 +1026,7 @@ window.logSimuladoAsStudy = function(minutes) {
   renderWeeklyChart();
   renderSubjectHours();
   renderHeatmap();
-  showToast(`✅ ${minutes} minutos do Simulado registrados no seu perfil!`, 'success');
+  showToast(`${minutes} minutos do Simulado registrados no perfil.`, 'success');
 };
 
 /* ============================================================
@@ -1021,7 +1039,7 @@ function renderCalendar() {
 
   const { year, month } = AppState.calendar;
   const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  title.textContent = `📆 ${monthNames[month]} de ${year}`;
+  title.innerHTML = `${ic('calendar', 16)} ${monthNames[month]} de ${year}`;
 
   const profile = getCurrentProfile();
   const logs = profile.studyLogs || [];
@@ -1031,7 +1049,7 @@ function renderCalendar() {
   logs.forEach(l => {
     let dStr = '';
     if (l._ts) {
-      dStr = new Date(l._ts).toISOString().split('T')[0];
+      dStr = localDateKey(new Date(l._ts));
     } else if (l.date) {
       const parts = l.date.split(' ')[0].split('/');
       if (parts.length === 2) dStr = `2026-${parts[1]}-${parts[0]}`;
@@ -1044,7 +1062,7 @@ function renderCalendar() {
 
   const firstDay = new Date(year, month, 1).getDay(); // 0 = Domingo
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = localDateKey(new Date());
 
   let html = `
     <div class="cal-header-day">Dom</div>
@@ -1084,7 +1102,7 @@ window.showCalendarDayDetails = function(dateStr, dayNum) {
 
   const profile = getCurrentProfile();
   const logs = (profile.studyLogs || []).filter(l => {
-    if (l._ts) return new Date(l._ts).toISOString().split('T')[0] === dateStr;
+    if (l._ts) return localDateKey(new Date(l._ts)) === dateStr;
     if (l.date) {
       const parts = l.date.split(' ')[0].split('/');
       return parts.length === 2 && `2026-${parts[1]}-${parts[0]}` === dateStr;
@@ -1095,7 +1113,7 @@ window.showCalendarDayDetails = function(dateStr, dayNum) {
   if (dateStr === '2026-11-22') {
     details.innerHTML = `
       <div style="background:rgba(244,63,94,0.15);padding:0.6rem;border-radius:6px;border:1px solid rgba(244,63,94,0.4);color:#fff;">
-        🏁 <b>22/11/2026 — DIA DA PROVA SEFAZ/SC!</b><br>
+        ${ic('flag', 14)} <b>22/11/2026 — Dia da Prova SEFAZ/SC</b><br>
         <span style="font-size:0.75rem;color:var(--text-muted);">Manhã: P1 (80Q) • Tarde: P2 (100Q). Florianópolis/SC.</span>
       </div>`;
     return;
@@ -1109,7 +1127,7 @@ window.showCalendarDayDetails = function(dateStr, dayNum) {
   const totalMin = logs.reduce((a, l) => a + (l.minutes || 0), 0);
   details.innerHTML = `
     <div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:4px;">
-      📅 <b>${dateStr}:</b> ${(totalMin / 60).toFixed(1)}h estudadas (${logs.length} ${logs.length === 1 ? 'sessão' : 'sessões'}):
+      ${ic('calendar', 13)} <b>${dateStr}:</b> ${(totalMin / 60).toFixed(1)}h estudadas (${logs.length} ${logs.length === 1 ? 'sessão' : 'sessões'}):
     </div>
     <ul style="list-style:none;font-size:0.78rem;color:var(--text-muted);display:flex;flex-direction:column;gap:2px;">
       ${logs.map(l => `<li>• ${l.subject}: <strong>+${l.minutes}m</strong></li>`).join('')}
@@ -1132,7 +1150,7 @@ function generateSyncLink() {
     const url = `${window.location.origin}${window.location.pathname}#sync=${b64}`;
 
     navigator.clipboard.writeText(url).then(() => {
-      showToast('🔗 Link de sincronização copiado para a Área de Transferência!', 'success', 5000);
+      showToast('Link de sincronização copiado para a área de transferência.', 'success', 5000);
     }).catch(() => {
       prompt('Copie o link de sincronização abaixo:', url);
     });
@@ -1142,57 +1160,7 @@ function generateSyncLink() {
 }
 
 function showQrCode() {
-  const container = document.getElementById('qrCodeContainer');
-  const wrapper = document.getElementById('qrSvgWrapper');
-  if (!container || !wrapper) return;
-
-  const profile = getCurrentProfile();
-  const payload = JSON.stringify({ v: '4.0', p: AppState.activeProfileKey, data: profile });
-  const b64 = btoa(unescape(encodeURIComponent(payload)));
-  const url = `${window.location.origin}${window.location.pathname}#sync=${b64}`;
-
-  // Gerador de matrix QR SVG puro
-  const qrSvg = generateSvgQrCode(url);
-  wrapper.innerHTML = qrSvg;
-  container.style.display = container.style.display === 'none' ? 'block' : 'none';
-}
-
-function generateSvgQrCode(text) {
-  // Matriz estilizada SVG com alta densidade representativa e visual sofisticado
-  const size = 200;
-  const dots = [];
-  const hash = Array.from(text).reduce((acc, c) => (acc * 31 + c.charCodeAt(0)) % 1000000007, 7);
-
-  const grid = 25;
-  const cellSize = size / grid;
-
-  for (let r = 0; r < grid; r++) {
-    for (let c = 0; c < grid; c++) {
-      // Padrões de canto QR obrigatórios
-      const isCorner1 = (r < 7 && c < 7);
-      const isCorner2 = (r < 7 && c >= grid - 7);
-      const isCorner3 = (r >= grid - 7 && c < 7);
-
-      let isFilled = false;
-      if (isCorner1 || isCorner2 || isCorner3) {
-        const lr = isCorner3 ? r - (grid - 7) : r;
-        const lc = isCorner2 ? c - (grid - 7) : c;
-        isFilled = (lr === 0 || lr === 6 || lc === 0 || lc === 6 || (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4));
-      } else {
-        isFilled = ((hash * (r + 1) * (c + 1)) % 7 === 0 || (r * c) % 3 === 0);
-      }
-
-      if (isFilled) {
-        dots.push(`<rect x="${(c * cellSize).toFixed(1)}" y="${(r * cellSize).toFixed(1)}" width="${(cellSize - 0.5).toFixed(1)}" height="${(cellSize - 0.5).toFixed(1)}" rx="1" fill="#f8fafc"/>`);
-      }
-    }
-  }
-
-  return `
-    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="background:#090d16;padding:10px;border-radius:12px;border:1px solid var(--border-subtle);">
-      ${dots.join('')}
-    </svg>
-  `;
+  generateSyncLink();
 }
 
 function checkSyncUrl() {
@@ -1208,7 +1176,7 @@ function checkSyncUrl() {
         AppState.activeProfileKey = parsed.p;
         saveProfilesData();
         renderApp();
-        showToast(`✅ Perfil ${parsed.p} sincronizado com sucesso!`, 'success', 5000);
+        showToast(`Perfil ${parsed.p} sincronizado.`, 'success', 5000);
         window.location.hash = '';
       }
     }
@@ -1242,7 +1210,7 @@ function exportWeeklyReport() {
   const percTeoria = totalTopicos > 0 ? Math.round((teoriaCount / totalTopicos) * 100) : 0;
   const diffDays = Math.ceil((new Date(EDITAL_DATA.info.dataProva).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
-  const md = `# 📊 Relatório Semanal de Estudos — SEFAZ/SC 2026
+  const md = `# Relatório Semanal de Estudos — SEFAZ/SC 2026
 **Estudante:** ${profile.nome}
 **Cargo:** ${cargo.codigo} (${cargo.nome})
 **Data do Relatório:** ${new Date().toLocaleDateString('pt-BR')}
@@ -1250,17 +1218,17 @@ function exportWeeklyReport() {
 
 ---
 
-## ⏱️ Desempenho na Semana
+## Desempenho na Semana
 - **Horas Líquidas Estudadas:** ${horasSemana}h de ${meta}h planejadas (${Math.round((horasSemana/meta)*100)}% da meta)
 - **Sessões Realizadas:** ${logsSemana.length} sessões
-- **Sequência de Foco (Streak):** 🔥 ${streaks.current} dias seguidos (Recorde: ${streaks.max} dias)
+- **Sequência de Foco (Streak):** ${streaks.current} dias seguidos (Recorde: ${streaks.max} dias)
 
-## 📚 Progresso no Edital FCC
+## Progresso no Edital FCC
 - **Cobertura de Teoria:** ${teoriaCount}/${totalTopicos} tópicos vencidos (${percTeoria}%)
 - **Tópicos Pendentes:** ${totalTopicos - teoriaCount} tópicos
 
-## 💡 Próximos Passos Recomendados
-1. Priorizar os tópicos marcados com **🔥 Alta Frequência FCC** nas disciplinas de maior peso.
+## Próximos Passos Recomendados
+1. Priorizar os tópicos marcados com **Alta Frequência FCC** nas disciplinas de maior peso.
 2. Manter a agenda R1/R7/R30 em dia para fixação das matérias estudadas.
 3. Realizar ao menos 1 Simulado Cronometrado na aba **Simulado Real** no fim de semana.
 
@@ -1275,7 +1243,7 @@ function exportWeeklyReport() {
   a.download = `relatorio_sefaz_sc_${new Date().toISOString().split('T')[0]}.md`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('📑 Relatório semanal exportado com sucesso!', 'success');
+  showToast('Relatório semanal exportado.', 'success');
 }
 
 /* ============================================================
@@ -1446,7 +1414,7 @@ function initEventListeners() {
 
     saveProfilesData();
     renderApp();
-    showToast('✅ Ajustes e perfis dos estudantes salvos!', 'success');
+    showToast('Ajustes e perfis dos estudantes salvos.', 'success');
   });
 
   // Sliders Simulador FCC
@@ -1475,6 +1443,9 @@ function initEventListeners() {
     startTimer();
   });
   document.getElementById('btnTimerPause')?.addEventListener('click', pauseTimer);
+  document.getElementById('btnTimerPauseFocus')?.addEventListener('click', () => {
+    if (AppState.timer.isRunning) pauseTimer(); else startTimer();
+  });
   document.getElementById('btnTimerReset')?.addEventListener('click', resetTimer);
 
   document.querySelectorAll('.timer-mode-btn').forEach((btn) => {
@@ -1500,6 +1471,14 @@ function initEventListeners() {
 
   // Modal de notas
   document.getElementById('btnCloseNoteModal')?.addEventListener('click', closeNoteModal);
+  document.getElementById('noteModal')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeNoteModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('noteModal')?.classList.contains('open')) {
+      closeNoteModal();
+    }
+  });
   document.getElementById('noteTextarea')?.addEventListener('input', (e) => {
     if (!AppState.noteModalKey) return;
     const profile = getCurrentProfile();
@@ -1537,7 +1516,7 @@ function populateConfigInputs() {
   if (mA01) mA01.value = AppState.profiles.A01.metaHorasSemanais || 25;
   if (nE05) nE05.value = AppState.profiles.E05.nome;
   if (mE05) mE05.value = AppState.profiles.E05.metaHorasSemanais || 25;
-  if (cfgTheme) cfgTheme.value = AppState.config.theme || 'indigo';
+  if (cfgTheme) cfgTheme.value = AppState.config.theme || 'emerald';
   if (cfgSound) cfgSound.value = AppState.config.sound || 'beep';
   if (cfgPomo) cfgPomo.value = AppState.config.pomoDuration || 25;
 }
@@ -1561,7 +1540,7 @@ function renderApp() {
   updateSimulatorCalculations();
   renderRevisoes();
   populateConfigInputs();
-  applyTheme(AppState.config.theme || 'indigo');
+  applyTheme(AppState.config.theme || 'emerald');
 }
 
 function updateProfileButtonsUI() {
@@ -1582,17 +1561,17 @@ function renderUserBanner() {
     <div class="cargo-banner ${isE05 ? 'e05' : ''}">
       <div class="cargo-banner-title">
         <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-          <h2>${isE05 ? '⚖️' : '⚙️'} ${profile.nome}</h2>
-          <button id="btnEditNameInline" class="btn-action" style="padding:4px 10px;font-size:0.75rem;">✏️ Alterar Nome</button>
+          <h2>${ic(isE05 ? 'scale' : 'settings', 20)} ${profile.nome}</h2>
+          <button id="btnEditNameInline" class="btn-action" style="padding:4px 10px;font-size:0.75rem;">Alterar Nome</button>
         </div>
         <p><strong>Cargo:</strong> Auditor Estadual de Finanças Públicas — <b>${cargo.codigo} (${cargo.nome})</b></p>
         <p style="font-size:0.82rem;color:var(--text-muted)"><strong>Posse:</strong> ${cargo.requisito}</p>
       </div>
       <div class="cargo-tags">
-        <span class="badge-tag highlight">💰 ${EDITAL_DATA.info.remuneracao}</span>
-        <span class="badge-tag">👥 ${cargo.vagas.total} vagas</span>
-        <span class="badge-tag">📍 Florianópolis/SC</span>
-        <span class="badge-tag">⏱️ 40h/semana</span>
+        <span class="badge-tag highlight">${ic('cash', 13)} ${EDITAL_DATA.info.remuneracao}</span>
+        <span class="badge-tag">${ic('users', 13)} ${cargo.vagas.total} vagas</span>
+        <span class="badge-tag">${ic('pin', 13)} Florianópolis/SC</span>
+        <span class="badge-tag">${ic('briefcase', 13)} 40h/semana</span>
       </div>
     </div>`;
 }
@@ -1629,7 +1608,7 @@ function renderDashboardMetrics() {
 
   const sevenDaysAgo = Date.now() - 7 * 86400000;
   const horasSemana = (profile.studyLogs || [])
-    .filter(l => (l._ts || 0) >= sevenDaysAgo || true)
+    .filter(l => (l._ts || 0) >= sevenDaysAgo)
     .reduce((a, l) => a + (l.minutes || 0), 0) / 60;
   const meta = profile.metaHorasSemanais || 25;
   const percMeta = Math.min(100, Math.round((horasSemana / meta) * 100));
@@ -1645,16 +1624,16 @@ function renderDashboardMetrics() {
 
 const DICAS = {
   A01: [
-    { icon: '🔥', title: 'Priorize a Prova 2 (Peso 2)', text: 'Com 100 questões e peso 2, P2 equivale a >71% da nota total. Foque em Orçamento e LRF.' },
-    { icon: '📊', title: 'MTO 2027 e MCASP 9ª ed.', text: 'A FCC cobra normas e manuais vigentes. Tenha os PDFs em mãos e anote os prazos da LRF.' },
-    { icon: '🏛️', title: 'NBC TSP 34 — Custos', text: 'Nova norma de custos no setor público é alvo certo. Estude centros e métodos de custeio.' },
-    { icon: '🤖', title: 'IA e LGPD no P1', text: 'BI, LLMs e LGPD caem no P1 — garanta pontos fáceis e rápidos nas questões de TI.' },
+    { icon: 'flame', title: 'Priorize a Prova 2 (Peso 2)', text: 'Com 100 questões e peso 2, P2 equivale a mais de 71% da nota total. Foque em Orçamento e LRF.' },
+    { icon: 'chart', title: 'MTO 2027 e MCASP 9ª ed.', text: 'A FCC cobra normas e manuais vigentes. Tenha os PDFs em mãos e anote os prazos da LRF.' },
+    { icon: 'gov', title: 'NBC TSP 34 — Custos', text: 'Nova norma de custos no setor público é alvo certo. Estude centros e métodos de custeio.' },
+    { icon: 'bot', title: 'IA e LGPD no P1', text: 'BI, LLMs e LGPD caem no P1 — garanta pontos fáceis e rápidos nas questões de TI.' },
   ],
   E05: [
-    { icon: '⚖️', title: 'Controle de Constitucionalidade', text: 'FCC cobra difuso, concentrado e o controle estadual de SC. Aprofunde ADI, ADC e ADPF.' },
-    { icon: '🏛️', title: 'LC 412/2008 — RPPS/SC', text: 'Regime previdenciário estadual é matéria privativa do E05 e tem cobrança garantida.' },
-    { icon: '⛓️', title: 'Lei 8.137/1990', text: 'Crimes contra a Ordem Tributária e Súmula Vinculante 24 do STF caem em quase toda prova FCC.' },
-    { icon: '🤖', title: 'LGPD no Poder Público', text: 'Tratamento de dados pessoais pela Administração Pública e sanções da ANPD.' },
+    { icon: 'scale', title: 'Controle de Constitucionalidade', text: 'FCC cobra difuso, concentrado e o controle estadual de SC. Aprofunde ADI, ADC e ADPF.' },
+    { icon: 'gov', title: 'LC 412/2008 — RPPS/SC', text: 'Regime previdenciário estadual é matéria privativa do E05 e tem cobrança garantida.' },
+    { icon: 'link', title: 'Lei 8.137/1990', text: 'Crimes contra a Ordem Tributária e Súmula Vinculante 24 do STF caem em quase toda prova FCC.' },
+    { icon: 'bot', title: 'LGPD no Poder Público', text: 'Tratamento de dados pessoais pela Administração Pública e sanções da ANPD.' },
   ],
 };
 
@@ -1662,7 +1641,7 @@ function renderDashboardTips() {
   const el = document.getElementById('dashboardTipsContainer');
   if (!el) return;
   el.innerHTML = (DICAS[AppState.activeProfileKey] || []).map(d =>
-    `<li>${d.icon} <b>${d.title}:</b> ${d.text}</li>`
+    `<li>${ic(d.icon, 16)} <b>${d.title}:</b> ${d.text}</li>`
   ).join('');
 }
 
@@ -1688,14 +1667,14 @@ function renderProgressChart() {
 
   const rows = data.map((d, i) => {
     const y = i * rowH + 16;
-    const fill = d.perc === 0 ? 'rgba(255,255,255,0.08)' : d.perc === 100 ? '#10b981' : '#6366f1';
+    const fill = d.perc === 0 ? 'var(--bar-idle)' : d.perc === 100 ? 'var(--bar-done)' : 'var(--bar-prog)';
     const w = Math.max(2, Math.round((d.perc / 100) * barW));
     return `
       <g>
-        <text x="0" y="${y + 5}" fill="#94a3b8" font-size="11" font-family="Inter,sans-serif">${d.nome}</text>
-        <rect x="210" y="${y - 8}" width="${barW}" height="14" rx="4" fill="rgba(255,255,255,0.05)"/>
-        <rect x="210" y="${y - 8}" width="${w}" height="14" rx="4" fill="${fill}" opacity="0.85"/>
-        <text x="${210 + barW + 6}" y="${y + 4}" fill="#94a3b8" font-size="10" font-family="Inter,sans-serif">${d.perc}%</text>
+        <text x="0" y="${y + 5}" style="fill:var(--text-dim)" font-size="11" font-family="Public Sans,sans-serif">${d.nome}</text>
+        <rect x="210" y="${y - 8}" width="${barW}" height="14" rx="4" style="fill:var(--bar-track)"/>
+        <rect x="210" y="${y - 8}" width="${w}" height="14" rx="4" style="fill:${fill}"/>
+        <text x="${210 + barW + 6}" y="${y + 4}" style="fill:var(--text-dim)" font-size="10" font-family="IBM Plex Mono,monospace">${d.perc}%</text>
       </g>`;
   }).join('');
 
@@ -1739,13 +1718,13 @@ function renderWeeklyChart() {
     const h = Math.max(2, Math.round((d.minutes / maxMin) * barMaxH));
     const x = i * 58 + 14;
     const achieved = d.minutes >= metaDia;
-    const fill = d.minutes === 0 ? 'rgba(255,255,255,0.06)' : achieved ? '#10b981' : '#f59e0b';
+    const fill = d.minutes === 0 ? 'var(--bar-idle)' : achieved ? 'var(--bar-done)' : 'var(--bar-warn)';
     const labelMin = d.minutes > 0 ? `${Math.round(d.minutes / 60 * 10) / 10}h` : '';
     return `
       <g>
-        <rect x="${x}" y="${barMaxH - h + 10}" width="36" height="${h}" rx="4" fill="${fill}"/>
-        <text x="${x + 18}" y="${barMaxH + 24}" fill="#64748b" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">${d.label}</text>
-        <text x="${x + 18}" y="${barMaxH - h + 7}" fill="#94a3b8" font-size="9" text-anchor="middle" font-family="Inter,sans-serif">${labelMin}</text>
+        <rect x="${x}" y="${barMaxH - h + 10}" width="36" height="${h}" rx="4" style="fill:${fill}"/>
+        <text x="${x + 18}" y="${barMaxH + 24}" style="fill:var(--text-dim2)" font-size="10" text-anchor="middle" font-family="IBM Plex Mono,monospace">${d.label}</text>
+        <text x="${x + 18}" y="${barMaxH - h + 7}" style="fill:var(--text-dim)" font-size="9" text-anchor="middle" font-family="IBM Plex Mono,monospace">${labelMin}</text>
       </g>`;
   }).join('');
 
@@ -1753,8 +1732,8 @@ function renderWeeklyChart() {
 
   container.innerHTML = `
     <svg width="100%" viewBox="0 0 420 120" xmlns="http://www.w3.org/2000/svg">
-      <line x1="10" y1="${metaY}" x2="410" y2="${metaY}" stroke="rgba(245,158,11,0.35)" stroke-width="1" stroke-dasharray="4,3"/>
-      <text x="412" y="${metaY + 4}" fill="#f59e0b" font-size="9" font-family="Inter,sans-serif">meta</text>
+      <line x1="10" y1="${metaY}" x2="410" y2="${metaY}" style="stroke:var(--line-meta)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="412" y="${metaY + 4}" style="fill:var(--text-meta)" font-size="9" font-family="IBM Plex Mono,monospace">meta</text>
       ${bars}
     </svg>`;
 }
@@ -1790,7 +1769,7 @@ function renderEditalVerticalizado() {
     let html = `
       <div class="prova-section">
         <div class="prova-section-header ${isP2 ? 'p2' : ''}">
-          <div class="prova-title"><span>${isP2 ? '🔥' : '📘'}</span><span>${provaObj.nome} — ${provaObj.questoes}Q (Peso ${provaObj.peso})</span></div>
+          <div class="prova-title">${ic(isP2 ? 'target' : 'doc', 16)}<span>${provaObj.nome} — ${provaObj.questoes}Q (Peso ${provaObj.peso})</span></div>
           <span class="badge-tag">${provaObj.duracao}</span>
         </div>`;
 
@@ -1811,13 +1790,13 @@ function renderEditalVerticalizado() {
         <div class="disciplina-card ${disc.destaque ? 'destaque' : ''} ${isOpen ? 'open' : ''}" id="${cardId}">
           <div class="disciplina-header" onclick="toggleDisciplinaCard('${cardId}')">
             <div class="disciplina-title-group">
-              <span class="expand-icon">▼</span>
-              <span class="disciplina-title">${disc.nome}${disc.destaque ? ' ✨' : ''}</span>
+              <span class="expand-icon"></span>
+              <span class="disciplina-title">${disc.nome}${disc.destaque ? '<span class="destaque-dot" title="Disciplina de destaque"></span>' : ''}</span>
             </div>
             <div class="disciplina-stats-row">
               <span class="disciplina-stats">${teoriaCount}/${disc.topicos.length} (${perc}%)</span>
               <div class="disc-mini-bar"><div class="disc-mini-bar-fill" style="width:${perc}%"></div></div>
-              <button class="btn-mark-all" onclick="event.stopPropagation(); markAllDisciplina('${disc.id}','${profile.cargoCodigo}')" title="Marcar todos">✅ Todos</button>
+              <button class="btn-mark-all" onclick="event.stopPropagation(); markAllDisciplina('${disc.id}','${profile.cargoCodigo}')" title="Marcar todos">Marcar todos</button>
             </div>
           </div>
           <div class="topicos-list">`;
@@ -1831,9 +1810,9 @@ function renderEditalVerticalizado() {
 
         let freqBadge = '';
         if (freq === 'alta') {
-          freqBadge = `<span class="fcc-badge alta" title="Alta incidência histórica na banca FCC">🔥 Alta FCC</span>`;
+          freqBadge = `<span class="fcc-badge alta" title="Alta incidência histórica na banca FCC">Alta FCC</span>`;
         } else if (freq === 'media') {
-          freqBadge = `<span class="fcc-badge media" title="Média incidência FCC">⚡ Média</span>`;
+          freqBadge = `<span class="fcc-badge media" title="Média incidência FCC">Média</span>`;
         }
 
         html += `
@@ -1842,11 +1821,11 @@ function renderEditalVerticalizado() {
               <span style="color:var(--text-muted);font-size:0.78rem;margin-right:6px;">#${idx + 1}</span>${topico}${freqBadge}
             </div>
             <div class="topico-acoes">
-              <label class="check-label ${prog.teoria   ? 'checked' : ''}" data-key="${key}" data-campo="teoria">📖 Teoria</label>
-              <label class="check-label ${prog.resumo   ? 'checked' : ''}" data-key="${key}" data-campo="resumo">✍️ Resumo</label>
-              <label class="check-label ${prog.questoes ? 'checked' : ''}" data-key="${key}" data-campo="questoes">🎯 Questões</label>
-              <label class="check-label ${prog.revisao  ? 'checked' : ''}" data-key="${key}" data-campo="revisao">🔄 Revisão</label>
-              <button class="btn-note ${hasNote ? 'has-note' : ''}" onclick="openNoteModal('${key}')" title="${hasNote ? 'Editar anotação' : 'Adicionar anotação'}">📝</button>
+              <label class="check-label ${prog.teoria   ? 'checked' : ''}" data-key="${key}" data-campo="teoria">Teoria</label>
+              <label class="check-label ${prog.resumo   ? 'checked' : ''}" data-key="${key}" data-campo="resumo">Resumo</label>
+              <label class="check-label ${prog.questoes ? 'checked' : ''}" data-key="${key}" data-campo="questoes">Questões</label>
+              <label class="check-label ${prog.revisao  ? 'checked' : ''}" data-key="${key}" data-campo="revisao">Revisão</label>
+              <button class="btn-note ${hasNote ? 'has-note' : ''}" onclick="openNoteModal('${key}')" title="${hasNote ? 'Editar anotação' : 'Adicionar anotação'}">${ic('note', 14)}</button>
             </div>
           </div>`;
       });
@@ -1874,7 +1853,7 @@ function handleCheckLabelClick(e) {
 
     if (campo === 'teoria' && newVal) {
       if (!profile.progress[key]._teoriaDate) {
-        profile.progress[key]._teoriaDate = new Date().toISOString().split('T')[0];
+        profile.progress[key]._teoriaDate = localDateKey(new Date());
       }
     } else if (campo === 'teoria' && !newVal) {
       delete profile.progress[key]._teoriaDate;
@@ -1934,7 +1913,7 @@ window.markAllDisciplina = function(discId, cargoCodigo) {
     if (!profile.progress[k]) profile.progress[k] = { teoria: false, resumo: false, questoes: false, revisao: false };
     profile.progress[k].teoria  = !allDone;
     profile.progress[k].revisao = !allDone;
-    if (!allDone && !profile.progress[k]._teoriaDate) profile.progress[k]._teoriaDate = new Date().toISOString().split('T')[0];
+    if (!allDone && !profile.progress[k]._teoriaDate) profile.progress[k]._teoriaDate = localDateKey(new Date());
     if (allDone)  delete profile.progress[k]._teoriaDate;
   });
   saveProfilesData();
@@ -1942,7 +1921,7 @@ window.markAllDisciplina = function(discId, cargoCodigo) {
   renderEditalVerticalizado();
   renderCronograma();
   renderGamificationBadges();
-  showToast(allDone ? '↩️ Marcações removidas.' : '✅ Todos os tópicos marcados!', 'success');
+  showToast(allDone ? 'Marcações removidas.' : 'Todos os tópicos marcados.', 'success');
 };
 
 /* ============================================================
@@ -1991,7 +1970,7 @@ function updateSimulatorCalculations() {
   const statusEl = document.getElementById('resStatusTag');
   if (statusEl) {
     statusEl.className = `status-tag ${notaFinal >= 150 ? 'approved' : 'disapproved'}`;
-    statusEl.textContent = notaFinal >= 150 ? '✅ HABILITADO (≥ 150 pts)' : `❌ ELIMINADO (${notaFinal.toFixed(1)} < 150 pts)`;
+    statusEl.textContent = notaFinal >= 150 ? 'HABILITADO (≥ 150 pts)' : `ELIMINADO (${notaFinal.toFixed(1)} < 150 pts)`;
   }
 
   const z1 = (np1 - 50) / 10;
@@ -2051,12 +2030,12 @@ function renderNormalCurve(containerId, z, color) {
 
   el.innerHTML = `
     <svg width="100%" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-      <path d="${areaD}" fill="${color}" opacity="0.2"/>
-      <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2" opacity="0.7"/>
-      <line x1="${xZ.toFixed(1)}" y1="5" x2="${xZ.toFixed(1)}" y2="${H - 8}" stroke="${color}" stroke-width="1.5" stroke-dasharray="3,2"/>
-      <text x="${Math.min(W - 60, Math.max(4, xZ - 20))}" y="15" fill="${color}" font-size="10" font-family="Inter,sans-serif">NP ${np}</text>
-      <text x="${Math.min(W - 60, Math.max(4, xZ - 20))}" y="27" fill="#94a3b8" font-size="9" font-family="Inter,sans-serif">${percVal}º pct</text>
-      <line x1="${toX(0)}" y1="${H-8}" x2="${toX(0)}" y2="5" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <path d="${areaD}" style="fill:${color}" opacity="0.18"/>
+      <path d="${pathD}" fill="none" style="stroke:${color}" stroke-width="2" opacity="0.8"/>
+      <line x1="${xZ.toFixed(1)}" y1="5" x2="${xZ.toFixed(1)}" y2="${H - 8}" style="stroke:${color}" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="${Math.min(W - 60, Math.max(4, xZ - 20))}" y="15" style="fill:${color}" font-size="10" font-family="IBM Plex Mono,monospace">NP ${np}</text>
+      <text x="${Math.min(W - 60, Math.max(4, xZ - 20))}" y="27" style="fill:var(--text-dim)" font-size="9" font-family="IBM Plex Mono,monospace">${percVal}º pct</text>
+      <line x1="${toX(0)}" y1="${H-8}" x2="${toX(0)}" y2="5" style="stroke:var(--line-strong)" stroke-width="1"/>
     </svg>`;
 }
 
@@ -2155,9 +2134,9 @@ function completeTimerSession() {
   const minutes = Math.max(1, Math.round(AppState.timer.elapsedSeconds / 60));
   pauseTimer();
   playBeep();
-  sendNotification('Sessão Pomodoro Concluída! 🎯', `Parabéns! Você completou ${minutes} minutos de foco.`);
+  sendNotification('Sessão de foco concluída', `Você completou ${minutes} minutos de foco.`);
   registerStudySession(minutes);
-  showToast(`🎉 ${minutes} min registrados para ${getCurrentProfile().nome}!`, 'success', 5000);
+  showToast(`${minutes} min registrados para ${getCurrentProfile().nome}.`, 'success', 5000);
   resetTimer();
 }
 
@@ -2198,10 +2177,10 @@ function renderTimerBadges() {
 
   el.innerHTML = `
     <span class="badge-tag" title="Minutos estudados hoje">
-      🌅 Hoje: <strong>${Math.round(hojeMins)}min</strong>
+      ${ic('sun', 12)} Hoje: <strong>${Math.round(hojeMins)}min</strong>
     </span>
     <span class="badge-tag highlight" title="Horas nos últimos 7 dias">
-      📅 7 dias: <strong>${(semanaMins/60).toFixed(1)}h</strong>
+      ${ic('chart', 12)} 7 dias: <strong>${(semanaMins/60).toFixed(1)}h</strong>
     </span>`;
 }
 
@@ -2234,7 +2213,7 @@ function saveManualSession() {
   renderGamificationBadges();
   renderTimerBadges();
   renderCalendar();
-  showToast(`✅ ${minutes} min registrados manualmente!`, 'success');
+  showToast(`${minutes} min registrados manualmente.`, 'success');
 }
 
 function renderTimerSubjectSelect() {
@@ -2243,7 +2222,7 @@ function renderTimerSubjectSelect() {
     if (!sel) return;
     const profile = getCurrentProfile();
     const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
-    let h = `<option value="Revisão Geral / Simulado FCC">🎯 Revisão Geral / Simulado</option>`;
+    let h = `<option value="Revisão Geral / Simulado FCC">Revisão Geral / Simulado</option>`;
     [...cargo.p1.disciplinas, ...cargo.p2.disciplinas].forEach(d => {
       h += `<option value="${d.nome}">${d.nome}</option>`;
     });
@@ -2283,7 +2262,7 @@ function renderStudyLogs() {
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;">
         <span class="badge-tag highlight">+${log.minutes} min</span>
-        <button onclick="deleteStudyLog(${log.id})" class="btn-delete-log" title="Remover sessão">🗑️</button>
+        <button onclick="deleteStudyLog(${log.id})" class="btn-delete-log" title="Remover sessão">${ic('trash', 14)}</button>
       </div>
     </div>`).join('');
 }
@@ -2297,7 +2276,7 @@ function renderRevisoes() {
   const profile = getCurrentProfile();
   const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
   const allDiscs = [...cargo.p1.disciplinas, ...cargo.p2.disciplinas];
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateKey(new Date());
   const INTERVALS = [{ label: 'R1', days: 1 }, { label: 'R7', days: 7 }, { label: 'R30', days: 30 }];
   const allDue = [];
 
@@ -2310,7 +2289,7 @@ function renderRevisoes() {
       INTERVALS.forEach(({ label, days }) => {
         const dueDate = new Date(teoriaDate);
         dueDate.setDate(dueDate.getDate() + days);
-        const dueDateStr = dueDate.toISOString().split('T')[0];
+        const dueDateStr = localDateKey(dueDate);
         if (dueDateStr <= today && !prog[`_revisao${label}`]) {
           allDue.push({ key, topico, disc: disc.nome, label, dueDateStr, prog });
         }
@@ -2338,9 +2317,9 @@ function renderRevisoes() {
 
   if (filtered.length === 0) {
     container.innerHTML = `<div class="revisao-empty">
-      <span style="font-size:2rem;">✨</span>
+      ${ic('check', 28)}
       <p>Nenhuma revisão ${AppState.revisaoFilter !== 'all' ? AppState.revisaoFilter : ''} pendente hoje.</p>
-      <p style="font-size:0.82rem;color:var(--text-muted);">As revisões aparecem aqui automaticamente após você marcar tópicos como "📖 Teoria".</p>
+      <p style="font-size:0.82rem;color:var(--text-muted);">As revisões aparecem aqui automaticamente após você marcar tópicos como "Teoria".</p>
     </div>`;
     return;
   }
@@ -2351,10 +2330,10 @@ function renderRevisoes() {
       <div class="revisao-content">
         <div class="revisao-disc">${item.disc}</div>
         <div class="revisao-topico">${item.topico}</div>
-        <div class="revisao-date">Teoria concluída em ${item.dueDateStr}</div>
+        <div class="revisao-date">Revisão agendada para ${item.dueDateStr}</div>
       </div>
       <button class="btn-action" style="font-size:0.78rem;padding:6px 12px;" onclick="marcarRevisaoConcluida('${item.key}','${item.label}')">
-        ✔ Concluir
+        ${ic('check', 13)} Concluir
       </button>
     </div>`).join('');
 }
@@ -2366,7 +2345,7 @@ window.marcarRevisaoConcluida = function(key, label) {
   saveProfilesData();
   renderRevisoes();
   renderCalendar();
-  showToast(`${label} concluída com sucesso! ✅`, 'success', 2000);
+  showToast(`${label} concluída.`, 'success', 2000);
 };
 
 /* ============================================================
@@ -2420,17 +2399,17 @@ function renderPlacar() {
       <thead>
         <tr>
           <th>Métrica</th>
-          <th>⚙️ ${a01.nome}</th>
-          <th>⚖️ ${e05.nome}</th>
+          <th>${ic('settings', 14)} ${a01.nome}</th>
+          <th>${ic('scale', 14)} ${e05.nome}</th>
         </tr>
       </thead>
       <tbody>
-        ${row('📚 Edital Vencido (Teoria)', a01.percTeoria, e05.percTeoria, '%')}
-        ${row('🎯 Questões Resolvidas', a01.percQuestoes, e05.percQuestoes, '%')}
-        ${row('⏱️ Horas Líquidas', a01.horas, e05.horas, 'h')}
-        ${row('🔥 Sequência Consecutiva', a01.streak, e05.streak, ' dias')}
-        ${row('📋 Sessões Realizadas', a01.sessoes, e05.sessoes)}
-        ${row('✅ Tópicos c/ Teoria', a01.topicosTeoria, e05.topicosTeoria)}
+        ${row('Edital vencido (teoria)', a01.percTeoria, e05.percTeoria, '%')}
+        ${row('Questões resolvidas', a01.percQuestoes, e05.percQuestoes, '%')}
+        ${row('Horas líquidas', a01.horas, e05.horas, 'h')}
+        ${row('Sequência consecutiva', a01.streak, e05.streak, ' dias')}
+        ${row('Sessões realizadas', a01.sessoes, e05.sessoes)}
+        ${row('Tópicos com teoria', a01.topicosTeoria, e05.topicosTeoria)}
       </tbody>
     </table>`;
 }
@@ -2480,7 +2459,7 @@ function renderLegislacaoSC() {
         <p>${item.resumo}</p>
         <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
           <span class="badge-tag highlight">Exigida em ${profile.cargoCodigo}</span>
-          ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener" class="badge-tag" style="text-decoration:none;cursor:pointer;" title="Abrir texto oficial em nova aba">📄 Texto Oficial ↗</a>` : ''}
+          ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener" class="badge-tag" style="text-decoration:none;cursor:pointer;" title="Abrir texto oficial em nova aba">${ic('external', 13)} Texto Oficial</a>` : ''}
         </div>
       </div>`;
   }).join('');
@@ -2498,7 +2477,7 @@ function exportBackup() {
   a.download = `backup_sefaz_sc_v4_${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('📥 Backup JSON exportado com sucesso!', 'success');
+  showToast('Backup JSON exportado.', 'success');
 }
 
 function importBackup(e) {
@@ -2513,12 +2492,12 @@ function importBackup(e) {
         if (data.config) AppState.config = data.config;
         saveProfilesData();
         renderApp();
-        showToast('✅ Backup restaurado com sucesso!', 'success', 5000);
+        showToast('Backup restaurado com sucesso.', 'success', 5000);
       } else {
-        showToast('⚠️ Arquivo de backup inválido.', 'warning', 5000);
+        showToast('Arquivo de backup inválido.', 'warning', 5000);
       }
     } catch {
-      showToast('❌ Erro ao processar arquivo JSON.', 'error');
+      showToast('Erro ao processar arquivo JSON.', 'error');
     } finally {
       e.target.value = '';
     }
@@ -2542,7 +2521,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     const profile = getCurrentProfile();
     const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey(new Date());
     let dueCount = 0;
     [...cargo.p1.disciplinas, ...cargo.p2.disciplinas].forEach(disc => {
       disc.topicos.forEach((_, idx) => {
@@ -2551,7 +2530,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (prog?._teoriaDate) {
           const d1 = new Date(prog._teoriaDate);
           d1.setDate(d1.getDate() + 1);
-          if (d1.toISOString().split('T')[0] <= today && !prog._revisaoR1) dueCount++;
+          if (localDateKey(d1) <= today && !prog._revisaoR1) dueCount++;
         }
       });
     });

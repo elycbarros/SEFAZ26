@@ -1,48 +1,139 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="indigo">
+<html lang="pt-BR" data-theme="emerald">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SEFAZ/SC 2026 — Plataforma de Estudos | Auditor A01 & E05</title>
   <meta name="description" content="Plataforma de estudos avançada para o concurso SEFAZ/SC 2026 — Auditor Estadual de Finanças Públicas (A01 e E05).">
-  <meta name="theme-color" content="#090d16">
+  <meta name="theme-color" content="#10b981">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
+<a class="skip-link" href="#view-dashboard">Pular para o conteúdo</a>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/><path d="M13 17h3v-5h-3z"/>
+    </symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24">
+      <path d="M12 2c1 4-4 6-4 11a4 4 0 0 0 8 0c0-2-1-3-1-4 1 1 4 3 4 6a7 7 0 1 1-14 0c0-5 5-6 7-11z"/>
+    </symbol>
+    <symbol id="i-medal" viewBox="0 0 24 24">
+      <circle cx="12" cy="15" r="5"/><circle cx="12" cy="15" r="2.4"/><path d="M8.2 11.8 3 2h6l3 5 3-5h6l-5.2 9.8"/>
+    </symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24">
+      <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 5H4a2 2 0 0 0 2 4M17 5h3a2 2 0 0 1-2 4"/>
+    </symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24">
+      <circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6M12 2v3"/>
+    </symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24">
+      <path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4M9 12h6M9 16h6"/>
+    </symbol>
+    <symbol id="i-star" viewBox="0 0 24 24">
+      <path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8-6.1-3.5-6.1 3.5 1.4-6.8L2.2 9.1l6.9-.8z"/>
+    </symbol>
+    <symbol id="i-target" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>
+    </symbol>
+    <symbol id="i-note" viewBox="0 0 24 24">
+      <path d="M4 3h16v13l-4 4H4zM10 3v8"/><path d="M4 14h12M4 18h8"/>
+    </symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>
+    </symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24">
+      <path d="M5 21V3M5 4h13l-2.5 4L18 12H5"/>
+    </symbol>
+    <symbol id="i-save" viewBox="0 0 24 24">
+      <path d="M4 4h14l2 2v14H4z"/><path d="M8 4v6h8V4M8 20v-7h8v7"/>
+    </symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24">
+      <path d="M17 3l3 3-3 3M20 6H7a4 4 0 0 0-4 4v1M7 21l-3-3 3-3M4 18h13a4 4 0 0 0 4-4v-1"/>
+    </symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/>
+    </symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24">
+      <path d="M12 3v18M3 21h18M6 6h12"/><path d="M10 6l-7 8a4 4 0 0 0 7 0zM14 6l7 8a4 4 0 0 1-7 0z"/>
+    </symbol>
+    <symbol id="i-cash" viewBox="0 0 24 24">
+      <rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 10v4M18 10v4"/>
+    </symbol>
+    <symbol id="i-users" viewBox="0 0 24 24">
+      <circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 15.5a5.5 5.5 0 0 1 5.5 4.5"/>
+    </symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24">
+      <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>
+    </symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24">
+      <rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>
+    </symbol>
+    <symbol id="i-gov" viewBox="0 0 24 24">
+      <path d="M3 21h18M5 21V10M9 21V10M15 21V10M19 21V10M2 10h20M12 3 2 8h20z"/><path d="M7 12h4M13 12h4"/>
+    </symbol>
+    <symbol id="i-link" viewBox="0 0 24 24">
+      <path d="M10 14a5 5 0 0 0 7.1 0l2.8-2.8a5 5 0 0 0-7.1-7.1l-1.6 1.6"/><path d="M14 10a5 5 0 0 0-7.1 0l-2.8 2.8a5 5 0 0 0 7.1 7.1l1.6-1.6"/>
+    </symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24">
+      <rect x="4" y="8" width="16" height="11" rx="2.5"/><path d="M12 8V4M2 13h3M19 13h3"/><circle cx="9" cy="13.5" r="1.2"/><circle cx="15" cy="13.5" r="1.2"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24">
+      <path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="m4.5 12.5 5 5L19.5 7"/>
+    </symbol>
+    <symbol id="i-external" viewBox="0 0 24 24">
+      <path d="M14 3h7v7M21 3l-9 9M17 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h6"/>
+    </symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24">
+      <path d="m15 5-7 7 7 7"/>
+    </symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24">
+      <path d="m9 5 7 7-7 7"/>
+    </symbol>
+  </defs>
+</svg>
+
 <!-- Toast Container -->
 <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
-<!-- F3.2: Modal de Anotações -->
-<div id="noteModal" class="note-modal-overlay" role="dialog" aria-modal="true" aria-label="Anotações do tópico">
+<!-- Modal de Anotações -->
+<div id="noteModal" class="note-modal-overlay" role="dialog" aria-modal="true" aria-label="Anotações do tópico" data-od-id="od-modal-nota">
   <div class="note-modal-box">
     <div class="note-modal-header">
-      <h3 id="noteModalTitle">📝 Anotações / Flashcard</h3>
-      <button id="btnCloseNoteModal" class="btn-action" style="padding:4px 10px;">✕ Fechar</button>
+      <h3 id="noteModalTitle"><svg class="ic" viewBox="0 0 24 24" width="17" height="17"><use href="#i-note"/></svg> Anotações / Flashcard</h3>
+      <button id="btnCloseNoteModal" class="btn-action">× Fechar</button>
     </div>
     <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">
-      Anote artigos, mnemônicos, jurisprudência ou conceitos-chave. Salvo automaticamente e integrado ao Quiz!
+      Anote artigos, mnemônicos, jurisprudência ou conceitos-chave. Salvo automaticamente e integrado ao Quiz.
     </p>
     <textarea id="noteTextarea" class="note-textarea" placeholder="Escreva aqui sua anotação..."></textarea>
   </div>
 </div>
 
-<!-- F3.4: Overlay de Foco Total -->
-<div id="focusOverlay" class="focus-overlay" role="dialog" aria-modal="true">
+<!-- Overlay de Foco Total -->
+<div id="focusOverlay" class="focus-overlay" role="dialog" aria-modal="true" data-od-id="od-overlay-foco">
   <div class="focus-timer-wrapper">
-    <div class="timer-circle" style="margin-bottom:1.5rem;">
+    <div class="timer-circle">
       <svg width="280" height="280" aria-hidden="true">
         <circle class="timer-circle-bg" cx="140" cy="140" r="120"/>
         <circle id="timerCircleProgressFocus" class="timer-circle-progress" cx="140" cy="140" r="120"/>
       </svg>
-      <div id="timerDisplayFocus" class="timer-time-display" style="font-size:3.8rem;">25:00</div>
+      <div id="timerDisplayFocus" class="timer-time-display">25:00</div>
       <div id="timerModeLabelFocus" class="timer-mode-label">Foco</div>
     </div>
-    <p id="focusSubject" style="color:var(--text-muted);margin-bottom:1.5rem;font-size:1rem;"></p>
+    <p id="focusSubject" style="color:var(--text-muted);margin-bottom:1.5rem;font-size:0.95rem;text-align:center;"></p>
     <div style="display:flex;gap:1rem;">
-      <button id="btnTimerPauseFocus" class="btn-timer primary">⏸</button>
-      <button id="btnExitFocus" class="btn-timer" style="font-size:0.85rem;width:auto;padding:0 1rem;">✕ Sair</button>
+      <button id="btnTimerPauseFocus" class="btn-timer primary" title="Pausar" aria-label="Pausar ou retomar cronômetro"><svg class="ic" viewBox="0 0 24 24" width="19" height="19"><use href="#i-timer"/></svg></button>
+      <button id="btnExitFocus" class="btn-action" title="Sair do modo foco">× Sair</button>
     </div>
   </div>
 </div>
@@ -50,36 +141,35 @@
 <!-- ============================================================
      HEADER
 ============================================================ -->
-<header class="top-navbar">
+<header class="top-navbar" data-od-id="od-navbar">
   <div class="top-navbar-content">
     <div class="brand-badge">
       <div class="logo-icon" aria-hidden="true">SC</div>
       <div class="brand-info">
         <h1>SEFAZ/SC 2026</h1>
-        <p>Auditor Estadual de Finanças Públicas • v4.0</p>
+        <p>Auditor Estadual de Finanças Públicas · v4.1</p>
       </div>
     </div>
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-      <span style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Estudante:</span>
+      <span style="font-size:0.7rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Estudante:</span>
       <div class="cargo-selector-wrapper" role="group" aria-label="Selecionar perfil">
-        <button id="btnProfileA01" class="cargo-btn profile-switch-btn active" data-profile="A01">⚙️ A01 (Adm/Eng)</button>
-        <button id="btnProfileE05" class="cargo-btn profile-switch-btn gold" data-profile="E05">⚖️ E05 (Direito)</button>
+        <button id="btnProfileA01" class="cargo-btn profile-switch-btn active" data-profile="A01"><svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-settings"/></svg> A01 (Adm/Eng)</button>
+        <button id="btnProfileE05" class="cargo-btn profile-switch-btn gold" data-profile="E05"><svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-scale"/></svg> E05 (Direito)</button>
       </div>
     </div>
 
-    <!-- Header Actions (Streak, Notification, PWA Install, Countdown) -->
-    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
       <div id="headerStreakBadge" class="streak-badge-header" title="Sequência de dias consecutivos estudando">
-        🔥 0 dias
+        0 dias
       </div>
 
-      <button id="btnToggleNotification" class="btn-icon-header" title="Ativar notificações do navegador">
-        🔔
+      <button id="btnToggleNotification" class="btn-icon-header" title="Ativar notificações do navegador" aria-label="Notificações">
+        <svg class="ic" viewBox="0 0 24 24" width="17" height="17"><use href="#i-flag"/></svg>
       </button>
 
       <button id="btnInstallPwa" class="btn-pwa-install" style="display:none;" title="Instalar aplicativo no computador/celular">
-        📲 Instalar App
+        <svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-save"/></svg> Instalar App
       </button>
 
       <div id="countdownTimer" class="countdown-box">
@@ -96,30 +186,29 @@
 
   <div id="userBannerContainer"></div>
 
-  <!-- Navegação Principal (11 abas organizadas) -->
-  <nav class="nav-tabs" aria-label="Módulos do WebApp">
-    <button id="tabDashboard"    class="nav-tab-btn active" data-tab="dashboard">📊 Visão Geral</button>
-    <button id="tabEdital"       class="nav-tab-btn" data-tab="edital">📑 Edital</button>
-    <button id="tabRevisoes"     class="nav-tab-btn" data-tab="revisoes">🔄 Revisões R1/R7/R30</button>
-    <button id="tabQuiz"         class="nav-tab-btn" data-tab="quiz">🎮 Quiz & Cards</button>
-    <button id="tabSimuladoReal" class="nav-tab-btn" data-tab="simulado-real">📝 Simulado Real</button>
-    <button id="tabSimulador"    class="nav-tab-btn" data-tab="simulador">🧮 Simulador FCC</button>
-    <button id="tabPomodoro"     class="nav-tab-btn" data-tab="pomodoro">⏱️ Cronômetro</button>
-    <button id="tabLegis"        class="nav-tab-btn" data-tab="legislacao">🏛️ Legislação SC</button>
-    <button id="tabPlacar"       class="nav-tab-btn" data-tab="placar">📊 Placar</button>
-    <button id="tabBackup"       class="nav-tab-btn" data-tab="backup">💾 Backup & Sync</button>
-    <button id="tabConfig"       class="nav-tab-btn" data-tab="config">⚙️ Ajustes</button>
+  <!-- Navegação Principal -->
+  <nav class="nav-tabs" aria-label="Módulos do WebApp" data-od-id="od-tabs">
+    <button id="tabDashboard"    class="nav-tab-btn active" data-tab="dashboard"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-chart"/></svg> Visão Geral</button>
+    <button id="tabEdital"       class="nav-tab-btn" data-tab="edital"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-doc"/></svg> Edital</button>
+    <button id="tabRevisoes"     class="nav-tab-btn" data-tab="revisoes"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-repeat"/></svg> Revisões R1/R7/R30</button>
+    <button id="tabQuiz"         class="nav-tab-btn" data-tab="quiz"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-target"/></svg> Quiz & Cards</button>
+    <button id="tabSimuladoReal" class="nav-tab-btn" data-tab="simulado-real"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-doc"/></svg> Simulado Real</button>
+    <button id="tabSimulador"    class="nav-tab-btn" data-tab="simulador"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-chart"/></svg> Simulador FCC</button>
+    <button id="tabPomodoro"     class="nav-tab-btn" data-tab="pomodoro"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-timer"/></svg> Cronômetro</button>
+    <button id="tabLegis"        class="nav-tab-btn" data-tab="legislacao"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-gov"/></svg> Legislação SC</button>
+    <button id="tabPlacar"       class="nav-tab-btn" data-tab="placar"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-trophy"/></svg> Placar</button>
+    <button id="tabBackup"       class="nav-tab-btn" data-tab="backup"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-save"/></svg> Backup & Sync</button>
+    <button id="tabConfig"       class="nav-tab-btn" data-tab="config"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-settings"/></svg> Ajustes</button>
   </nav>
 
   <!-- ============================================================
        ABA 1: DASHBOARD
   ============================================================ -->
-  <section id="view-dashboard" class="tab-view active">
+  <section id="view-dashboard" class="tab-view active" data-od-id="od-view-dashboard">
 
-    <!-- Gamificação / Conquistas Banner (4B.3) -->
-    <div id="gamificationBanner" class="gamification-banner">
+    <div id="gamificationBanner" class="gamification-banner" data-od-id="od-banner-gamificacao">
       <div class="gamification-left">
-        <span class="gamification-icon">🏆</span>
+        <span class="gamification-icon"><svg class="ic" viewBox="0 0 24 24" width="20" height="20"><use href="#i-trophy"/></svg></span>
         <div>
           <h4 id="gamificationTitle">Conquistas & Frequência</h4>
           <p id="gamificationSubtitle" style="font-size:0.82rem;color:var(--text-muted)">Mantenha sua rotina diária para subir de nível rumo à aprovação.</p>
@@ -128,85 +217,75 @@
       <div id="gamificationBadges" class="badges-row"></div>
     </div>
 
-    <!-- Métricas Principais -->
-    <div class="metrics-grid" id="metricsGridContainer">
+    <div class="metrics-grid" id="metricsGridContainer" data-od-id="od-metrics">
       <div class="metric-card">
-        <div class="metric-header"><span>Horas Líquidas</span><span>⏱️</span></div>
+        <div class="metric-header"><span>Horas líquidas</span><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-timer"/></svg></div>
         <div class="metric-value"><span id="metricHorasEstudadas">0.0h</span></div>
         <div class="metric-sub" id="metricSessoesFeitas">0 sessões</div>
       </div>
       <div class="metric-card gold">
-        <div class="metric-header"><span>Edital Vencido (Teoria)</span><span>📈</span></div>
+        <div class="metric-header"><span>Edital vencido (teoria)</span><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-chart"/></svg></div>
         <div class="metric-value"><span id="metricPercentualEdital">0%</span></div>
         <div class="progress-bar-bg"><div id="metricProgressFill" class="progress-bar-fill gold" style="width:0%"></div></div>
       </div>
       <div class="metric-card emerald">
-        <div class="metric-header"><span>Tópicos c/ Teoria</span><span>📚</span></div>
+        <div class="metric-header"><span>Tópicos c/ teoria</span><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-doc"/></svg></div>
         <div class="metric-value"><span id="metricTopicosTotais">0/0</span></div>
-        <div class="metric-sub">Teoria marcada / Total</div>
+        <div class="metric-sub">Teoria marcada / total</div>
       </div>
       <div class="metric-card cyan">
-        <div class="metric-header"><span>Questões Resolvidas</span><span>🎯</span></div>
+        <div class="metric-header"><span>Questões resolvidas</span><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-target"/></svg></div>
         <div class="metric-value"><span id="metricExerciciosFeitos">0%</span></div>
         <div class="metric-sub">Tópicos com questões</div>
       </div>
-      <!-- Meta Semanal (F2.6) -->
       <div class="metric-card rose">
         <div class="metric-header">
-          <span>Meta Semanal</span>
+          <span>Meta semanal</span>
           <input id="metaHorasInput" type="number" min="1" max="100" value="25"
-            style="width:44px;background:transparent;border:none;color:var(--accent-rose);font-weight:700;font-size:0.85rem;text-align:right;cursor:pointer;"
-            title="Clique para alterar sua meta semanal de horas">
+            title="Clique para alterar sua meta semanal de horas" aria-label="Meta semanal de horas">
         </div>
         <div class="metric-value"><span id="metricMetaPerc">0%</span></div>
         <div class="progress-bar-bg"><div id="metricMetaFill" class="progress-bar-fill rose" style="width:0%"></div></div>
         <div class="metric-sub" id="metricMetaDetalhe">0h / 25h por semana</div>
       </div>
-      <!-- Streak Diário (4B.3) -->
       <div class="metric-card amber">
-        <div class="metric-header"><span>Sequência de Foco</span><span>🔥</span></div>
+        <div class="metric-header"><span>Sequência de foco</span><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-flame"/></svg></div>
         <div class="metric-value"><span id="metricStreakDays">0 d</span></div>
         <div class="metric-sub" id="metricStreakRecord">Recorde: 0 dias</div>
       </div>
     </div>
 
-    <!-- Gráficos + Painéis Estratégicos -->
-    <div class="charts-dicas-grid">
+    <div class="charts-dicas-grid" data-od-id="od-charts">
 
-      <!-- 4A.4: Cronograma Automático Inteligente (Semafórico) -->
       <div class="sim-card cronograma-card">
-        <h3>📅 Cronograma Recomendado FCC</h3>
-        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;">Cálculo de ritmo necessário para vencer o edital até 22/11/2026</p>
+        <h3 style="display:flex;align-items:center;gap:7px;"><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-calendar"/></svg> Cronograma Recomendado FCC</h3>
+        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;">Ritmo necessário para vencer o edital até 22/11/2026</p>
         <div id="cronogramaContainer"></div>
       </div>
 
-      <!-- 4A.2: Horas Estudadas por Disciplina (Top 5) -->
       <div class="sim-card">
-        <h3>⏱️ Tempo por Disciplina</h3>
+        <h3 style="display:flex;align-items:center;gap:7px;"><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-timer"/></svg> Tempo por Disciplina</h3>
         <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;">Onde suas horas de estudo foram realmente investidas</p>
         <div id="subjectHoursContainer"></div>
       </div>
 
-      <!-- F2.1: Gráfico de Progresso por Disciplina -->
       <div class="sim-card">
-        <h3>📊 Cobertura do Edital por Matéria</h3>
+        <h3 style="display:flex;align-items:center;gap:7px;"><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-chart"/></svg> Cobertura do Edital por Matéria</h3>
         <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;">% de tópicos com teoria marcada, do menor ao maior</p>
         <div id="progressChartContainer"></div>
       </div>
 
-      <!-- F2.2: Gráfico Horas por Semana -->
       <div class="sim-card">
-        <h3>📅 Horas Estudadas — Últimos 7 Dias</h3>
+        <h3 style="display:flex;align-items:center;gap:7px;"><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-calendar"/></svg> Horas Estudadas — Últimos 7 Dias</h3>
         <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;"><span style="color:var(--accent-emerald)">■</span> Meta diária atingida &nbsp; <span style="color:var(--accent-gold)">■</span> Abaixo da meta</p>
         <div id="weeklyChartContainer"></div>
       </div>
 
-      <!-- 4B.2: Heatmap Anual de Atividade (GitHub-style) -->
-      <div class="sim-card heatmap-full-card" style="grid-column: 1 / -1;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+      <div class="sim-card heatmap-full-card" style="grid-column:1/-1;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.5rem;">
           <div>
-            <h3>🔥 Mapa de Calor de Estudos (Consistência Diária)</h3>
-            <p style="color:var(--text-muted);font-size:0.82rem;">Histórico diário de dedicação rumo à SEFAZ/SC</p>
+            <h3 style="display:flex;align-items:center;gap:7px;"><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-flame"/></svg> Mapa de Calor de Estudos</h3>
+            <p style="color:var(--text-muted);font-size:0.82rem;">Consistência diária de dedicação rumo à SEFAZ/SC</p>
           </div>
           <div class="heatmap-legend">
             <span>Menos</span>
@@ -221,65 +300,62 @@
         <div id="heatmapContainer" class="heatmap-wrapper"></div>
       </div>
 
-      <!-- Dicas dinâmicas -->
       <div class="sim-card">
-        <h3>💡 Dicas Estratégicas do Cargo</h3>
+        <h3 style="display:flex;align-items:center;gap:7px;"><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-star"/></svg> Dicas Estratégicas do Cargo</h3>
         <p style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:1.25rem;">Recomendações táticas para o perfil ativo:</p>
         <ul id="dashboardTipsContainer" style="list-style:none;display:flex;flex-direction:column;gap:0.85rem;font-size:0.88rem;color:var(--text-secondary);"></ul>
       </div>
 
-      <!-- Info da Prova -->
       <div class="sim-card">
-        <h3>🎯 Edital & Regras da Prova</h3>
+        <h3 style="display:flex;align-items:center;gap:7px;"><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-target"/></svg> Edital & Regras da Prova</h3>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;font-size:0.88rem;color:var(--text-secondary);">
-          <li>📅 <b>Aplicação:</b> 22/11/2026 — Florianópolis/SC</li>
-          <li>🌅 <b>Manhã (4h):</b> P1 — Gerais (80Q, Peso 1)</li>
-          <li>🌇 <b>Tarde (5h):</b> P2 — Específicos (100Q, Peso 2)</li>
-          <li>⚖️ <b>Mínimo:</b> NP1×1 + NP2×2 ≥ 150 pts</li>
-          <li>📝 <b>Inscrições até:</b> 05/10/2026 via FCC</li>
+          <li><svg class="ic" viewBox="0 0 24 24" width="13" height="13"><use href="#i-calendar"/></svg> <b>Aplicação:</b> 22/11/2026 — Florianópolis/SC</li>
+          <li><b>Manhã (4h):</b> P1 — Gerais (80Q, peso 1)</li>
+          <li><b>Tarde (5h):</b> P2 — Específicos (100Q, peso 2)</li>
+          <li><svg class="ic" viewBox="0 0 24 24" width="13" height="13"><use href="#i-scale"/></svg> <b>Mínimo:</b> NP1×1 + NP2×2 ≥ 150 pontos</li>
+          <li><svg class="ic" viewBox="0 0 24 24" width="13" height="13"><use href="#i-doc"/></svg> <b>Inscrições até:</b> 05/10/2026 via FCC</li>
         </ul>
       </div>
     </div>
   </section>
 
   <!-- ============================================================
-       ABA 2: EDITAL VERTICALIZADO (4A.3 badges FCC)
+       ABA 2: EDITAL VERTICALIZADO
   ============================================================ -->
-  <section id="view-edital" class="tab-view">
+  <section id="view-edital" class="tab-view" data-od-id="od-view-edital">
     <div class="edital-controls">
       <div class="search-filter-group">
-        <input type="search" id="editalSearchInput" class="search-input" placeholder="🔍 Buscar tópico, lei, conceito..." autocomplete="off">
+        <input type="search" id="editalSearchInput" class="search-input" placeholder="Buscar tópico, lei, conceito..." autocomplete="off" aria-label="Buscar no edital">
         <select id="editalFilterSelect" class="filter-select">
           <option value="all">Todos os tópicos</option>
-          <option value="fcc-high">🔥 Alta Incidência FCC</option>
-          <option value="pending">⏳ Pendentes</option>
-          <option value="done">✅ Concluídos</option>
-          <option value="untouched">🆕 Não iniciados</option>
-          <option value="with-notes">📝 Com anotação</option>
+          <option value="fcc-high">Alta incidência FCC</option>
+          <option value="pending">Pendentes</option>
+          <option value="done">Concluídos</option>
+          <option value="untouched">Não iniciados</option>
+          <option value="with-notes">Com anotação</option>
         </select>
       </div>
       <div class="edital-bulk-actions">
-        <button id="btnExpandAll"  class="btn-action">⬇️ Expandir</button>
-        <button id="btnCollapseAll" class="btn-action">⬆️ Colapsar</button>
-        <button id="btnExportPDF" class="btn-action" title="Imprimir / Salvar como PDF">🖨️ PDF</button>
+        <button id="btnExpandAll"  class="btn-action"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-check"/></svg> Expandir</button>
+        <button id="btnCollapseAll" class="btn-action"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-check"/></svg> Colapsar</button>
+        <button id="btnExportPDF" class="btn-action" title="Imprimir / salvar como PDF">PDF</button>
       </div>
     </div>
     <div id="editalContentArea"></div>
   </section>
 
   <!-- ============================================================
-       ABA 3: REVISÃO ESPAÇADA (F3.1 + 4B.5 filtros de fase)
+       ABA 3: REVISÃO ESPAÇADA
   ============================================================ -->
-  <section id="view-revisoes" class="tab-view">
+  <section id="view-revisoes" class="tab-view" data-od-id="od-view-revisoes">
     <div style="margin-bottom:1.25rem;">
-      <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">🔄 Agenda de Revisão Espaçada</h2>
+      <h2 style="font-size:1.3rem;">Agenda de Revisão Espaçada</h2>
       <p style="color:var(--text-secondary);font-size:0.9rem;">
-        Método R1/R7/R30: após marcar "📖 Teoria" em qualquer tópico, as revisões
-        são agendadas automaticamente para os dias +1, +7 e +30 contra a curva do esquecimento.
+        Método R1/R7/R30: após marcar "Teoria" em qualquer tópico, as revisões
+        são agendadas automaticamente para os dias +1, +7 e +30, contra a curva do esquecimento.
       </p>
     </div>
 
-    <!-- 4B.5: Filtros por Fase -->
     <div class="revisao-filter-bar">
       <button class="revisao-filter-btn active" data-filter="all">Todos (<span id="countRevAll">0</span>)</button>
       <button class="revisao-filter-btn" data-filter="R1">R1 — 24h (<span id="countRevR1">0</span>)</button>
@@ -291,11 +367,11 @@
   </section>
 
   <!-- ============================================================
-       ABA 4: QUIZ & FLASHCARDS (4A.5 - NOVA)
+       ABA 4: QUIZ & FLASHCARDS
   ============================================================ -->
-  <section id="view-quiz" class="tab-view">
+  <section id="view-quiz" class="tab-view" data-od-id="od-view-quiz">
     <div style="margin-bottom:1.5rem;">
-      <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">🎮 Modo Quiz & Flashcards de Recuperação Ativa</h2>
+      <h2 style="font-size:1.3rem;">Quiz & Flashcards de Recuperação Ativa</h2>
       <p style="color:var(--text-secondary);font-size:0.9rem;">
         Teste sua memória ativa. O app traz anotações salvas por você e conceitos de alta frequência FCC.
       </p>
@@ -304,11 +380,11 @@
     <div class="quiz-container">
       <div class="quiz-controls-bar">
         <select id="quizSubjectSelect" class="filter-select" style="min-width:260px;">
-          <option value="all">Todas as Disciplinas</option>
-          <option value="notes-only">📝 Apenas Meus Flashcards (Anotações)</option>
-          <option value="fcc-high">🔥 Tópicos de Alta Frequência FCC</option>
+          <option value="all">Todas as disciplinas</option>
+          <option value="notes-only">Apenas meus flashcards (anotações)</option>
+          <option value="fcc-high">Tópicos de alta frequência FCC</option>
         </select>
-        <button id="btnNextCard" class="btn-action">Próximo Tópico ❯</button>
+        <button id="btnNextCard" class="btn-action" data-od-id="od-cta-proxima-carta">Próximo tópico →</button>
       </div>
 
       <div id="quizCardWrapper" class="quiz-card-wrapper">
@@ -323,68 +399,64 @@
   </section>
 
   <!-- ============================================================
-       ABA 5: SIMULADO CRONOMETRADO COMPLETO (4C.1 - NOVA)
+       ABA 5: SIMULADO REAL CRONOMETRADO
   ============================================================ -->
-  <section id="view-simulado-real" class="tab-view">
+  <section id="view-simulado-real" class="tab-view" data-od-id="od-view-simulado-real">
     <div style="margin-bottom:1.5rem;">
-      <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">📝 Simulado Real Cronometrado FCC</h2>
+      <h2 style="font-size:1.3rem;">Simulado Real Cronometrado FCC</h2>
       <p style="color:var(--text-secondary);font-size:0.9rem;">
-        Treine com questões no estilo e rigor da Fundação Carlos Chagas. Cronometrado, com gabarito comentado e cálculo de nota padrão!
+        Treine com questões no estilo e rigor da Fundação Carlos Chagas. Cronometrado, com gabarito comentado e cálculo de nota padronizada.
       </p>
     </div>
 
     <div id="simuladoConfigCard" class="sim-card" style="margin-bottom:1.5rem;">
-      <h3>⚙️ Configuração do Simulado</h3>
-      <div style="display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;align-items:center;">
+      <h3 style="display:flex;align-items:center;gap:7px;"><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-settings"/></svg> Configuração do Simulado</h3>
+      <div style="display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;align-items:flex-end;">
         <label>
-          <span style="font-size:0.85rem;color:var(--text-muted);display:block;margin-bottom:4px;">Extensão da Prova:</span>
-          <select id="simuladoTamanhoSelect" class="filter-select">
-            <option value="10">Mini-Simulado (10 Questões • ~30 min)</option>
-            <option value="5">Rápido (5 Questões • ~15 min)</option>
-            <option value="20">Simulado Médio (20 Questões • ~60 min)</option>
-            <option value="50">Simulado Completo P1/P2 (50 Questões • ~150 min)</option>
+          <span style="font-size:0.85rem;color:var(--text-muted);display:block;margin-bottom:4px;">Extensão da prova:</span>
+          <select id="simuladoTamanhoSelect" class="filter-select" style="min-width:260px;">
+            <option value="10">Mini-simulado (10 questões · ~30 min)</option>
+            <option value="5">Rápido (5 questões · ~15 min)</option>
+            <option value="20">Simulado médio (20 questões · ~60 min)</option>
+            <option value="50">Simulado completo P1/P2 (50 questões · ~150 min)</option>
           </select>
         </label>
-        <button id="btnStartSimulado" class="btn-action primary" style="margin-top:1.2rem;padding:10px 24px;">
-          🚀 Iniciar Simulado Agora
+        <button id="btnStartSimulado" class="btn-action primary" data-od-id="od-cta-iniciar-simulado" style="padding:10px 24px;">
+          Iniciar Simulado Agora
         </button>
       </div>
     </div>
 
-    <!-- Painel ativo do Simulado -->
     <div id="simuladoActivePanel" style="display:none;">
       <div class="simulado-header-bar">
         <div class="simulado-timer-chip">
-          ⏱️ Tempo restante: <strong id="simuladoTimerDisplay">30:00</strong>
+          <svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-timer"/></svg> Tempo restante: <strong id="simuladoTimerDisplay">30:00</strong>
         </div>
         <div id="simuladoProgressChip" style="font-size:0.88rem;color:var(--text-muted);">
           Respondidas: 0/10
         </div>
-        <button id="btnFinishSimulado" class="btn-action danger">
-          🏁 Entregar Simulado
+        <button id="btnFinishSimulado" class="btn-action danger" data-od-id="od-cta-entregar-simulado">
+          Entregar Simulado
         </button>
       </div>
 
       <div class="simulado-layout">
-        <!-- Questões -->
         <div id="simuladoQuestionsArea" class="simulado-questions-area"></div>
 
-        <!-- Folha de respostas / Navegador -->
         <div class="simulado-bubble-sheet">
-          <h4 style="font-size:0.88rem;margin-bottom:0.75rem;color:var(--text-muted);">Gabarito Rápido:</h4>
+          <h4 style="font-size:0.8rem;margin-bottom:0.75rem;color:var(--text-muted);">Gabarito rápido:</h4>
           <div id="simuladoBubbleList" class="bubble-grid"></div>
         </div>
       </div>
     </div>
 
-    <!-- Resultado do Simulado -->
     <div id="simuladoResultPanel" style="display:none;"></div>
   </section>
 
   <!-- ============================================================
-       ABA 6: SIMULADOR FCC (4B.4 Presets de Cenário)
+       ABA 6: SIMULADOR FCC
   ============================================================ -->
-  <section id="view-simulador" class="tab-view">
+  <section id="view-simulador" class="tab-view" data-od-id="od-view-simulador">
     <div class="simulator-container">
       <div class="sim-card">
         <h3>Simulador de Nota Padronizada FCC</h3>
@@ -392,80 +464,77 @@
           Ajuste seus acertos e os parâmetros do grupo para estimar sua nota final.
         </p>
 
-        <!-- 4B.4: Presets Rápidos de Cenário -->
         <div class="preset-buttons-row">
-          <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Cenários Prontos:</span>
-          <button class="btn-preset otimista" onclick="applySimulatorPreset('otimista')">🟢 Otimista (+1 DP)</button>
-          <button class="btn-preset realista" onclick="applySimulatorPreset('realista')">🟡 Realista (Média)</button>
-          <button class="btn-preset corte" onclick="applySimulatorPreset('corte')">🔴 Linha de Corte (150 pts)</button>
+          <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Cenários prontos:</span>
+          <button class="btn-preset otimista" onclick="applySimulatorPreset('otimista')">Otimista (+1 DP)</button>
+          <button class="btn-preset realista" onclick="applySimulatorPreset('realista')">Realista (média)</button>
+          <button class="btn-preset corte" onclick="applySimulatorPreset('corte')">Linha de corte (150 pts)</button>
         </div>
 
         <div class="sim-input-row" style="margin-top:1.25rem;">
-          <label for="simP1Acertos"><span>Acertos P1 — Gerais (80Q)</span><strong id="simP1AcertosVal" style="color:var(--primary-light)">60</strong></label>
+          <label for="simP1Acertos"><span>Acertos P1 — Gerais (80Q)</span><strong id="simP1AcertosVal">60</strong></label>
           <input type="range" id="simP1Acertos" class="sim-slider" min="0" max="80" value="60">
         </div>
         <div class="sim-input-row">
-          <label for="simP2Acertos"><span>Acertos P2 — Específicos (100Q)</span><strong id="simP2AcertosVal" style="color:var(--accent-gold)">75</strong></label>
+          <label for="simP2Acertos"><span>Acertos P2 — Específicos (100Q)</span><strong id="simP2AcertosVal">75</strong></label>
           <input type="range" id="simP2Acertos" class="sim-slider gold" min="0" max="100" value="75">
         </div>
 
         <hr style="border:none;border-top:1px solid var(--border-subtle);margin:1.5rem 0;">
-        <h4 style="font-size:0.95rem;margin-bottom:1rem;color:var(--text-secondary);">⚙️ Parâmetros Estatísticos Estimados do Grupo:</h4>
+        <h4 style="font-size:0.95rem;margin-bottom:1rem;color:var(--text-secondary);">Parâmetros estatísticos estimados do grupo:</h4>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
           <div class="sim-input-row">
-            <label for="simMediaP1" style="font-size:0.8rem;">Média P1: <b id="simMediaP1Val">48</b></label>
+            <label for="simMediaP1">Média P1: <b id="simMediaP1Val">48</b></label>
             <input type="range" id="simMediaP1" class="sim-slider" min="20" max="70" value="48">
           </div>
           <div class="sim-input-row">
-            <label for="simDesvioP1" style="font-size:0.8rem;">Desvio P1: <b id="simDesvioP1Val">8</b></label>
+            <label for="simDesvioP1">Desvio P1: <b id="simDesvioP1Val">8</b></label>
             <input type="range" id="simDesvioP1" class="sim-slider" min="3" max="20" value="8">
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
           <div class="sim-input-row">
-            <label for="simMediaP2" style="font-size:0.8rem;">Média P2: <b id="simMediaP2Val">60</b></label>
+            <label for="simMediaP2">Média P2: <b id="simMediaP2Val">60</b></label>
             <input type="range" id="simMediaP2" class="sim-slider gold" min="30" max="85" value="60">
           </div>
           <div class="sim-input-row">
-            <label for="simDesvioP2" style="font-size:0.8rem;">Desvio P2: <b id="simDesvioP2Val">10</b></label>
+            <label for="simDesvioP2">Desvio P2: <b id="simDesvioP2Val">10</b></label>
             <input type="range" id="simDesvioP2" class="sim-slider gold" min="3" max="20" value="10">
           </div>
         </div>
       </div>
 
-      <!-- Resultado + Curvas Normais -->
       <div style="display:flex;flex-direction:column;gap:1.5rem;">
         <div class="result-card">
-          <span style="font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;letter-spacing:0.05em;">Pontuação Final Ponderada</span>
+          <span style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;letter-spacing:0.08em;">Pontuação final ponderada</span>
           <div id="resNotaFinal" class="result-score-main">—</div>
-          <div id="resStatusTag" class="status-tag approved">Calculando...</div>
+          <div id="resStatusTag" class="status-tag">Calculando...</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;text-align:left;">
-            <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
-              <span style="font-size:0.75rem;color:var(--text-muted);display:block;">NP₁ (Peso 1)</span>
-              <strong id="resNP1" style="font-size:1.3rem;color:var(--primary-light)">—</strong><br>
-              <span id="resPerc1" style="font-size:0.75rem;color:var(--text-muted)"></span>
+            <div class="sim-card" style="padding:0.75rem;">
+              <span style="font-size:0.72rem;color:var(--text-muted);display:block;">NP₁ (peso 1)</span>
+              <strong id="resNP1" style="font-family:var(--font-num);font-size:1.3rem;color:var(--primary-light);">—</strong>
+              <span id="resPerc1" style="font-size:0.75rem;color:var(--text-muted);display:block;"></span>
             </div>
-            <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
-              <span style="font-size:0.75rem;color:var(--text-muted);display:block;">NP₂ (Peso 2)</span>
-              <strong id="resNP2" style="font-size:1.3rem;color:var(--accent-gold)">—</strong><br>
-              <span id="resPerc2" style="font-size:0.75rem;color:var(--text-muted)"></span>
+            <div class="sim-card" style="padding:0.75rem;">
+              <span style="font-size:0.72rem;color:var(--text-muted);display:block;">NP₂ (peso 2)</span>
+              <strong id="resNP2" style="font-family:var(--font-num);font-size:1.3rem;color:var(--accent-gold);">—</strong>
+              <span id="resPerc2" style="font-size:0.75rem;color:var(--text-muted);display:block;"></span>
             </div>
           </div>
           <div class="formula-explainer">
-            <strong>Fórmula — Item 8.4 do Edital:</strong><br>
+            <strong>Fórmula — Item 8.4 do edital:</strong><br>
             <code>NP = [((Acertos − Média) / DP) × 10] + 50</code><br>
             <code>Nota Final = (NP₁ × 1) + (NP₂ × 2)</code><br>
             <i>Item 8.5: eliminado se somatório &lt; 150 pts.</i>
           </div>
         </div>
 
-        <!-- Curvas Normais (F2.3) -->
         <div class="sim-card" style="padding:1.25rem;">
-          <h4 style="font-size:0.9rem;margin-bottom:0.5rem;">📈 Distribuição Normal — P1</h4>
+          <h4 style="font-size:0.9rem;margin-bottom:0.5rem;">Distribuição Normal — P1</h4>
           <div id="normalCurveP1"></div>
         </div>
         <div class="sim-card" style="padding:1.25rem;">
-          <h4 style="font-size:0.9rem;margin-bottom:0.5rem;">📈 Distribuição Normal — P2</h4>
+          <h4 style="font-size:0.9rem;margin-bottom:0.5rem;">Distribuição Normal — P2</h4>
           <div id="normalCurveP2"></div>
         </div>
       </div>
@@ -473,13 +542,13 @@
   </section>
 
   <!-- ============================================================
-       ABA 7: CRONÔMETRO & CALENDÁRIO MENSAL (4C.2)
+       ABA 7: CRONÔMETRO & CALENDÁRIO MENSAL
   ============================================================ -->
-  <section id="view-pomodoro" class="tab-view">
+  <section id="view-pomodoro" class="tab-view" data-od-id="od-view-pomodoro">
     <div class="pomodoro-container">
       <div class="timer-box">
-        <div class="cargo-selector-wrapper" style="margin-bottom:1.5rem;">
-          <button class="cargo-btn timer-mode-btn active" data-mode="pomodoro">25 min</button>
+        <div class="cargo-selector-wrapper" style="margin:0 auto 0.25rem;">
+          <button class="cargo-btn timer-mode-btn active" data-mode="pomodoro">Foco 25m</button>
           <button class="cargo-btn timer-mode-btn" data-mode="shortBreak">Pausa 5m</button>
           <button class="cargo-btn timer-mode-btn" data-mode="longBreak">Pausa 15m</button>
           <button class="cargo-btn timer-mode-btn" data-mode="stopwatch">Livre ∞</button>
@@ -495,39 +564,36 @@
         </div>
 
         <div class="subject-selector-box">
-          <label for="timerSubjectSelect" style="display:block;font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;text-align:left;">Disciplina:</label>
+          <label for="timerSubjectSelect">Disciplina:</label>
           <select id="timerSubjectSelect" class="subject-select"></select>
         </div>
 
         <div class="timer-controls">
-          <button id="btnTimerStart" class="btn-timer primary" title="Iniciar">▶</button>
-          <button id="btnTimerPause" class="btn-timer primary" style="display:none;" title="Pausar">⏸</button>
-          <button id="btnTimerReset" class="btn-timer" title="Reiniciar">↺</button>
-          <button id="btnFocusMode" class="btn-timer" title="Modo Foco Total (Tela Cheia)" style="font-size:0.9rem;">🎯</button>
+          <button id="btnTimerStart" class="btn-timer primary" title="Iniciar" data-od-id="od-cta-iniciar-cronometro"><svg class="ic" viewBox="0 0 24 24" width="19" height="19"><use href="#i-timer"/></svg></button>
+          <button id="btnTimerPause" class="btn-timer primary" style="display:none;" title="Pausar"><svg class="ic" viewBox="0 0 24 24" width="19" height="19"><use href="#i-timer"/></svg></button>
+          <button id="btnTimerReset" class="btn-timer" title="Reiniciar"><svg class="ic" viewBox="0 0 24 24" width="19" height="19"><use href="#i-repeat"/></svg></button>
+          <button id="btnFocusMode" class="btn-timer" title="Modo foco total (tela cheia)" aria-label="Ativar modo foco total"><svg class="ic" viewBox="0 0 24 24" width="19" height="19"><use href="#i-target"/></svg></button>
         </div>
 
-        <p style="font-size:0.78rem;color:var(--text-muted);">Ao concluir, a sessão é salva e alimenta o gráfico semanal e o heatmap.</p>
+        <p style="font-size:0.78rem;color:var(--text-muted);text-align:center;">Ao concluir, a sessão é salva e alimenta o gráfico semanal e o mapa de calor.</p>
 
-        <!-- Registro manual -->
         <div class="manual-session-form">
-          <p style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">➕ Registrar sessão manualmente</p>
+          <p style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.2rem;">Registrar sessão manualmente</p>
           <label for="manualMinutes">Minutos estudados:</label>
-          <input type="number" id="manualMinutes" min="1" max="600" placeholder="Ex: 90">
+          <input type="number" id="manualMinutes" min="1" max="600" placeholder="Ex.: 90">
           <label for="manualSubjectSelect">Disciplina:</label>
           <select id="manualSubjectSelect" class="subject-select"></select>
-          <button id="btnSaveManualSession" class="btn-action" style="width:100%;justify-content:center;margin-top:0.5rem;">💾 Registrar</button>
+          <button id="btnSaveManualSession" class="btn-action" data-od-id="od-cta-registrar-sessao" style="width:100%;justify-content:center;margin-top:0.25rem;"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-save"/></svg> Registrar</button>
         </div>
       </div>
 
-      <!-- Lado direito: Histórico + Calendário Mensal (4C.2) -->
       <div class="study-logs-box">
-        <!-- 4C.2: Calendário Mensal Interativo -->
-        <div class="calendar-card" style="margin-bottom:1.5rem;">
+        <div class="calendar-card sim-card" style="margin-bottom:1.5rem;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-            <h4 id="calendarMonthTitle" style="font-size:1rem;color:#fff;">📆 Calendário de Estudos</h4>
+            <h4 id="calendarMonthTitle" style="font-size:1rem;">Calendário de Estudos</h4>
             <div style="display:flex;gap:0.25rem;">
-              <button id="btnCalPrev" class="btn-action" style="padding:2px 8px;font-size:0.75rem;">◀</button>
-              <button id="btnCalNext" class="btn-action" style="padding:2px 8px;font-size:0.75rem;">▶</button>
+              <button id="btnCalPrev" class="btn-action" style="padding:2px 10px;" aria-label="Mês anterior"><svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-chevron-left"/></svg></button>
+              <button id="btnCalNext" class="btn-action" style="padding:2px 10px;" aria-label="Próximo mês"><svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-chevron-right"/></svg></button>
             </div>
           </div>
           <div id="calendarMonthGrid" class="calendar-grid"></div>
@@ -537,7 +603,7 @@
         </div>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem;">
-          <h3>📋 Histórico Recente de Sessões</h3>
+          <h3>Histórico Recente de Sessões</h3>
           <div id="timerStatsBadges" style="display:flex;gap:0.5rem;flex-wrap:wrap;"></div>
         </div>
         <div id="studyLogsContainer"></div>
@@ -548,10 +614,10 @@
   <!-- ============================================================
        ABA 8: LEGISLAÇÃO SC
   ============================================================ -->
-  <section id="view-legislacao" class="tab-view">
+  <section id="view-legislacao" class="tab-view" data-od-id="od-view-legislacao">
     <div style="margin-bottom:1.5rem;">
-      <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">🏛️ Legislação de Santa Catarina — Cargo Ativo</h2>
-      <p style="color:var(--text-secondary);font-size:0.9rem;">Normas estaduais exigidas no Edital FCC nº 01/2026. Clique em "Texto Oficial" para acessar diretamente.</p>
+      <h2 style="font-size:1.3rem;">Legislação de Santa Catarina — Cargo Ativo</h2>
+      <p style="color:var(--text-secondary);font-size:0.9rem;">Normas estaduais exigidas no Edital FCC nº 01/2026. Use "Texto Oficial" para acessar diretamente.</p>
     </div>
     <div id="legislacaoGridContainer" class="legis-grid"></div>
   </section>
@@ -559,9 +625,9 @@
   <!-- ============================================================
        ABA 9: PLACAR A01 vs E05
   ============================================================ -->
-  <section id="view-placar" class="tab-view">
+  <section id="view-placar" class="tab-view" data-od-id="od-view-placar">
     <div style="margin-bottom:1.5rem;">
-      <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">📊 Placar Comparativo — A01 vs E05</h2>
+      <h2 style="font-size:1.3rem;">Placar Comparativo — A01 vs E05</h2>
       <p style="color:var(--text-secondary);font-size:0.9rem;">Comparação de progresso entre os dois estudantes. Os dados são independentes — apenas as métricas são exibidas lado a lado.</p>
     </div>
     <div class="sim-card" style="max-width:720px;margin:0 auto;">
@@ -570,154 +636,138 @@
   </section>
 
   <!-- ============================================================
-       ABA 10: BACKUP & SINCRONIZAÇÃO (4B.6 + 4C.3)
+       ABA 10: BACKUP & SINCRONIZAÇÃO
   ============================================================ -->
-  <section id="view-backup" class="tab-view">
+  <section id="view-backup" class="tab-view" data-od-id="od-view-backup">
     <div class="backup-card">
-      <h3>💾 Backup, Relatórios e Sincronização em Nuvem / QR</h3>
+      <h3 style="display:flex;align-items:center;gap:8px;margin-bottom:0.5rem;"><svg class="ic" viewBox="0 0 24 24" width="18" height="18"><use href="#i-save"/></svg> Backup, Relatórios e Sincronização</h3>
       <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;line-height:1.6;">
-        Seus dados ficam seguros no navegador via <code>localStorage</code> e agora contam com exportação semanal e sincronização entre computadores/celulares sem necessidade de servidor!
+        Seus dados ficam seguros no navegador via <code>localStorage</code> e contam com exportação semanal e sincronização entre computadores e celulares, sem servidor.
       </p>
 
       <div style="display:flex;flex-direction:column;gap:1.25rem;">
-        <!-- 4B.6: Exportar Relatório Semanal em Markdown -->
         <div class="backup-action-box">
-          <div>
-            <strong>📑 Relatório Semanal de Desempenho (.md)</strong>
-            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Gera um relatório completo formatado em Markdown com horas, matérias, revisões e metas para imprimir ou enviar para seu grupo/mentor.</p>
+          <div style="flex:1;min-width:240px;">
+            <strong><svg class="ic" viewBox="0 0 24 24" width="17" height="17"><use href="#i-doc"/></svg> Relatório Semanal de Desempenho (.md)</strong>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Gera um relatório completo em Markdown com horas, matérias, revisões e metas, para imprimir ou enviar para seu grupo ou mentor.</p>
           </div>
-          <button id="btnExportWeeklyReport" class="btn-action primary">
-            📥 Baixar Relatório (.md)
-          </button>
+          <button id="btnExportWeeklyReport" class="btn-action primary" data-od-id="od-cta-relatorio-semanal"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-save"/></svg> Baixar Relatório (.md)</button>
         </div>
 
-        <!-- 4C.3: Sincronização via Link / QR Code -->
         <div class="backup-action-box">
-          <div>
-            <strong>🔗 Sincronização Instantânea via Link / QR Code</strong>
-            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Transfira todo o seu progresso para outro computador ou celular em segundos sem subir arquivos.</p>
+          <div style="flex:1;min-width:240px;">
+            <strong><svg class="ic" viewBox="0 0 24 24" width="17" height="17"><use href="#i-link"/></svg> Sincronização Instantânea via Link / QR Code</strong>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Transfira todo o seu progresso para outro computador ou celular em segundos, sem subir arquivos.</p>
           </div>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-            <button id="btnGenerateSyncLink" class="btn-action">
-              🔗 Copiar Link de Sync
-            </button>
-            <button id="btnShowQrCode" class="btn-action">
-              📱 Gerar QR Code
-            </button>
+            <button id="btnGenerateSyncLink" class="btn-action" data-od-id="od-cta-sync-link"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-link"/></svg> Copiar Link de Sync</button>
+            <button id="btnShowQrCode" class="btn-action" data-od-id="od-cta-qr-code"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-target"/></svg> Gerar QR Code</button>
           </div>
         </div>
 
-        <div id="qrCodeContainer" style="display:none;text-align:center;padding:1rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
+        <div id="qrCodeContainer" class="sim-card" style="display:none;text-align:center;padding:1rem;">
           <div id="qrSvgWrapper"></div>
           <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;">Aponte a câmera do celular para importar seus dados instantaneamente.</p>
         </div>
 
-        <!-- Backup JSON Padrão -->
         <div class="backup-action-box">
-          <div>
-            <strong>📦 Arquivo de Backup Completo (JSON)</strong>
+          <div style="flex:1;min-width:240px;">
+            <strong><svg class="ic" viewBox="0 0 24 24" width="17" height="17"><use href="#i-save"/></svg> Arquivo de Backup Completo (JSON)</strong>
             <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Exporta todos os dados de A01 e E05 em arquivo seguro para restauração.</p>
           </div>
-          <button id="btnExportBackup" class="btn-action">
-            📥 Exportar JSON
-          </button>
+          <button id="btnExportBackup" class="btn-action" data-od-id="od-cta-exportar-json"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-save"/></svg> Exportar JSON</button>
         </div>
 
-        <div class="drop-zone" onclick="document.getElementById('fileImportBackup').click()">
-          <span style="font-size:1.5rem;display:block;margin-bottom:0.5rem;">📤</span>
+        <div class="drop-zone" role="command" tabindex="0" aria-label="Restaurar backup JSON"
+         onclick="document.getElementById('fileImportBackup').click()"
+         onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); document.getElementById('fileImportBackup').click(); }">
+          <svg class="ic" viewBox="0 0 24 24" width="34" height="34"><use href="#i-save"/></svg>
           <strong>Clique para restaurar um backup JSON</strong><br>
           <span style="font-size:0.78rem;color:var(--text-muted);">Selecione o arquivo .json gerado anteriormente</span>
         </div>
         <input type="file" id="fileImportBackup" accept=".json" style="display:none;">
 
-        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:var(--radius-md);padding:1rem;font-size:0.85rem;color:var(--accent-gold);">
-          ⚠️ <b>Dica de Segurança:</b> Seus dados pertencem a você. Exporte um backup toda semana para manter seu histórico seguro.
+        <div class="sim-card" style="border-bottom:3px solid var(--accent-gold);background:var(--surface);font-size:0.85rem;color:var(--accent-gold);">
+          <b>Dica de segurança:</b> seus dados pertencem a você. Exporte um backup toda semana para manter seu histórico seguro.
         </div>
       </div>
     </div>
   </section>
 
   <!-- ============================================================
-       ABA 11: CONFIGURAÇÕES & AJUSTES (4C.4 - NOVA)
+       ABA 11: CONFIGURAÇÕES & AJUSTES
   ============================================================ -->
-  <section id="view-config" class="tab-view">
-    <div class="sim-card" style="max-width:760px;margin:0 auto;">
-      <h3>⚙️ Configurações & Personalização</h3>
+  <section id="view-config" class="tab-view" data-od-id="od-view-config">
+    <div class="sim-card" style="max-width:780px;margin:0 auto;">
+      <h3 style="display:flex;align-items:center;gap:8px;"><svg class="ic" viewBox="0 0 24 24" width="18" height="18"><use href="#i-settings"/></svg> Configurações & Personalização</h3>
       <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">
         Adapte a plataforma ao seu ritmo e preferências visuais.
       </p>
 
       <div class="config-grid">
-        <!-- 4. Setup dos 2 Estudantes -->
-        <div class="config-item" style="border-color:rgba(99,102,241,0.35);background:rgba(99,102,241,0.06);">
-          <h4 style="font-size:1rem;margin-bottom:0.75rem;color:#fff;">👥 Perfis dos Estudantes & Rotina de Estudos</h4>
-          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">Defina os nomes reais de cada candidato e suas respectivas metas semanais de dedicação:</p>
+        <div class="config-item">
+          <h4>Perfis dos Estudantes & Rotina de Estudos</h4>
+          <p style="margin-bottom:1rem;">Defina os nomes reais de cada candidato e suas respectivas metas semanais de dedicação:</p>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
-            <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
-              <label style="font-size:0.82rem;color:var(--primary-light);font-weight:700;display:block;margin-bottom:4px;">⚙️ Estudante A01 (Adm / Eng):</label>
-              <input type="text" id="cfgNomeA01" class="search-input" style="width:100%;margin-bottom:8px;" placeholder="Nome do Estudante A01">
-              <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Meta Semanal de Horas:</label>
-              <input type="number" id="cfgMetaA01" class="search-input" min="5" max="80" style="width:100%;" placeholder="Ex: 25">
+            <div class="sim-card" style="padding:0.75rem;">
+              <label for="cfgNomeA01" style="font-size:0.82rem;color:var(--primary-light);font-weight:700;display:block;margin-bottom:4px;">Estudante A01 (Adm / Eng):</label>
+              <input type="text" id="cfgNomeA01" class="search-input" style="width:100%;margin-bottom:8px;" placeholder="Nome do estudante A01">
+              <label for="cfgMetaA01" style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Meta semanal de horas:</label>
+              <input type="number" id="cfgMetaA01" class="search-input" min="5" max="80" style="width:100%;" placeholder="Ex.: 25">
             </div>
-            <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
-              <label style="font-size:0.82rem;color:var(--accent-gold);font-weight:700;display:block;margin-bottom:4px;">⚖️ Estudante E05 (Direito):</label>
-              <input type="text" id="cfgNomeE05" class="search-input" style="width:100%;margin-bottom:8px;" placeholder="Nome do Estudante E05">
-              <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Meta Semanal de Horas:</label>
-              <input type="number" id="cfgMetaE05" class="search-input" min="5" max="80" style="width:100%;" placeholder="Ex: 25">
+            <div class="sim-card" style="padding:0.75rem;">
+              <label for="cfgNomeE05" style="font-size:0.82rem;color:var(--accent-gold);font-weight:700;display:block;margin-bottom:4px;">Estudante E05 (Direito):</label>
+              <input type="text" id="cfgNomeE05" class="search-input" style="width:100%;margin-bottom:8px;" placeholder="Nome do estudante E05">
+              <label for="cfgMetaE05" style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Meta semanal de horas:</label>
+              <input type="number" id="cfgMetaE05" class="search-input" min="5" max="80" style="width:100%;" placeholder="Ex.: 25">
             </div>
           </div>
         </div>
 
-        <!-- Tema Visual -->
         <div class="config-item">
-          <label><strong>🎨 Tema da Interface:</strong></label>
-          <select id="configThemeSelect" class="filter-select" style="width:100%;margin-top:6px;">
-            <option value="indigo">🌌 Dark Indigo (Padrão Sofisticado)</option>
-            <option value="emerald">🌲 Dark Fazenda (Esmeralda SEFAZ)</option>
-            <option value="navy">⚓ Deep Navy (Azul Executivo)</option>
-            <option value="slate">🪙 Cyber Slate (Alto Contraste)</option>
+          <strong><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-sun"/></svg> Tema da Interface:</strong>
+          <select id="configThemeSelect" class="filter-select" style="width:100%;margin-top:6px;" aria-label="Tema visual da interface">
+            <option value="indigo">Índigo — Contraste Clássico</option>
+            <option value="emerald">Esmeralda SEFAZ (padrão)</option>
+            <option value="navy">Azul Marinho — Executivo</option>
+            <option value="slate">Slate — Alto Contraste</option>
           </select>
         </div>
 
-        <!-- Som do Pomodoro -->
         <div class="config-item">
-          <label><strong>🔔 Alarme do Cronômetro:</strong></label>
+          <strong><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-flag"/></svg> Alarme do Cronômetro:</strong>
           <div style="display:flex;gap:0.5rem;align-items:center;margin-top:6px;">
-            <select id="configSoundSelect" class="filter-select" style="flex:1;">
-              <option value="beep">Eletrônico (Beep)</option>
-              <option value="bell">Sino Cristalino (Bell)</option>
-              <option value="chime">Acorde Harmonioso (Chime)</option>
+            <select id="configSoundSelect" class="filter-select" style="flex:1;" aria-label="Som de alarme do cronômetro">
+              <option value="beep">Eletrônico (bip)</option>
+              <option value="bell">Sino (bell)</option>
+              <option value="chime">Acorde (chime)</option>
               <option value="mute">Silencioso</option>
             </select>
-            <button id="btnTestSound" class="btn-action" style="padding:6px 12px;" title="Testar som">▶ Testar</button>
+            <button id="btnTestSound" class="btn-action" style="padding:6px 12px;" title="Testar som"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-timer"/></svg> Testar</button>
           </div>
         </div>
 
-        <!-- Notificações Nativas -->
         <div class="config-item">
-          <label><strong>📢 Notificações do Navegador:</strong></label>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+          <strong><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-flag"/></svg> Notificações do Navegador:</strong>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:0.5rem;flex-wrap:wrap;">
             <span id="configNotifStatus" style="font-size:0.85rem;color:var(--text-muted);">Não solicitada</span>
-            <button id="btnRequestNotif" class="btn-action">Permitir Notificações</button>
+            <button id="btnRequestNotif" class="btn-action">Permitir notificações</button>
           </div>
         </div>
 
-        <!-- Tempo padrão Pomodoro -->
         <div class="config-item">
-          <label><strong>⏱️ Duração Padrão do Bloco de Foco:</strong></label>
+          <strong><svg class="ic" viewBox="0 0 24 24" width="16" height="16"><use href="#i-timer"/></svg> Duração Padrão do Bloco de Foco:</strong>
           <select id="configPomoDuration" class="filter-select" style="width:100%;margin-top:6px;">
-            <option value="25">25 minutos (Clássico)</option>
-            <option value="30">30 minutos (Intermediário)</option>
-            <option value="40">40 minutos (Avançado)</option>
-            <option value="50">50 minutos (Universitário)</option>
+            <option value="25">25 minutos (clássico)</option>
+            <option value="30">30 minutos (intermediário)</option>
+            <option value="40">40 minutos (avançado)</option>
+            <option value="50">50 minutos (universitário)</option>
           </select>
         </div>
       </div>
 
       <div style="margin-top:2rem;text-align:right;">
-        <button id="btnSaveConfig" class="btn-action primary" style="padding:8px 20px;">
-          💾 Salvar Ajustes
-        </button>
+        <button id="btnSaveConfig" class="btn-action primary" style="padding:8px 20px;"><svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-save"/></svg> Salvar Ajustes</button>
       </div>
     </div>
   </section>
@@ -725,9 +775,9 @@
 </main>
 
 <!-- Rodapé -->
-<footer>
+<footer data-od-id="od-footer">
   <p>Concurso SEFAZ/SC 2026 — Auditor Estadual de Finanças Públicas | Cargos A01 e E05</p>
-  <p style="margin-top:4px;color:var(--text-muted);font-size:0.75rem;">Banca FCC • Prova em 22/11/2026 • Florianópolis/SC • Plataforma v4.0 PWA Offline</p>
+  <p style="margin-top:4px;color:var(--text-muted);font-size:0.75rem;">Banca FCC · Prova em 22/11/2026 · Florianópolis/SC · v4.1 PWA Offline</p>
 </footer>
 
 <script src="js/data.js"></script>

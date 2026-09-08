@@ -1,9 +1,9 @@
 /**
- * Service Worker — SEFAZ/SC 2026 PWA (v4.0)
+ * Service Worker — SEFAZ/SC 2026 PWA (v4.1)
  * Cache-first para assets essenciais com suporte offline completo
  */
 
-const CACHE_NAME = 'sefaz-sc-v4.0';
+const CACHE_NAME = 'sefaz-sc-refined-4.1';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
@@ -12,7 +12,11 @@ const ASSETS_TO_CACHE = [
   'js/app.js',
   'manifest.json',
   'icons/icon-192.png',
-  'icons/icon-512.png'
+  'icons/icon-512.png',
+  'fonts/public-sans-latin.woff2',
+  'fonts/ibm-plex-mono-400.woff2',
+  'fonts/ibm-plex-mono-500.woff2',
+  'fonts/ibm-plex-mono-600.woff2'
 ];
 
 self.addEventListener('install', (event) => {
