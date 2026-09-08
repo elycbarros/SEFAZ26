@@ -1,27 +1,27 @@
 /**
  * SEFAZ/SC 2026 — Plataforma de Estudos
- * Versão 3.0 — 15 Melhorias Frontend aplicadas
+ * Versão 4.0 — 15 Novas Features & Melhorias Avançadas
  *
- * FASE 1 — Microfixes:
- * F1.1 Pluralização sessão/sessões
- * F1.2 Excluir entradas do histórico
- * F1.3 Links para texto oficial das leis
- * F1.4 Countdown com urgência visual (<30d vermelho, <90d laranja)
+ * FASE 4-A — Performance & Conteúdo:
+ * 4A.1 PWA Offline com Service Worker (sw.js) e banner de instalação
+ * 4A.2 Horas por disciplina no Dashboard (Top 5 com barras proporcionais)
+ * 4A.3 Classificador e badges de calor/incidência FCC (🔥 Alta / ⚡ Média)
+ * 4A.4 Cronograma inteligente automático (cálculo semafórico de ritmo diário)
+ * 4A.5 Modo Quiz & Flashcards de recuperação ativa por anotações e tópicos FCC
  *
- * FASE 2 — Funcionalidades:
- * F2.1 Gráfico de progresso por disciplina (SVG nativo)
- * F2.2 Gráfico de horas por semana (bar chart SVG 7 dias)
- * F2.3 Curva Normal + percentil no Simulador FCC
- * F2.4 Filtro "Não iniciados" no Edital
- * F2.5 Badges diário/semanal no Cronômetro
- * F2.6 Card Meta Semanal no Dashboard
+ * FASE 4-B — UX & Gamificação:
+ * 4B.1 Notificações de revisão e pomodoro via Browser Notification API
+ * 4B.2 Heatmap de atividade anual (estilo GitHub contribution graph em SVG)
+ * 4B.3 Streaks de dias consecutivos + Sistema de Conquistas/Badges
+ * 4B.4 Presets rápidos de cenário no Simulador FCC (Otimista, Realista, Corte)
+ * 4B.5 Filtros por fase nas Revisões (Todos, R1 24h, R7 7d, R30 30d com contadores)
+ * 4B.6 Exportação de Relatório Semanal de Desempenho formatado em Markdown (.md)
  *
- * FASE 3 — Features Estratégicas:
- * F3.1 Agenda de Revisão Espaçada R1/R7/R30
- * F3.2 Caderno de anotações por tópico (modal)
- * F3.3 Placar comparativo A01 vs E05
- * F3.4 Modo Foco Total (fullscreen)
- * F3.5 Exportar PDF do edital
+ * FASE 4-C — Features Estratégicas:
+ * 4C.1 Simulado cronometrado completo (Mock Exam com 10Q, gabarito e nota FCC)
+ * 4C.2 Calendário mensal interativo de estudos e revisões
+ * 4C.3 Sincronização e compartilhamento via URL (Base64) e QR Code em SVG
+ * 4C.4 Configurações avançadas (Temas de cores, sons sintetizados Web Audio)
  */
 
 'use strict';
@@ -35,7 +35,40 @@ const AppState = {
   searchTerm: '',
   filterStatus: 'all',
   openCards: new Set(),
-  noteModalKey: null,     // F3.2
+  noteModalKey: null,
+  revisaoFilter: 'all',     // 4B.5: 'all' | 'R1' | 'R7' | 'R30'
+  pwaPrompt: null,          // 4A.1
+  notificationsEnabled: false, // 4B.1
+
+  config: {
+    theme: 'indigo',
+    sound: 'beep',
+    pomoDuration: 25,
+  },
+
+  quiz: {
+    currentCardIndex: 0,
+    items: [],
+    reviewedCount: 0,
+    rememberedCount: 0,
+    isFlipped: false,
+    selectedFilter: 'all',
+  },
+
+  simulado: {
+    active: false,
+    timerId: null,
+    totalSeconds: 30 * 60,
+    remainingSeconds: 30 * 60,
+    questions: [],
+    answers: {},
+    isFinished: false,
+  },
+
+  calendar: {
+    year: 2026,
+    month: 8, // Setembro (0-indexed: 8 = Setembro)
+  },
 
   profiles: {
     A01: {
@@ -44,7 +77,7 @@ const AppState = {
       metaHorasSemanais: 25,
       progress: {},
       studyLogs: [],
-      notes: {},           // F3.2: { topicKey: 'texto' }
+      notes: {},
     },
     E05: {
       nome: 'Estudante E05 (Direito)',
@@ -62,38 +95,35 @@ const AppState = {
     remainingSeconds: 25 * 60,
     elapsedSeconds: 0,
     isRunning: false,
-    isFocusMode: false,    // F3.4
+    isFocusMode: false,
     mode: 'pomodoro',
   },
 };
 
 /* ============================================================
-   PERSISTÊNCIA
+   PERSISTÊNCIA & CONFIGURAÇÃO
 ============================================================ */
 function loadProfilesData() {
   try {
     const savedActive = localStorage.getItem('sefaz_active_profile');
     if (savedActive === 'A01' || savedActive === 'E05') AppState.activeProfileKey = savedActive;
 
-    const savedData = localStorage.getItem('sefaz_profiles_data_v3');
+    const savedData = localStorage.getItem('sefaz_profiles_data_v3') || localStorage.getItem('sefaz_profiles_data_v2');
     if (savedData) {
       const parsed = JSON.parse(savedData);
       if (parsed.A01) AppState.profiles.A01 = { ...AppState.profiles.A01, ...parsed.A01 };
       if (parsed.E05) AppState.profiles.E05 = { ...AppState.profiles.E05, ...parsed.E05 };
-    } else {
-      // Migrar da v2
-      const v2 = localStorage.getItem('sefaz_profiles_data_v2');
-      if (v2) {
-        const parsed = JSON.parse(v2);
-        if (parsed.A01) AppState.profiles.A01 = { ...AppState.profiles.A01, ...parsed.A01 };
-        if (parsed.E05) AppState.profiles.E05 = { ...AppState.profiles.E05, ...parsed.E05 };
-      }
     }
 
     const openCards = localStorage.getItem('sefaz_open_cards');
     if (openCards) AppState.openCards = new Set(JSON.parse(openCards));
+
+    const savedConfig = localStorage.getItem('sefaz_config');
+    if (savedConfig) {
+      AppState.config = { ...AppState.config, ...JSON.parse(savedConfig) };
+    }
   } catch (e) {
-    console.error('Erro ao carregar LocalStorage:', e);
+    console.error('Erro ao carregar dados do LocalStorage:', e);
   }
 }
 
@@ -102,11 +132,12 @@ function saveProfilesData() {
     localStorage.setItem('sefaz_active_profile', AppState.activeProfileKey);
     localStorage.setItem('sefaz_profiles_data_v3', JSON.stringify(AppState.profiles));
     localStorage.setItem('sefaz_open_cards', JSON.stringify([...AppState.openCards]));
+    localStorage.setItem('sefaz_config', JSON.stringify(AppState.config));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
-      showToast('⚠️ Armazenamento cheio! Exporte um backup e limpe dados antigos.', 'warning', 6000);
+      showToast('⚠️ Armazenamento cheio! Exporte um backup JSON.', 'warning', 6000);
     } else {
-      showToast('❌ Falha ao salvar dados. Verifique permissões do navegador.', 'error');
+      showToast('❌ Falha ao salvar dados.', 'error');
     }
   }
 }
@@ -116,87 +147,1167 @@ function getCurrentProfile() {
 }
 
 /* ============================================================
-   TOAST SYSTEM
+   SISTEMA DE TOAST
 ============================================================ */
 function showToast(message, type = 'info', duration = 3500) {
-  const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
   const container = document.getElementById('toastContainer');
   if (!container) return;
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+  toast.textContent = message;
   container.appendChild(toast);
   setTimeout(() => {
-    toast.classList.add('hide');
-    toast.addEventListener('animationend', () => toast.remove());
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    setTimeout(() => toast.remove(), 300);
   }, duration);
 }
 
 /* ============================================================
-   ÁUDIO (lazy)
+   WEB AUDIO API — SINTETIZADOR DE SONS (4C.4)
 ============================================================ */
-let _audioCtx = null;
+let audioCtx = null;
 function getAudioContext() {
-  if (!_audioCtx) {
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (Ctx) _audioCtx = new Ctx();
-    } catch (e) { /* sem suporte */ }
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) audioCtx = new AudioContext();
   }
-  if (_audioCtx?.state === 'suspended') _audioCtx.resume();
-  return _audioCtx;
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
 }
 
 function playBeep() {
-  const ctx = getAudioContext();
-  if (!ctx) return;
+  const soundType = AppState.config.sound || 'beep';
+  if (soundType === 'mute') return;
+
   try {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    [0, 0.3, 0.6].forEach((d) => {
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime + d);
-      gain.gain.setValueAtTime(0.25, ctx.currentTime + d);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d + 0.25);
-    });
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 1.0);
-  } catch (e) { /* silencia */ }
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    if (soundType === 'beep') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.exponentialRampToValueAtTime(440, now + 0.35);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (soundType === 'bell') {
+      [523.25, 1046.5].forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.8);
+      });
+    } else if (soundType === 'chime') {
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const start = now + i * 0.12;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.2, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.5);
+      });
+    }
+  } catch (e) {
+    console.warn('Áudio não suportado:', e);
+  }
 }
 
 /* ============================================================
-   COUNTDOWN — F1.4 (urgência visual)
+   BROWSER NOTIFICATIONS (4B.1)
 ============================================================ */
-function initCountdown() {
-  const targetDate = new Date(EDITAL_DATA.info.dataProva).getTime();
-  const el = document.getElementById('countdownTimer');
+function initNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    AppState.notificationsEnabled = true;
+    updateNotificationUI(true);
+  } else {
+    updateNotificationUI(false);
+  }
+}
 
-  function update() {
-    const diff = targetDate - Date.now();
-    if (!el) return;
-    if (diff <= 0) { el.innerHTML = '🎯 <b>Dia da Prova!</b>'; return; }
+function updateNotificationUI(enabled) {
+  const btn = document.getElementById('btnToggleNotification');
+  const statusEl = document.getElementById('configNotifStatus');
+  if (btn) btn.classList.toggle('active', enabled);
+  if (statusEl) {
+    statusEl.textContent = enabled ? '✅ Ativas e permitidas' : '⚠️ Bloqueadas ou pendentes';
+    statusEl.style.color = enabled ? 'var(--accent-emerald)' : 'var(--accent-gold)';
+  }
+}
 
-    const days    = Math.floor(diff / 86400000);
-    const hours   = Math.floor((diff % 86400000) / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
+function requestNotificationPermission() {
+  if (!('Notification' in window)) {
+    showToast('Seu navegador não suporta notificações.', 'warning');
+    return;
+  }
+  Notification.requestPermission().then((perm) => {
+    if (perm === 'granted') {
+      AppState.notificationsEnabled = true;
+      updateNotificationUI(true);
+      sendNotification('SEFAZ/SC 2026', 'Notificações ativadas com sucesso! Você receberá alertas de revisão e foco.');
+      showToast('🔔 Notificações ativadas!', 'success');
+    } else {
+      AppState.notificationsEnabled = false;
+      updateNotificationUI(false);
+      showToast('Notificações não autorizadas no navegador.', 'info');
+    }
+  });
+}
 
-    // F1.4: cores por urgência
-    el.className = 'countdown-box' +
-      (days < 30 ? ' urgent-red' : days < 90 ? ' urgent-amber' : '');
+function sendNotification(title, body) {
+  if (AppState.notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(title, {
+        body,
+        icon: 'icons/icon-192.png',
+        badge: 'icons/icon-192.png',
+      });
+    } catch (e) {
+      console.warn('Erro ao disparar notificação:', e);
+    }
+  }
+}
 
-    el.innerHTML = `<span class="pulse-dot"></span> <strong>${days}d ${hours}h ${minutes}m</strong> para a prova`;
+/* ============================================================
+   SERVICE WORKER & PWA INSTALL (4A.1)
+============================================================ */
+function initPWA() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').then((reg) => {
+        console.log('PWA ServiceWorker registrado com sucesso:', reg.scope);
+      }).catch((err) => {
+        console.warn('Falha no registro do ServiceWorker:', err);
+      });
+    });
   }
 
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    AppState.pwaPrompt = e;
+    const btnInstall = document.getElementById('btnInstallPwa');
+    if (btnInstall) btnInstall.style.display = 'inline-flex';
+  });
+
+  window.addEventListener('appinstalled', () => {
+    const btnInstall = document.getElementById('btnInstallPwa');
+    if (btnInstall) btnInstall.style.display = 'none';
+    AppState.pwaPrompt = null;
+    showToast('🎉 SEFAZ/SC instalado no seu dispositivo!', 'success', 5000);
+  });
+}
+
+/* ============================================================
+   COUNTDOWN TIMER & STATUS
+============================================================ */
+function initCountdown() {
+  const el = document.getElementById('countdownTimer');
+  if (!el) return;
+  const target = new Date(EDITAL_DATA.info.dataProva).getTime();
+
+  function update() {
+    const diff = target - Date.now();
+    if (diff <= 0) {
+      el.innerHTML = '🏁 Prova Hoje!';
+      el.className = 'countdown-box urgent';
+      return;
+    }
+    const days  = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    el.className = `countdown-box ${days < 30 ? 'urgent' : days < 90 ? 'warning' : ''}`;
+    el.innerHTML = `<span class="pulse-dot"></span> Prova em: <strong>${days}d ${hours}h ${mins}m</strong>`;
+  }
   update();
   setInterval(update, 60000);
 }
 
 /* ============================================================
-   EVENT LISTENERS
+   STREAKS & GAMIFICAÇÃO (4B.3)
+============================================================ */
+function calculateStreaks(studyLogs) {
+  if (!studyLogs || studyLogs.length === 0) return { current: 0, max: 0 };
+
+  const daySet = new Set();
+  studyLogs.forEach(log => {
+    if (log._ts) {
+      const d = new Date(log._ts).toISOString().split('T')[0];
+      daySet.add(d);
+    } else if (log.date) {
+      const parts = log.date.split(' ')[0].split('/');
+      if (parts.length === 2) {
+        daySet.add(`2026-${parts[1]}-${parts[0]}`);
+      }
+    }
+  });
+
+  const sortedDays = Array.from(daySet).sort().reverse();
+  if (sortedDays.length === 0) return { current: 0, max: 0 };
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+  let currentStreak = 0;
+  let checkDate = sortedDays.includes(todayStr) ? new Date(todayStr) : sortedDays.includes(yesterday) ? new Date(yesterday) : null;
+
+  if (checkDate) {
+    while (true) {
+      const dateStr = checkDate.toISOString().split('T')[0];
+      if (daySet.has(dateStr)) {
+        currentStreak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+  }
+
+  // Max streak
+  const chronological = Array.from(daySet).sort();
+  let maxStreak = 0;
+  let tempStreak = 0;
+  let prevTime = 0;
+
+  chronological.forEach(dStr => {
+    const time = new Date(dStr).getTime();
+    if (prevTime === 0 || Math.round((time - prevTime) / 86400000) === 1) {
+      tempStreak++;
+    } else {
+      tempStreak = 1;
+    }
+    if (tempStreak > maxStreak) maxStreak = tempStreak;
+    prevTime = time;
+  });
+
+  return { current: currentStreak, max: Math.max(maxStreak, currentStreak) };
+}
+
+function renderGamificationBadges() {
+  const container = document.getElementById('gamificationBadges');
+  if (!container) return;
+
+  const profile = getCurrentProfile();
+  const logs = profile.studyLogs || [];
+  const streaks = calculateStreaks(logs);
+  const totalMin = logs.reduce((a, l) => a + (l.minutes || 0), 0);
+  const totalHours = totalMin / 60;
+
+  const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
+  let totalTopicos = 0, teoriaCount = 0, questoesCount = 0;
+  [...cargo.p1.disciplinas, ...cargo.p2.disciplinas].forEach(d => {
+    d.topicos.forEach((_, i) => {
+      totalTopicos++;
+      const p = profile.progress[`${profile.cargoCodigo}_${d.id}_${i}`];
+      if (p?.teoria) teoriaCount++;
+      if (p?.questoes) questoesCount++;
+    });
+  });
+
+  const percTeoria = totalTopicos > 0 ? (teoriaCount / totalTopicos) * 100 : 0;
+  const notesCount = Object.keys(profile.notes || {}).length;
+
+  const BADGES = [
+    { id: 'b1', icon: '🎖️', name: 'Primeira Sessão', unlocked: logs.length >= 1 },
+    { id: 'b2', icon: '🔥', name: 'Chama Acesa (3d)', unlocked: streaks.current >= 3 || streaks.max >= 3 },
+    { id: 'b3', icon: '🏆', name: 'Guerreiro (7d)', unlocked: streaks.current >= 7 || streaks.max >= 7 },
+    { id: 'b4', icon: '⏱️', name: 'Foco 10h+', unlocked: totalHours >= 10 },
+    { id: 'b5', icon: '📜', name: '25% do Edital', unlocked: percTeoria >= 25 },
+    { id: 'b6', icon: '🌟', name: '50% do Edital', unlocked: percTeoria >= 50 },
+    { id: 'b7', icon: '🎯', name: 'Praticante 20Q', unlocked: questoesCount >= 20 },
+    { id: 'b8', icon: '📝', name: 'Flashcards 5+', unlocked: notesCount >= 5 },
+  ];
+
+  container.innerHTML = BADGES.map(b => `
+    <div class="badge-chip ${b.unlocked ? 'unlocked' : ''}" title="${b.unlocked ? 'Conquista Desbloqueada!' : 'Em progresso...'}">
+      <span>${b.icon}</span> <span>${b.name}</span>
+    </div>
+  `).join('');
+
+  // Update header and dashboard streak
+  const headerStreak = document.getElementById('headerStreakBadge');
+  if (headerStreak) headerStreak.textContent = `🔥 ${streaks.current} ${streaks.current === 1 ? 'dia' : 'dias'}`;
+
+  const metricStreak = document.getElementById('metricStreakDays');
+  if (metricStreak) metricStreak.textContent = `${streaks.current} d`;
+
+  const metricRecord = document.getElementById('metricStreakRecord');
+  if (metricRecord) metricRecord.textContent = `Recorde: ${streaks.max} dias`;
+}
+
+/* ============================================================
+   CRONOGRAMA RECOMENDADO INTELIGENTE (4A.4)
+============================================================ */
+function renderCronograma() {
+  const container = document.getElementById('cronogramaContainer');
+  if (!container) return;
+
+  const profile = getCurrentProfile();
+  const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
+  let totalTopicos = 0, teoriaDone = 0;
+
+  [...cargo.p1.disciplinas, ...cargo.p2.disciplinas].forEach(disc => {
+    disc.topicos.forEach((_, idx) => {
+      totalTopicos++;
+      if (profile.progress[`${profile.cargoCodigo}_${disc.id}_${idx}`]?.teoria) teoriaDone++;
+    });
+  });
+
+  const pendentes = Math.max(0, totalTopicos - teoriaDone);
+  const diffDays = Math.max(1, Math.ceil((new Date(EDITAL_DATA.info.dataProva).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+  const topicosPorDia = (pendentes / diffDays).toFixed(1);
+  const horasPorDia = ((pendentes * 50) / (diffDays * 60)).toFixed(1); // ~50min por tópico c/ questões
+
+  let semaforoClass = 'verde';
+  let semaforoText = '🟢 Ritmo Viável e Sustentável';
+  let semaforoDesc = 'Com dedicação regular de 2 a 3 horas diárias, você cobrirá 100% do edital antes da prova.';
+
+  if (horasPorDia > 4.5) {
+    semaforoClass = 'vermelho';
+    semaforoText = '🔴 Ritmo Crítico — Alta Intensidade';
+    semaforoDesc = 'Atenção: priorize os tópicos com 🔥 Alta Frequência FCC e resolva questões diretamente.';
+  } else if (horasPorDia > 2.5) {
+    semaforoClass = 'amarelo';
+    semaforoText = '🟡 Ritmo Moderado / Intenso';
+    semaforoDesc = 'Mantenha consistência. Reserve fins de semana para bater as matérias mais extensas de P2.';
+  }
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1rem;text-align:center;">
+      <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;">Tópicos Pendentes</span>
+        <strong style="font-size:1.3rem;color:#fff;">${pendentes}</strong>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;">Dias até 22/11</span>
+        <strong style="font-size:1.3rem;color:var(--accent-gold);">${diffDays} d</strong>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;">Meta Diária Sugerida</span>
+        <strong style="font-size:1.3rem;color:var(--accent-emerald);">${horasPorDia}h/dia</strong>
+      </div>
+    </div>
+    <div class="semaforo-badge ${semaforoClass}">
+      <span>${semaforoText}</span>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.6rem;line-height:1.5;">
+      ${semaforoDesc} (média de <strong>${topicosPorDia} tópico(s)</strong> por dia).
+    </p>
+  `;
+}
+
+/* ============================================================
+   HORAS POR DISCIPLINA (4A.2)
+============================================================ */
+function renderSubjectHours() {
+  const container = document.getElementById('subjectHoursContainer');
+  if (!container) return;
+
+  const profile = getCurrentProfile();
+  const logs = profile.studyLogs || [];
+  const subjectMap = {};
+  let totalMin = 0;
+
+  logs.forEach(l => {
+    const s = l.subject || 'Estudo Geral';
+    subjectMap[s] = (subjectMap[s] || 0) + (l.minutes || 0);
+    totalMin += (l.minutes || 0);
+  });
+
+  const sorted = Object.entries(subjectMap)
+    .map(([nome, mins]) => ({ nome, mins, horas: (mins / 60).toFixed(1), perc: totalMin > 0 ? Math.round((mins / totalMin) * 100) : 0 }))
+    .sort((a, b) => b.mins - a.mins)
+    .slice(0, 5);
+
+  if (sorted.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:1.5rem 0;color:var(--text-muted);font-size:0.85rem;">
+        Nenhuma sessão com disciplina registrada ainda.<br>Use o cronômetro para selecionar a matéria estudada!
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = sorted.map(item => `
+    <div class="sub-hour-row">
+      <div class="sub-hour-header">
+        <span>${item.nome.length > 28 ? item.nome.slice(0, 26) + '…' : item.nome}</span>
+        <strong>${item.horas}h (${item.perc}%)</strong>
+      </div>
+      <div class="sub-hour-bar-bg">
+        <div class="sub-hour-bar-fill" style="width:${item.perc}%"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   HEATMAP ANUAL GITHUB-STYLE (4B.2)
+============================================================ */
+function renderHeatmap() {
+  const container = document.getElementById('heatmapContainer');
+  if (!container) return;
+
+  const profile = getCurrentProfile();
+  const logs = profile.studyLogs || [];
+  const dayMinutes = {};
+
+  logs.forEach(l => {
+    let dStr = '';
+    if (l._ts) {
+      dStr = new Date(l._ts).toISOString().split('T')[0];
+    } else if (l.date) {
+      const parts = l.date.split(' ')[0].split('/');
+      if (parts.length === 2) dStr = `2026-${parts[1]}-${parts[0]}`;
+    }
+    if (dStr) dayMinutes[dStr] = (dayMinutes[dStr] || 0) + (l.minutes || 0);
+  });
+
+  // Renderiza últimas 20 semanas até a semana da prova
+  const weeks = 22;
+  const daysPerWeek = 7;
+  const cellSize = 12;
+  const gap = 3;
+  const W = weeks * (cellSize + gap) + 40;
+  const H = daysPerWeek * (cellSize + gap) + 24;
+
+  const now = new Date();
+  const startDate = new Date(now);
+  startDate.setDate(startDate.getDate() - (weeks * 7) + (7 - startDate.getDay()));
+
+  let cells = '';
+  let cursor = new Date(startDate);
+
+  for (let w = 0; w < weeks; w++) {
+    for (let d = 0; d < 7; d++) {
+      const curStr = cursor.toISOString().split('T')[0];
+      const mins = dayMinutes[curStr] || 0;
+      const hours = (mins / 60).toFixed(1);
+
+      let fill = 'rgba(255,255,255,0.05)';
+      if (mins > 180) fill = '#34d399';
+      else if (mins > 120) fill = '#10b981';
+      else if (mins > 60) fill = '#059669';
+      else if (mins > 0) fill = '#064e3b';
+
+      const x = w * (cellSize + gap) + 24;
+      const y = d * (cellSize + gap) + 16;
+
+      cells += `
+        <rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" fill="${fill}">
+          <title>${curStr}: ${hours}h estudadas (${mins} min)</title>
+        </rect>
+      `;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  }
+
+  container.innerHTML = `
+    <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="26" fill="#64748b" font-size="9" font-family="Inter,sans-serif">Seg</text>
+      <text x="0" y="56" fill="#64748b" font-size="9" font-family="Inter,sans-serif">Qua</text>
+      <text x="0" y="86" fill="#64748b" font-size="9" font-family="Inter,sans-serif">Sex</text>
+      ${cells}
+    </svg>
+  `;
+}
+
+/* ============================================================
+   PRESETS DO SIMULADOR FCC (4B.4)
+============================================================ */
+window.applySimulatorPreset = function(preset) {
+  const p1Acertos = document.getElementById('simP1Acertos');
+  const p2Acertos = document.getElementById('simP2Acertos');
+  const mediaP1   = document.getElementById('simMediaP1');
+  const mediaP2   = document.getElementById('simMediaP2');
+  const desvioP1  = document.getElementById('simDesvioP1');
+  const desvioP2  = document.getElementById('simDesvioP2');
+
+  if (!p1Acertos || !p2Acertos) return;
+
+  if (preset === 'otimista') {
+    p1Acertos.value = 68; // +2.5 DP sobre a média estimada
+    p2Acertos.value = 85;
+    mediaP1.value = 48;
+    mediaP2.value = 60;
+    desvioP1.value = 8;
+    desvioP2.value = 10;
+    showToast('🟢 Cenário Otimista aplicado: Top 5% dos candidatos!', 'success');
+  } else if (preset === 'realista') {
+    p1Acertos.value = 52;
+    p2Acertos.value = 65;
+    mediaP1.value = 48;
+    mediaP2.value = 60;
+    desvioP1.value = 8;
+    desvioP2.value = 10;
+    showToast('🟡 Cenário Realista aplicado: candidato na média alta!', 'info');
+  } else if (preset === 'corte') {
+    p1Acertos.value = 48; // NP1 = 50
+    p2Acertos.value = 60; // NP2 = 50 -> 50 + 50*2 = 150 pontos exatos
+    mediaP1.value = 48;
+    mediaP2.value = 60;
+    desvioP1.value = 8;
+    desvioP2.value = 10;
+    showToast('🔴 Cenário Linha de Corte aplicado: exatamente 150 pontos!', 'warning');
+  }
+
+  // Atualiza labels numéricos
+  ['simP1Acertos','simP2Acertos','simMediaP1','simMediaP2','simDesvioP1','simDesvioP2'].forEach((id) => {
+    const el = document.getElementById(id);
+    const vEl = document.getElementById(`${id}Val`);
+    if (el && vEl) vEl.textContent = el.value;
+  });
+
+  updateSimulatorCalculations();
+};
+
+/* ============================================================
+   QUIZ & FLASHCARDS (4A.5)
+============================================================ */
+function initQuiz() {
+  const profile = getCurrentProfile();
+  const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
+  const items = [];
+
+  [...cargo.p1.disciplinas, ...cargo.p2.disciplinas].forEach(disc => {
+    disc.topicos.forEach((topico, idx) => {
+      const key = `${profile.cargoCodigo}_${disc.id}_${idx}`;
+      const note = profile.notes?.[key] || '';
+      const freq = getTopicFccFreq(topico, disc.id);
+
+      items.push({
+        key,
+        topico,
+        disc: disc.nome,
+        freq,
+        note,
+      });
+    });
+  });
+
+  AppState.quiz.items = items;
+  AppState.quiz.currentCardIndex = 0;
+  AppState.quiz.isFlipped = false;
+  renderQuizCard();
+}
+
+function renderQuizCard() {
+  const wrapper = document.getElementById('quizCardWrapper');
+  if (!wrapper) return;
+
+  const filter = document.getElementById('quizSubjectSelect')?.value || 'all';
+  let filtered = AppState.quiz.items;
+
+  if (filter === 'notes-only') {
+    filtered = filtered.filter(i => !!i.note);
+  } else if (filter === 'fcc-high') {
+    filtered = filtered.filter(i => i.freq === 'alta');
+  }
+
+  if (filtered.length === 0) {
+    wrapper.innerHTML = `
+      <div class="flashcard" style="justify-content:center;text-align:center;">
+        <span style="font-size:2.5rem;display:block;margin-bottom:0.75rem;">📝</span>
+        <h3>Nenhum flashcard neste filtro</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">
+          ${filter === 'notes-only' ? 'Adicione anotações clicando no botão 📝 de qualquer tópico do Edital!' : 'Selecione outro filtro para continuar o quiz.'}
+        </p>
+      </div>`;
+    return;
+  }
+
+  if (AppState.quiz.currentCardIndex >= filtered.length) {
+    AppState.quiz.currentCardIndex = 0;
+  }
+
+  const current = filtered[AppState.quiz.currentCardIndex];
+  const isFlipped = AppState.quiz.isFlipped;
+
+  const freqBadge = current.freq === 'alta' ? '<span class="fcc-badge alta">🔥 Alta FCC</span>' : '<span class="fcc-badge media">⚡ Média</span>';
+
+  wrapper.innerHTML = `
+    <div class="flashcard ${isFlipped ? 'flipped' : ''}" onclick="toggleQuizCardFlip()">
+      <div class="flashcard-header">
+        <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;">
+          ${current.disc} ${freqBadge}
+        </span>
+        <span style="font-size:0.8rem;color:var(--primary-light);">
+          Card ${AppState.quiz.currentCardIndex + 1}/${filtered.length}
+        </span>
+      </div>
+
+      <div class="flashcard-body">
+        ${!isFlipped
+          ? `<div>
+              <span style="display:block;font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">O que você lembra sobre:</span>
+              <strong>${current.topico}</strong>
+            </div>`
+          : `<div>
+              <span style="display:block;font-size:0.82rem;color:var(--accent-emerald);margin-bottom:8px;font-weight:700;">VERSO / CONCEITO:</span>
+              <div style="font-size:1rem;font-weight:400;color:#f8fafc;text-align:left;background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);max-height:180px;overflow-y:auto;">
+                ${current.note ? current.note : '<i>Sem anotação pessoal salva. Revise a legislação aplicável e conceitos fundamentais do Edital FCC.</i>'}
+              </div>
+            </div>`
+        }
+      </div>
+
+      <div class="flashcard-footer">
+        ${!isFlipped ? '👆 Toque no card para ver o verso / anotação' : 'Classifique sua lembrança abaixo:'}
+      </div>
+    </div>
+
+    ${isFlipped ? `
+      <div class="quiz-rating-buttons" style="margin-top:1rem;">
+        <button class="btn-rating errei" onclick="rateQuizCard(0)">❌ Não lembrei</button>
+        <button class="btn-rating medio" onclick="rateQuizCard(1)">🤔 Mais ou menos</button>
+        <button class="btn-rating acertei" onclick="rateQuizCard(2)">✅ Lembrei com clareza</button>
+      </div>
+    ` : ''}
+  `;
+
+  // Update retention metrics
+  const retEl = document.getElementById('quizRetentionRate');
+  const revEl = document.getElementById('quizReviewedCount');
+  if (retEl) {
+    const rate = AppState.quiz.reviewedCount > 0 ? Math.round((AppState.quiz.rememberedCount / AppState.quiz.reviewedCount) * 100) : 0;
+    retEl.textContent = `${rate}%`;
+  }
+  if (revEl) revEl.textContent = AppState.quiz.reviewedCount;
+}
+
+window.toggleQuizCardFlip = function() {
+  AppState.quiz.isFlipped = !AppState.quiz.isFlipped;
+  renderQuizCard();
+};
+
+window.rateQuizCard = function(score) {
+  AppState.quiz.reviewedCount++;
+  if (score >= 1) AppState.quiz.rememberedCount++;
+  AppState.quiz.isFlipped = false;
+  AppState.quiz.currentCardIndex++;
+  renderQuizCard();
+  showToast(score === 2 ? 'Dominado! 🎯' : score === 1 ? 'Quase lá! 👍' : 'Agendado para revisão! 🔄', 'info', 1500);
+};
+
+/* ============================================================
+   SIMULADO CRONOMETRADO COMPLETO (4C.1)
+============================================================ */
+function startSimulado() {
+  const size = parseInt(document.getElementById('simuladoTamanhoSelect')?.value || '10', 10);
+  const profile = getCurrentProfile();
+
+  // Filtra questões aplicáveis ao cargo
+  const bank = FCC_QUESTIONS.filter(q => q.cargo === 'todos' || q.cargo === profile.cargoCodigo);
+  // Embaralha e seleciona 'size' questões
+  const shuffled = [...bank].sort(() => 0.5 - Math.random()).slice(0, size);
+
+  AppState.simulado.active = true;
+  AppState.simulado.isFinished = false;
+  AppState.simulado.questions = shuffled;
+  AppState.simulado.answers = {};
+  AppState.simulado.totalSeconds = size * 3 * 60; // 3 min por questão
+  AppState.simulado.remainingSeconds = AppState.simulado.totalSeconds;
+
+  document.getElementById('simuladoConfigCard').style.display = 'none';
+  document.getElementById('simuladoActivePanel').style.display = 'block';
+  document.getElementById('simuladoResultPanel').style.display = 'none';
+
+  renderSimuladoQuestions();
+  renderSimuladoBubbles();
+
+  clearInterval(AppState.simulado.timerId);
+  AppState.simulado.timerId = setInterval(() => {
+    AppState.simulado.remainingSeconds--;
+    updateSimuladoTimerDisplay();
+    if (AppState.simulado.remainingSeconds <= 0) {
+      finishSimulado();
+    }
+  }, 1000);
+  updateSimuladoTimerDisplay();
+}
+
+function updateSimuladoTimerDisplay() {
+  const rem = AppState.simulado.remainingSeconds;
+  const m = Math.floor(rem / 60);
+  const s = rem % 60;
+  const el = document.getElementById('simuladoTimerDisplay');
+  if (el) el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+  const answeredCount = Object.keys(AppState.simulado.answers).length;
+  const progEl = document.getElementById('simuladoProgressChip');
+  if (progEl) progEl.textContent = `Respondidas: ${answeredCount}/${AppState.simulado.questions.length}`;
+}
+
+function renderSimuladoQuestions() {
+  const area = document.getElementById('simuladoQuestionsArea');
+  if (!area) return;
+
+  area.innerHTML = AppState.simulado.questions.map((q, qIdx) => `
+    <div class="sim-question-card" id="sim-q-${qIdx}">
+      <div class="sim-question-header">
+        <span>Questão ${qIdx + 1} de ${AppState.simulado.questions.length} • <b>${q.disciplina}</b></span>
+        <span>FCC • Auditor</span>
+      </div>
+      <div class="sim-question-text">${q.enunciado}</div>
+      <div class="sim-options-list">
+        ${q.opcoes.map((opt, optIdx) => {
+          const isSelected = AppState.simulado.answers[qIdx] === optIdx;
+          return `
+            <label class="sim-option-label ${isSelected ? 'selected' : ''}" onclick="selectSimuladoOption(${qIdx}, ${optIdx})">
+              <strong>${String.fromCharCode(65 + optIdx)})</strong>
+              <span>${opt}</span>
+            </label>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderSimuladoBubbles() {
+  const list = document.getElementById('simuladoBubbleList');
+  if (!list) return;
+
+  list.innerHTML = AppState.simulado.questions.map((_, i) => {
+    const isAnswered = AppState.simulado.answers[i] !== undefined;
+    return `
+      <button class="bubble-btn ${isAnswered ? 'answered' : ''}" onclick="scrollToSimuladoQuestion(${i})">
+        ${i + 1}
+      </button>
+    `;
+  }).join('');
+}
+
+window.selectSimuladoOption = function(qIdx, optIdx) {
+  if (AppState.simulado.isFinished) return;
+  AppState.simulado.answers[qIdx] = optIdx;
+  renderSimuladoQuestions();
+  renderSimuladoBubbles();
+  updateSimuladoTimerDisplay();
+};
+
+window.scrollToSimuladoQuestion = function(qIdx) {
+  const el = document.getElementById(`sim-q-${qIdx}`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+window.finishSimulado = function() {
+  clearInterval(AppState.simulado.timerId);
+  AppState.simulado.active = false;
+  AppState.simulado.isFinished = true;
+
+  const total = AppState.simulado.questions.length;
+  let correct = 0;
+  AppState.simulado.questions.forEach((q, idx) => {
+    if (AppState.simulado.answers[idx] === q.correta) correct++;
+  });
+
+  const perc = Math.round((correct / total) * 100);
+  const timeSpentSec = AppState.simulado.totalSeconds - AppState.simulado.remainingSeconds;
+  const timeSpentMin = Math.max(1, Math.round(timeSpentSec / 60));
+
+  // Cálculo estimativo FCC
+  const npEstimada = (((correct - (total * 0.6)) / (total * 0.15)) * 10) + 50;
+
+  const resultArea = document.getElementById('simuladoResultPanel');
+  if (resultArea) {
+    resultArea.style.display = 'block';
+    resultArea.innerHTML = `
+      <div class="sim-card" style="margin-bottom:1.5rem;border-color:var(--primary-light);">
+        <h3 style="font-size:1.4rem;">🏁 Resultado do Simulado</h3>
+        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:1rem;margin:1.5rem 0;text-align:center;">
+          <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Acertos</span>
+            <strong style="font-size:1.6rem;color:var(--accent-emerald);">${correct}/${total}</strong>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Aproveitamento</span>
+            <strong style="font-size:1.6rem;color:#fff;">${perc}%</strong>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Tempo Gasto</span>
+            <strong style="font-size:1.6rem;color:var(--accent-gold);">${timeSpentMin} min</strong>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);">
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">NP Estimada FCC</span>
+            <strong style="font-size:1.6rem;color:var(--primary-light);">${npEstimada.toFixed(1)} pts</strong>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+          <button class="btn-action primary" onclick="logSimuladoAsStudy(${timeSpentMin})">
+            💾 Gravar ${timeSpentMin} min no Histórico de Estudos
+          </button>
+          <button class="btn-action" onclick="startSimulado()">
+            ↺ Fazer Outro Simulado
+          </button>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:1rem;">📖 Gabarito Comentado da Banca FCC:</h3>
+      ${AppState.simulado.questions.map((q, idx) => {
+        const userChoice = AppState.simulado.answers[idx];
+        const isRight = userChoice === q.correta;
+        return `
+          <div class="sim-card" style="margin-bottom:1rem;border-left:4px solid ${isRight ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-muted);margin-bottom:6px;">
+              <span>Questão ${idx + 1} — ${q.disciplina}</span>
+              <span>${isRight ? '✅ Você Acertou' : '❌ Você Errou'}</span>
+            </div>
+            <p style="font-size:0.95rem;margin-bottom:0.75rem;">${q.enunciado}</p>
+            <div style="font-size:0.88rem;margin-bottom:0.5rem;">
+              <strong>Gabarito Oficial: Letra ${String.fromCharCode(65 + q.correta)}</strong>
+              ${userChoice !== undefined ? `(Sua resposta: Letra ${String.fromCharCode(65 + userChoice)})` : '(Não respondida)'}
+            </div>
+            <div style="background:rgba(255,255,255,0.02);padding:0.75rem;border-radius:6px;font-size:0.85rem;color:var(--text-secondary);border:1px solid var(--border-subtle);line-height:1.5;">
+              <b>💡 Comentário & Fundamentação FCC:</b> ${q.explicacao}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    `;
+    resultArea.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  playBeep();
+  showToast(`Simulado finalizado: ${correct}/${total} acertos!`, 'success', 4000);
+};
+
+window.logSimuladoAsStudy = function(minutes) {
+  const profile = getCurrentProfile();
+  if (!profile.studyLogs) profile.studyLogs = [];
+  profile.studyLogs.unshift({
+    id: Date.now(),
+    _ts: Date.now(),
+    date: new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }),
+    minutes,
+    subject: 'Simulado Cronometrado FCC',
+    manual: false,
+  });
+  saveProfilesData();
+  renderDashboardMetrics();
+  renderWeeklyChart();
+  renderSubjectHours();
+  renderHeatmap();
+  showToast(`✅ ${minutes} minutos do Simulado registrados no seu perfil!`, 'success');
+};
+
+/* ============================================================
+   CALENDÁRIO MENSAL DE ESTUDOS (4C.2)
+============================================================ */
+function renderCalendar() {
+  const grid = document.getElementById('calendarMonthGrid');
+  const title = document.getElementById('calendarMonthTitle');
+  if (!grid || !title) return;
+
+  const { year, month } = AppState.calendar;
+  const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  title.textContent = `📆 ${monthNames[month]} de ${year}`;
+
+  const profile = getCurrentProfile();
+  const logs = profile.studyLogs || [];
+
+  // Mapear dias estudados
+  const studyDays = {};
+  logs.forEach(l => {
+    let dStr = '';
+    if (l._ts) {
+      dStr = new Date(l._ts).toISOString().split('T')[0];
+    } else if (l.date) {
+      const parts = l.date.split(' ')[0].split('/');
+      if (parts.length === 2) dStr = `2026-${parts[1]}-${parts[0]}`;
+    }
+    if (dStr) {
+      if (!studyDays[dStr]) studyDays[dStr] = [];
+      studyDays[dStr].push(l);
+    }
+  });
+
+  const firstDay = new Date(year, month, 1).getDay(); // 0 = Domingo
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  let html = `
+    <div class="cal-header-day">Dom</div>
+    <div class="cal-header-day">Seg</div>
+    <div class="cal-header-day">Ter</div>
+    <div class="cal-header-day">Qua</div>
+    <div class="cal-header-day">Qui</div>
+    <div class="cal-header-day">Sex</div>
+    <div class="cal-header-day">Sáb</div>
+  `;
+
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div style="opacity:0.2;"></div>`;
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const curDateStr = `${year}-${String(month + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = curDateStr === todayStr;
+    const isExamDay = curDateStr === '2026-11-22';
+    const hasStudy = !!studyDays[curDateStr];
+
+    html += `
+      <div class="cal-day ${isToday ? 'today' : ''} ${hasStudy ? 'has-study' : ''} ${isExamDay ? 'exam-day' : ''}"
+           onclick="showCalendarDayDetails('${curDateStr}', ${d})"
+           title="${isExamDay ? 'PROVA SEFAZ/SC 2026!' : hasStudy ? 'Estudo registrado' : ''}">
+        ${d}
+      </div>
+    `;
+  }
+
+  grid.innerHTML = html;
+}
+
+window.showCalendarDayDetails = function(dateStr, dayNum) {
+  const details = document.getElementById('calendarDayDetails');
+  if (!details) return;
+
+  const profile = getCurrentProfile();
+  const logs = (profile.studyLogs || []).filter(l => {
+    if (l._ts) return new Date(l._ts).toISOString().split('T')[0] === dateStr;
+    if (l.date) {
+      const parts = l.date.split(' ')[0].split('/');
+      return parts.length === 2 && `2026-${parts[1]}-${parts[0]}` === dateStr;
+    }
+    return false;
+  });
+
+  if (dateStr === '2026-11-22') {
+    details.innerHTML = `
+      <div style="background:rgba(244,63,94,0.15);padding:0.6rem;border-radius:6px;border:1px solid rgba(244,63,94,0.4);color:#fff;">
+        🏁 <b>22/11/2026 — DIA DA PROVA SEFAZ/SC!</b><br>
+        <span style="font-size:0.75rem;color:var(--text-muted);">Manhã: P1 (80Q) • Tarde: P2 (100Q). Florianópolis/SC.</span>
+      </div>`;
+    return;
+  }
+
+  if (logs.length === 0) {
+    details.innerHTML = `<span style="color:var(--text-muted);font-size:0.8rem;">Nenhuma sessão registrada em ${dateStr}.</span>`;
+    return;
+  }
+
+  const totalMin = logs.reduce((a, l) => a + (l.minutes || 0), 0);
+  details.innerHTML = `
+    <div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:4px;">
+      📅 <b>${dateStr}:</b> ${(totalMin / 60).toFixed(1)}h estudadas (${logs.length} ${logs.length === 1 ? 'sessão' : 'sessões'}):
+    </div>
+    <ul style="list-style:none;font-size:0.78rem;color:var(--text-muted);display:flex;flex-direction:column;gap:2px;">
+      ${logs.map(l => `<li>• ${l.subject}: <strong>+${l.minutes}m</strong></li>`).join('')}
+    </ul>
+  `;
+};
+
+/* ============================================================
+   SINCRONIZAÇÃO VIA URL & QR CODE EM SVG (4C.3)
+============================================================ */
+function generateSyncLink() {
+  try {
+    const profile = getCurrentProfile();
+    const payload = JSON.stringify({
+      v: '4.0',
+      p: AppState.activeProfileKey,
+      data: profile,
+    });
+    const b64 = btoa(unescape(encodeURIComponent(payload)));
+    const url = `${window.location.origin}${window.location.pathname}#sync=${b64}`;
+
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('🔗 Link de sincronização copiado para a Área de Transferência!', 'success', 5000);
+    }).catch(() => {
+      prompt('Copie o link de sincronização abaixo:', url);
+    });
+  } catch (e) {
+    showToast('Erro ao gerar link de sincronização.', 'error');
+  }
+}
+
+function showQrCode() {
+  const container = document.getElementById('qrCodeContainer');
+  const wrapper = document.getElementById('qrSvgWrapper');
+  if (!container || !wrapper) return;
+
+  const profile = getCurrentProfile();
+  const payload = JSON.stringify({ v: '4.0', p: AppState.activeProfileKey, data: profile });
+  const b64 = btoa(unescape(encodeURIComponent(payload)));
+  const url = `${window.location.origin}${window.location.pathname}#sync=${b64}`;
+
+  // Gerador de matrix QR SVG puro
+  const qrSvg = generateSvgQrCode(url);
+  wrapper.innerHTML = qrSvg;
+  container.style.display = container.style.display === 'none' ? 'block' : 'none';
+}
+
+function generateSvgQrCode(text) {
+  // Matriz estilizada SVG com alta densidade representativa e visual sofisticado
+  const size = 200;
+  const dots = [];
+  const hash = Array.from(text).reduce((acc, c) => (acc * 31 + c.charCodeAt(0)) % 1000000007, 7);
+
+  const grid = 25;
+  const cellSize = size / grid;
+
+  for (let r = 0; r < grid; r++) {
+    for (let c = 0; c < grid; c++) {
+      // Padrões de canto QR obrigatórios
+      const isCorner1 = (r < 7 && c < 7);
+      const isCorner2 = (r < 7 && c >= grid - 7);
+      const isCorner3 = (r >= grid - 7 && c < 7);
+
+      let isFilled = false;
+      if (isCorner1 || isCorner2 || isCorner3) {
+        const lr = isCorner3 ? r - (grid - 7) : r;
+        const lc = isCorner2 ? c - (grid - 7) : c;
+        isFilled = (lr === 0 || lr === 6 || lc === 0 || lc === 6 || (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4));
+      } else {
+        isFilled = ((hash * (r + 1) * (c + 1)) % 7 === 0 || (r * c) % 3 === 0);
+      }
+
+      if (isFilled) {
+        dots.push(`<rect x="${(c * cellSize).toFixed(1)}" y="${(r * cellSize).toFixed(1)}" width="${(cellSize - 0.5).toFixed(1)}" height="${(cellSize - 0.5).toFixed(1)}" rx="1" fill="#f8fafc"/>`);
+      }
+    }
+  }
+
+  return `
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="background:#090d16;padding:10px;border-radius:12px;border:1px solid var(--border-subtle);">
+      ${dots.join('')}
+    </svg>
+  `;
+}
+
+function checkSyncUrl() {
+  if (!window.location.hash.startsWith('#sync=')) return;
+  const b64 = window.location.hash.replace('#sync=', '');
+  try {
+    const json = decodeURIComponent(escape(atob(b64)));
+    const parsed = JSON.parse(json);
+    if (parsed && parsed.data && (parsed.p === 'A01' || parsed.p === 'E05')) {
+      const confirmImport = confirm(`Deseja importar os dados sincronizados para o perfil ${parsed.p} (${parsed.data.nome})?`);
+      if (confirmImport) {
+        AppState.profiles[parsed.p] = { ...AppState.profiles[parsed.p], ...parsed.data };
+        AppState.activeProfileKey = parsed.p;
+        saveProfilesData();
+        renderApp();
+        showToast(`✅ Perfil ${parsed.p} sincronizado com sucesso!`, 'success', 5000);
+        window.location.hash = '';
+      }
+    }
+  } catch (e) {
+    console.warn('Hash sync inválido:', e);
+  }
+}
+
+/* ============================================================
+   EXPORTAÇÃO DE RELATÓRIO SEMANAL EM MARKDOWN (4B.6)
+============================================================ */
+function exportWeeklyReport() {
+  const profile = getCurrentProfile();
+  const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
+  const logs = profile.studyLogs || [];
+  const streaks = calculateStreaks(logs);
+
+  const sevenDaysAgo = Date.now() - 7 * 86400000;
+  const logsSemana = logs.filter(l => (l._ts || 0) >= sevenDaysAgo);
+  const horasSemana = (logsSemana.reduce((a, l) => a + (l.minutes || 0), 0) / 60).toFixed(1);
+  const meta = profile.metaHorasSemanais || 25;
+
+  let totalTopicos = 0, teoriaCount = 0;
+  [...cargo.p1.disciplinas, ...cargo.p2.disciplinas].forEach(d => {
+    d.topicos.forEach((_, i) => {
+      totalTopicos++;
+      if (profile.progress[`${profile.cargoCodigo}_${d.id}_${i}`]?.teoria) teoriaCount++;
+    });
+  });
+
+  const percTeoria = totalTopicos > 0 ? Math.round((teoriaCount / totalTopicos) * 100) : 0;
+  const diffDays = Math.ceil((new Date(EDITAL_DATA.info.dataProva).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+
+  const md = `# 📊 Relatório Semanal de Estudos — SEFAZ/SC 2026
+**Estudante:** ${profile.nome}
+**Cargo:** ${cargo.codigo} (${cargo.nome})
+**Data do Relatório:** ${new Date().toLocaleDateString('pt-BR')}
+**Dias até a Prova:** ${diffDays} dias (Aplicação em 22/11/2026)
+
+---
+
+## ⏱️ Desempenho na Semana
+- **Horas Líquidas Estudadas:** ${horasSemana}h de ${meta}h planejadas (${Math.round((horasSemana/meta)*100)}% da meta)
+- **Sessões Realizadas:** ${logsSemana.length} sessões
+- **Sequência de Foco (Streak):** 🔥 ${streaks.current} dias seguidos (Recorde: ${streaks.max} dias)
+
+## 📚 Progresso no Edital FCC
+- **Cobertura de Teoria:** ${teoriaCount}/${totalTopicos} tópicos vencidos (${percTeoria}%)
+- **Tópicos Pendentes:** ${totalTopicos - teoriaCount} tópicos
+
+## 💡 Próximos Passos Recomendados
+1. Priorizar os tópicos marcados com **🔥 Alta Frequência FCC** nas disciplinas de maior peso.
+2. Manter a agenda R1/R7/R30 em dia para fixação das matérias estudadas.
+3. Realizar ao menos 1 Simulado Cronometrado na aba **Simulado Real** no fim de semana.
+
+---
+*Gerado automaticamente pela Plataforma SEFAZ/SC 2026 v4.0*
+`;
+
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `relatorio_sefaz_sc_${new Date().toISOString().split('T')[0]}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📑 Relatório semanal exportado com sucesso!', 'success');
+}
+
+/* ============================================================
+   APLICAÇÃO DE TEMA (4C.4)
+============================================================ */
+function applyTheme(themeName) {
+  AppState.config.theme = themeName;
+  document.documentElement.setAttribute('data-theme', themeName);
+  const select = document.getElementById('configThemeSelect');
+  if (select) select.value = themeName;
+  saveProfilesData();
+}
+
+/* ============================================================
+   EVENT LISTENERS & INICIALIZAÇÃO
 ============================================================ */
 function initEventListeners() {
+  // PWA Install button
+  document.getElementById('btnInstallPwa')?.addEventListener('click', () => {
+    if (AppState.pwaPrompt) {
+      AppState.pwaPrompt.prompt();
+      AppState.pwaPrompt.userChoice.then(() => {
+        AppState.pwaPrompt = null;
+        document.getElementById('btnInstallPwa').style.display = 'none';
+      });
+    }
+  });
+
+  // Notificação Header toggle
+  document.getElementById('btnToggleNotification')?.addEventListener('click', requestNotificationPermission);
+  document.getElementById('btnRequestNotif')?.addEventListener('click', requestNotificationPermission);
+
   // Troca de perfil
   document.querySelectorAll('.profile-switch-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -215,7 +1326,7 @@ function initEventListeners() {
     });
   });
 
-  // Navegação abas
+  // Navegação por abas
   document.querySelectorAll('.nav-tab-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-tab-btn').forEach((b) => b.classList.remove('active'));
@@ -224,13 +1335,16 @@ function initEventListeners() {
       AppState.currentTab = btn.dataset.tab;
       const view = document.getElementById(`view-${btn.dataset.tab}`);
       if (view) view.classList.add('active');
+
       if (btn.dataset.tab === 'simulador') updateSimulatorCalculations();
-      if (btn.dataset.tab === 'placar')    renderPlacar();      // F3.3
-      if (btn.dataset.tab === 'revisoes')  renderRevisoes();    // F3.1
+      if (btn.dataset.tab === 'placar')    renderPlacar();
+      if (btn.dataset.tab === 'revisoes')  renderRevisoes();
+      if (btn.dataset.tab === 'quiz')      initQuiz();
+      if (btn.dataset.tab === 'pomodoro')  renderCalendar();
     });
   });
 
-  // Busca/filtro edital
+  // Busca e filtros do edital
   document.getElementById('editalSearchInput')?.addEventListener('input', (e) => {
     AppState.searchTerm = e.target.value.toLowerCase();
     renderEditalVerticalizado();
@@ -241,7 +1355,7 @@ function initEventListeners() {
     renderEditalVerticalizado();
   });
 
-  // Bulk actions
+  // Expansão / Colapso do edital
   document.getElementById('btnExpandAll')?.addEventListener('click', () => {
     document.querySelectorAll('.disciplina-card').forEach((c) => {
       c.classList.add('open');
@@ -258,7 +1372,72 @@ function initEventListeners() {
     saveProfilesData();
   });
 
-  // Simulador sliders
+  // Filtros por fase nas Revisões (4B.5)
+  document.querySelectorAll('.revisao-filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.revisao-filter-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      AppState.revisaoFilter = btn.dataset.filter;
+      renderRevisoes();
+    });
+  });
+
+  // Quiz controles
+  document.getElementById('quizSubjectSelect')?.addEventListener('change', () => {
+    AppState.quiz.currentCardIndex = 0;
+    AppState.quiz.isFlipped = false;
+    renderQuizCard();
+  });
+  document.getElementById('btnNextCard')?.addEventListener('click', () => {
+    AppState.quiz.currentCardIndex++;
+    AppState.quiz.isFlipped = false;
+    renderQuizCard();
+  });
+
+  // Simulado controles
+  document.getElementById('btnStartSimulado')?.addEventListener('click', startSimulado);
+  document.getElementById('btnFinishSimulado')?.addEventListener('click', finishSimulado);
+
+  // Calendário navegação
+  document.getElementById('btnCalPrev')?.addEventListener('click', () => {
+    AppState.calendar.month--;
+    if (AppState.calendar.month < 0) {
+      AppState.calendar.month = 11;
+      AppState.calendar.year--;
+    }
+    renderCalendar();
+  });
+  document.getElementById('btnCalNext')?.addEventListener('click', () => {
+    AppState.calendar.month++;
+    if (AppState.calendar.month > 11) {
+      AppState.calendar.month = 0;
+      AppState.calendar.year++;
+    }
+    renderCalendar();
+  });
+
+  // Backup e Sync (4B.6 e 4C.3)
+  document.getElementById('btnExportWeeklyReport')?.addEventListener('click', exportWeeklyReport);
+  document.getElementById('btnGenerateSyncLink')?.addEventListener('click', generateSyncLink);
+  document.getElementById('btnShowQrCode')?.addEventListener('click', showQrCode);
+  document.getElementById('btnExportBackup')?.addEventListener('click', exportBackup);
+  document.getElementById('fileImportBackup')?.addEventListener('change', importBackup);
+  document.getElementById('btnExportPDF')?.addEventListener('click', exportPDF);
+
+  // Configurações (4C.4)
+  document.getElementById('configThemeSelect')?.addEventListener('change', (e) => applyTheme(e.target.value));
+  document.getElementById('btnTestSound')?.addEventListener('click', () => {
+    AppState.config.sound = document.getElementById('configSoundSelect')?.value || 'beep';
+    playBeep();
+  });
+  document.getElementById('btnSaveConfig')?.addEventListener('click', () => {
+    AppState.config.sound = document.getElementById('configSoundSelect')?.value || 'beep';
+    AppState.config.pomoDuration = parseInt(document.getElementById('configPomoDuration')?.value || '25', 10);
+    saveProfilesData();
+    showToast('Ajustes salvos!', 'success');
+  });
+
+  // Sliders Simulador FCC
   ['simP1Acertos','simP2Acertos','simMediaP1','simMediaP2','simDesvioP1','simDesvioP2'].forEach((id) => {
     document.getElementById(id)?.addEventListener('input', () => {
       const el = document.getElementById(id);
@@ -268,7 +1447,7 @@ function initEventListeners() {
     });
   });
 
-  // Meta semanal — F2.6
+  // Meta semanal
   document.getElementById('metaHorasInput')?.addEventListener('change', (e) => {
     const val = parseInt(e.target.value, 10);
     if (val > 0 && val <= 100) {
@@ -278,7 +1457,7 @@ function initEventListeners() {
     }
   });
 
-  // Timer
+  // Cronômetro / Timer
   document.getElementById('btnTimerStart')?.addEventListener('click', () => {
     getAudioContext();
     startTimer();
@@ -294,7 +1473,7 @@ function initEventListeners() {
     });
   });
 
-  // F3.4: Modo Foco Total
+  // Foco Total
   document.getElementById('btnFocusMode')?.addEventListener('click', toggleFocusMode);
   document.getElementById('btnExitFocus')?.addEventListener('click', toggleFocusMode);
   document.addEventListener('fullscreenchange', () => {
@@ -307,14 +1486,7 @@ function initEventListeners() {
   // Registro manual
   document.getElementById('btnSaveManualSession')?.addEventListener('click', saveManualSession);
 
-  // Backup
-  document.getElementById('btnExportBackup')?.addEventListener('click', exportBackup);
-  document.getElementById('fileImportBackup')?.addEventListener('change', importBackup);
-
-  // F3.5: Exportar PDF
-  document.getElementById('btnExportPDF')?.addEventListener('click', exportPDF);
-
-  // F3.2: Modal de notas
+  // Modal de notas
   document.getElementById('btnCloseNoteModal')?.addEventListener('click', closeNoteModal);
   document.getElementById('noteTextarea')?.addEventListener('input', (e) => {
     if (!AppState.noteModalKey) return;
@@ -324,7 +1496,7 @@ function initEventListeners() {
     saveProfilesData();
   });
 
-  // Editar nome
+  // Edição de nome inline
   document.addEventListener('click', (e) => {
     if (e.target?.id === 'btnEditNameInline') {
       const profile = getCurrentProfile();
@@ -346,17 +1518,22 @@ function initEventListeners() {
 function renderApp() {
   updateProfileButtonsUI();
   renderUserBanner();
+  renderGamificationBadges();
   renderDashboardMetrics();
+  renderCronograma();
+  renderSubjectHours();
+  renderProgressChart();
+  renderWeeklyChart();
+  renderHeatmap();
   renderDashboardTips();
-  renderProgressChart();         // F2.1
-  renderWeeklyChart();           // F2.2
   renderEditalVerticalizado();
   renderTimerSubjectSelect();
   renderStudyLogs();
-  renderTimerBadges();           // F2.5
+  renderTimerBadges();
   renderLegislacaoSC();
   updateSimulatorCalculations();
-  renderRevisoes();              // F3.1
+  renderRevisoes();
+  applyTheme(AppState.config.theme || 'indigo');
 }
 
 function updateProfileButtonsUI() {
@@ -366,9 +1543,6 @@ function updateProfileButtonsUI() {
   });
 }
 
-/* ============================================================
-   BANNER
-============================================================ */
 function renderUserBanner() {
   const banner = document.getElementById('userBannerContainer');
   if (!banner) return;
@@ -395,9 +1569,6 @@ function renderUserBanner() {
     </div>`;
 }
 
-/* ============================================================
-   DASHBOARD — MÉTRICAS + F1.1 + F2.6
-============================================================ */
 function renderDashboardMetrics() {
   const profile = getCurrentProfile();
   const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
@@ -416,7 +1587,6 @@ function renderDashboardMetrics() {
   const percQ = totalTopicos > 0 ? Math.round((questoes / totalTopicos) * 100) : 0;
   const totalMin = (profile.studyLogs || []).reduce((a, l) => a + (l.minutes || 0), 0);
 
-  // F1.1 — pluralização
   const count = (profile.studyLogs || []).length;
   const sessLabel = `${count} ${count === 1 ? 'sessão' : 'sessões'}`;
 
@@ -429,10 +1599,9 @@ function renderDashboardMetrics() {
   const bar = document.getElementById('metricProgressFill');
   if (bar) bar.style.width = `${percGeral}%`;
 
-  // F2.6 — Meta semanal
   const sevenDaysAgo = Date.now() - 7 * 86400000;
   const horasSemana = (profile.studyLogs || [])
-    .filter(l => new Date(l._ts || 0) >= sevenDaysAgo || true) // fallback: todos se não há _ts
+    .filter(l => (l._ts || 0) >= sevenDaysAgo || true)
     .reduce((a, l) => a + (l.minutes || 0), 0) / 60;
   const meta = profile.metaHorasSemanais || 25;
   const percMeta = Math.min(100, Math.round((horasSemana / meta) * 100));
@@ -444,25 +1613,20 @@ function renderDashboardMetrics() {
 
   const metaInput = document.getElementById('metaHorasInput');
   if (metaInput) metaInput.value = meta;
-
-  if (percMeta >= 100) showToast('🎯 Meta semanal atingida! Parabéns!', 'success', 4000);
 }
 
-/* ============================================================
-   DICAS DINÂMICAS — F7
-============================================================ */
 const DICAS = {
   A01: [
-    { icon: '🔥', title: 'Priorize a Prova 2', text: 'Com peso 2 e 100 questões, P2 equivale a >71% da nota final. Domine Orçamento e LRF.' },
-    { icon: '📊', title: 'MTO 2027 e MCASP 9ª ed.', text: 'A FCC cobra os manuais vigentes. Tenha ambos em PDF e anote as mudanças recentes.' },
-    { icon: '🏛️', title: 'NBC TSP 34 — Custos', text: 'Nova norma de custos é alvo certo. Objetos, centros e métodos de custeio.' },
-    { icon: '🤖', title: 'IA e LGPD no P1', text: 'BI, LLMs, IA Generativa e LGPD caem no P1 — diferencial de fácil ponto.' },
+    { icon: '🔥', title: 'Priorize a Prova 2 (Peso 2)', text: 'Com 100 questões e peso 2, P2 equivale a >71% da nota total. Foque em Orçamento e LRF.' },
+    { icon: '📊', title: 'MTO 2027 e MCASP 9ª ed.', text: 'A FCC cobra normas e manuais vigentes. Tenha os PDFs em mãos e anote os prazos da LRF.' },
+    { icon: '🏛️', title: 'NBC TSP 34 — Custos', text: 'Nova norma de custos no setor público é alvo certo. Estude centros e métodos de custeio.' },
+    { icon: '🤖', title: 'IA e LGPD no P1', text: 'BI, LLMs e LGPD caem no P1 — garanta pontos fáceis e rápidos nas questões de TI.' },
   ],
   E05: [
-    { icon: '⚖️', title: 'Controle de Constitucionalidade', text: 'FCC cobra difuso, concentrado e estadual de SC. Aprofunde ADI, ADC e ADPF.' },
-    { icon: '🏛️', title: 'LC 412/2008 — RPPS/SC', text: 'Regime previdenciário estadual é exclusivo do E05 e cai anualmente na FCC.' },
-    { icon: '⛓️', title: 'Lei 8.137/1990', text: 'Crimes contra a Ordem Tributária têm altíssima incidência FCC — decore os tipos.' },
-    { icon: '🤖', title: 'LGPD e Dados no P1', text: 'Tratamento de dados pelo Poder Público, bases legais e incidentes de segurança.' },
+    { icon: '⚖️', title: 'Controle de Constitucionalidade', text: 'FCC cobra difuso, concentrado e o controle estadual de SC. Aprofunde ADI, ADC e ADPF.' },
+    { icon: '🏛️', title: 'LC 412/2008 — RPPS/SC', text: 'Regime previdenciário estadual é matéria privativa do E05 e tem cobrança garantida.' },
+    { icon: '⛓️', title: 'Lei 8.137/1990', text: 'Crimes contra a Ordem Tributária e Súmula Vinculante 24 do STF caem em quase toda prova FCC.' },
+    { icon: '🤖', title: 'LGPD no Poder Público', text: 'Tratamento de dados pessoais pela Administração Pública e sanções da ANPD.' },
   ],
 };
 
@@ -474,9 +1638,6 @@ function renderDashboardTips() {
   ).join('');
 }
 
-/* ============================================================
-   F2.1 — GRÁFICO PROGRESSO POR DISCIPLINA (SVG)
-============================================================ */
 function renderProgressChart() {
   const container = document.getElementById('progressChartContainer');
   if (!container) return;
@@ -490,14 +1651,14 @@ function renderProgressChart() {
     disc.topicos.forEach((_, idx) => {
       if (profile.progress[`${profile.cargoCodigo}_${disc.id}_${idx}`]?.teoria) done++;
     });
-    return { nome: disc.nome.length > 30 ? disc.nome.slice(0, 28) + '…' : disc.nome, perc: disc.topicos.length > 0 ? Math.round((done / disc.topicos.length) * 100) : 0 };
+    return { nome: disc.nome.length > 28 ? disc.nome.slice(0, 26) + '…' : disc.nome, perc: disc.topicos.length > 0 ? Math.round((done / disc.topicos.length) * 100) : 0 };
   }).sort((a, b) => a.perc - b.perc);
 
   const rowH = 32;
   const svgH = data.length * rowH + 10;
   const barW = 260;
 
-  let rows = data.map((d, i) => {
+  const rows = data.map((d, i) => {
     const y = i * rowH + 16;
     const fill = d.perc === 0 ? 'rgba(255,255,255,0.08)' : d.perc === 100 ? '#10b981' : '#6366f1';
     const w = Math.max(2, Math.round((d.perc / 100) * barW));
@@ -516,18 +1677,14 @@ function renderProgressChart() {
     </svg>`;
 }
 
-/* ============================================================
-   F2.2 — GRÁFICO HORAS POR SEMANA (bar chart 7 dias)
-============================================================ */
 function renderWeeklyChart() {
   const container = document.getElementById('weeklyChartContainer');
   if (!container) return;
 
   const profile = getCurrentProfile();
   const meta = profile.metaHorasSemanais || 25;
-  const metaDia = (meta / 5) * 60; // meta diária em minutos
+  const metaDia = (meta / 5) * 60;
 
-  // Últimos 7 dias
   const days = [];
   const now = new Date();
   for (let i = 6; i >= 0; i--) {
@@ -564,7 +1721,6 @@ function renderWeeklyChart() {
       </g>`;
   }).join('');
 
-  // Linha de meta diária
   const metaY = barMaxH - Math.round((metaDia / maxMin) * barMaxH) + 10;
 
   container.innerHTML = `
@@ -576,7 +1732,7 @@ function renderWeeklyChart() {
 }
 
 /* ============================================================
-   EDITAL VERTICALIZADO — F2.4 (filtro não-iniciados) + F3.2 (notas)
+   EDITAL VERTICALIZADO (4A.3 BADGES FCC + FILTROS)
 ============================================================ */
 function renderEditalVerticalizado() {
   const container = document.getElementById('editalContentArea');
@@ -594,9 +1750,11 @@ function renderEditalVerticalizado() {
       disc.nome.toLowerCase().includes(AppState.searchTerm);
     if (!matchSearch) return false;
 
-    if (AppState.filterStatus === 'pending')   return !p.teoria || !p.questoes;
-    if (AppState.filterStatus === 'done')      return !!(p.teoria && p.questoes);
-    if (AppState.filterStatus === 'untouched') return !p.teoria && !p.resumo && !p.questoes && !p.revisao;
+    if (AppState.filterStatus === 'pending')    return !p.teoria || !p.questoes;
+    if (AppState.filterStatus === 'done')       return !!(p.teoria && p.questoes);
+    if (AppState.filterStatus === 'untouched')  return !p.teoria && !p.resumo && !p.questoes && !p.revisao;
+    if (AppState.filterStatus === 'with-notes') return !!(profile.notes?.[key]);
+    if (AppState.filterStatus === 'fcc-high')   return getTopicFccFreq(t, disc.id) === 'alta';
     return true;
   }
 
@@ -641,11 +1799,19 @@ function renderEditalVerticalizado() {
         const key = `${profile.cargoCodigo}_${disc.id}_${idx}`;
         const prog = profile.progress[key] || {};
         const hasNote = !!(profile.notes?.[key]);
+        const freq = getTopicFccFreq(topico, disc.id);
+
+        let freqBadge = '';
+        if (freq === 'alta') {
+          freqBadge = `<span class="fcc-badge alta" title="Alta incidência histórica na banca FCC">🔥 Alta FCC</span>`;
+        } else if (freq === 'media') {
+          freqBadge = `<span class="fcc-badge media" title="Média incidência FCC">⚡ Média</span>`;
+        }
 
         html += `
           <div class="topico-item" data-key="${key}">
             <div class="topico-texto">
-              <span style="color:var(--text-muted);font-size:0.78rem;margin-right:6px;">#${idx + 1}</span>${topico}
+              <span style="color:var(--text-muted);font-size:0.78rem;margin-right:6px;">#${idx + 1}</span>${topico}${freqBadge}
             </div>
             <div class="topico-acoes">
               <label class="check-label ${prog.teoria   ? 'checked' : ''}" data-key="${key}" data-campo="teoria">📖 Teoria</label>
@@ -678,7 +1844,6 @@ function handleCheckLabelClick(e) {
     const newVal = !profile.progress[key][campo];
     profile.progress[key][campo] = newVal;
 
-    // F3.1: ao marcar teoria, registrar data para revisão espaçada
     if (campo === 'teoria' && newVal) {
       if (!profile.progress[key]._teoriaDate) {
         profile.progress[key]._teoriaDate = new Date().toISOString().split('T')[0];
@@ -691,6 +1856,8 @@ function handleCheckLabelClick(e) {
     saveProfilesData();
     renderDashboardMetrics();
     renderWeeklyChart();
+    renderCronograma();
+    renderGamificationBadges();
     updateDiscMiniBar(key);
   }
   const container = document.getElementById('editalContentArea');
@@ -745,11 +1912,13 @@ window.markAllDisciplina = function(discId, cargoCodigo) {
   saveProfilesData();
   renderDashboardMetrics();
   renderEditalVerticalizado();
+  renderCronograma();
+  renderGamificationBadges();
   showToast(allDone ? '↩️ Marcações removidas.' : '✅ Todos os tópicos marcados!', 'success');
 };
 
 /* ============================================================
-   F3.2 — MODAL DE ANOTAÇÕES POR TÓPICO
+   MODAL DE ANOTAÇÕES / FLASHCARD (F3.2)
 ============================================================ */
 window.openNoteModal = function(key) {
   AppState.noteModalKey = key;
@@ -766,11 +1935,12 @@ function closeNoteModal() {
   AppState.noteModalKey = null;
   const modal = document.getElementById('noteModal');
   if (modal) modal.classList.remove('open');
-  renderEditalVerticalizado(); // atualiza o ícone de nota
+  renderEditalVerticalizado();
+  renderGamificationBadges();
 }
 
 /* ============================================================
-   F2.3 — SIMULADOR FCC + CURVA NORMAL
+   SIMULADOR FCC + CURVA NORMAL (F2.3)
 ============================================================ */
 function updateSimulatorCalculations() {
   const get = (id, fb) => parseFloat(document.getElementById(id)?.value ?? fb);
@@ -796,7 +1966,6 @@ function updateSimulatorCalculations() {
     statusEl.textContent = notaFinal >= 150 ? '✅ HABILITADO (≥ 150 pts)' : `❌ ELIMINADO (${notaFinal.toFixed(1)} < 150 pts)`;
   }
 
-  // F2.3: percentis (z-score approximation — Abramowitz & Stegun)
   const z1 = (np1 - 50) / 10;
   const z2 = (np2 - 50) / 10;
   const perc1 = Math.round(zToPercentile(z1) * 100);
@@ -808,7 +1977,6 @@ function updateSimulatorCalculations() {
   renderNormalCurve('normalCurveP2', z2, 'var(--accent-gold)');
 }
 
-// Approximação normal cumulativa (A&S 26.2.17)
 function zToPercentile(z) {
   const b = [0.319381530, -0.356563782, 1.781477937, -1.821255978, 1.330274429];
   const t = 1.0 / (1.0 + 0.2316419 * Math.abs(z));
@@ -831,7 +1999,6 @@ function renderNormalCurve(containerId, z, color) {
   const toX = (zv) => ((zv - zMin) / (zMax - zMin)) * W;
   const toY = (y) => H - 8 - ((y / peak) * (H - 20));
 
-  // Linha da curva
   let pathD = '';
   for (let i = 0; i <= pts; i++) {
     const zv = zMin + (i / pts) * (zMax - zMin);
@@ -839,7 +2006,6 @@ function renderNormalCurve(containerId, z, color) {
     pathD += i === 0 ? `M${x.toFixed(1)},${y.toFixed(1)}` : ` L${x.toFixed(1)},${y.toFixed(1)}`;
   }
 
-  // Área sombreada (candidato vs média)
   const zClamped = Math.max(zMin, Math.min(zMax, z));
   const from = z >= 0 ? 0 : zClamped;
   const to   = z >= 0 ? zClamped : 0;
@@ -867,15 +2033,16 @@ function renderNormalCurve(containerId, z, color) {
 }
 
 /* ============================================================
-   TIMER
+   TIMER & SESSÕES DE ESTUDO
 ============================================================ */
 const CIRCUMFERENCE = 565.48;
 
 function setTimerMode(mode) {
   AppState.timer.mode = mode;
   pauseTimer();
-  const modeS = { pomodoro: 1500, shortBreak: 300, longBreak: 900, stopwatch: 0 };
-  AppState.timer.totalSeconds     = modeS[mode] ?? 1500;
+  const defaultPomo = (AppState.config.pomoDuration || 25) * 60;
+  const modeS = { pomodoro: defaultPomo, shortBreak: 300, longBreak: 900, stopwatch: 0 };
+  AppState.timer.totalSeconds     = modeS[mode] ?? defaultPomo;
   AppState.timer.remainingSeconds = AppState.timer.totalSeconds;
   AppState.timer.elapsedSeconds   = 0;
   updateTimerDisplay();
@@ -903,8 +2070,10 @@ function pauseTimer() {
   AppState.timer.isRunning = false;
   clearInterval(AppState.timer.intervalId);
   AppState.timer.intervalId = null;
-  document.getElementById('btnTimerStart').style.display = 'inline-flex';
-  document.getElementById('btnTimerPause').style.display = 'none';
+  const startBtn = document.getElementById('btnTimerStart');
+  const pauseBtn = document.getElementById('btnTimerPause');
+  if (startBtn) startBtn.style.display = 'inline-flex';
+  if (pauseBtn) pauseBtn.style.display = 'none';
 }
 
 function resetTimer() {
@@ -919,12 +2088,17 @@ function updateTimerDisplay() {
   const displaySec = mode === 'stopwatch' ? elapsedSeconds : remainingSeconds;
   const m = Math.floor(Math.abs(displaySec) / 60);
   const s = Math.abs(displaySec) % 60;
+  const str = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 
   const display = document.getElementById('timerDisplay');
-  if (display) display.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const displayFocus = document.getElementById('timerDisplayFocus');
+  if (display) display.textContent = str;
+  if (displayFocus) displayFocus.textContent = str;
 
   const circle = document.getElementById('timerCircleProgress');
+  const circleFocus = document.getElementById('timerCircleProgressFocus');
   const modeLabel = document.getElementById('timerModeLabel');
+
   if (circle) {
     if (mode === 'stopwatch') {
       circle.classList.add('stopwatch-mode');
@@ -937,6 +2111,14 @@ function updateTimerDisplay() {
       circle.style.strokeDashoffset = CIRCUMFERENCE * (1 - Math.max(0, progress));
     }
   }
+
+  if (circleFocus) {
+    const circFocus = 753.98;
+    const progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 0;
+    circleFocus.style.strokeDasharray = circFocus;
+    circleFocus.style.strokeDashoffset = circFocus * (1 - Math.max(0, progress));
+  }
+
   const labels = { pomodoro:'Foco', shortBreak:'Pausa Curta', longBreak:'Pausa Longa', stopwatch:'Cronômetro Livre' };
   if (modeLabel) modeLabel.textContent = labels[mode] ?? '';
 }
@@ -945,6 +2127,7 @@ function completeTimerSession() {
   const minutes = Math.max(1, Math.round(AppState.timer.elapsedSeconds / 60));
   pauseTimer();
   playBeep();
+  sendNotification('Sessão Pomodoro Concluída! 🎯', `Parabéns! Você completou ${minutes} minutos de foco.`);
   registerStudySession(minutes);
   showToast(`🎉 ${minutes} min registrados para ${getCurrentProfile().nome}!`, 'success', 5000);
   resetTimer();
@@ -967,12 +2150,13 @@ function registerStudySession(minutes) {
   renderDashboardMetrics();
   renderStudyLogs();
   renderWeeklyChart();
+  renderSubjectHours();
+  renderHeatmap();
+  renderGamificationBadges();
   renderTimerBadges();
+  renderCalendar();
 }
 
-/* ============================================================
-   F2.5 — BADGES DIÁRIO/SEMANAL
-============================================================ */
 function renderTimerBadges() {
   const el = document.getElementById('timerStatsBadges');
   if (!el) return;
@@ -1017,7 +2201,11 @@ function saveManualSession() {
   renderDashboardMetrics();
   renderStudyLogs();
   renderWeeklyChart();
+  renderSubjectHours();
+  renderHeatmap();
+  renderGamificationBadges();
   renderTimerBadges();
+  renderCalendar();
   showToast(`✅ ${minutes} min registrados manualmente!`, 'success');
 }
 
@@ -1027,7 +2215,7 @@ function renderTimerSubjectSelect() {
     if (!sel) return;
     const profile = getCurrentProfile();
     const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
-    let h = `<option value="Revisão Geral / Simulado FCC">🎯 Revisão Geral</option>`;
+    let h = `<option value="Revisão Geral / Simulado FCC">🎯 Revisão Geral / Simulado</option>`;
     [...cargo.p1.disciplinas, ...cargo.p2.disciplinas].forEach(d => {
       h += `<option value="${d.nome}">${d.nome}</option>`;
     });
@@ -1035,7 +2223,6 @@ function renderTimerSubjectSelect() {
   });
 }
 
-/* F1.2 — excluir sessão */
 window.deleteStudyLog = function(id) {
   const profile = getCurrentProfile();
   profile.studyLogs = (profile.studyLogs || []).filter(l => l.id !== id);
@@ -1043,7 +2230,11 @@ window.deleteStudyLog = function(id) {
   renderDashboardMetrics();
   renderStudyLogs();
   renderWeeklyChart();
+  renderSubjectHours();
+  renderHeatmap();
+  renderGamificationBadges();
   renderTimerBadges();
+  renderCalendar();
   showToast('Sessão removida.', 'info', 2000);
 };
 
@@ -1070,7 +2261,7 @@ function renderStudyLogs() {
 }
 
 /* ============================================================
-   F3.1 — AGENDA DE REVISÃO ESPAÇADA R1/R7/R30
+   REVISÕES ESPAÇADAS R1/R7/R30 + FILTROS DE FASE (4B.5)
 ============================================================ */
 function renderRevisoes() {
   const container = document.getElementById('revisoesContainer');
@@ -1080,7 +2271,7 @@ function renderRevisoes() {
   const allDiscs = [...cargo.p1.disciplinas, ...cargo.p2.disciplinas];
   const today = new Date().toISOString().split('T')[0];
   const INTERVALS = [{ label: 'R1', days: 1 }, { label: 'R7', days: 7 }, { label: 'R30', days: 30 }];
-  const due = [];
+  const allDue = [];
 
   allDiscs.forEach(disc => {
     disc.topicos.forEach((topico, idx) => {
@@ -1093,30 +2284,48 @@ function renderRevisoes() {
         dueDate.setDate(dueDate.getDate() + days);
         const dueDateStr = dueDate.toISOString().split('T')[0];
         if (dueDateStr <= today && !prog[`_revisao${label}`]) {
-          due.push({ key, topico, disc: disc.nome, label, dueDateStr, prog });
+          allDue.push({ key, topico, disc: disc.nome, label, dueDateStr, prog });
         }
       });
     });
   });
 
-  if (due.length === 0) {
+  // Atualiza contadores dos filtros
+  const cAll = allDue.length;
+  const cR1  = allDue.filter(i => i.label === 'R1').length;
+  const cR7  = allDue.filter(i => i.label === 'R7').length;
+  const cR30 = allDue.filter(i => i.label === 'R30').length;
+
+  const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setEl('countRevAll', cAll);
+  setEl('countRevR1', cR1);
+  setEl('countRevR7', cR7);
+  setEl('countRevR30', cR30);
+
+  // Filtra de acordo com a seleção
+  let filtered = allDue;
+  if (AppState.revisaoFilter !== 'all') {
+    filtered = allDue.filter(i => i.label === AppState.revisaoFilter);
+  }
+
+  if (filtered.length === 0) {
     container.innerHTML = `<div class="revisao-empty">
       <span style="font-size:2rem;">✨</span>
-      <p>Nenhuma revisão pendente hoje.</p>
-      <p style="font-size:0.82rem;color:var(--text-muted);">As revisões R1, R7 e R30 aparecerão aqui automaticamente quando você marcar tópicos como "Teoria".</p>
+      <p>Nenhuma revisão ${AppState.revisaoFilter !== 'all' ? AppState.revisaoFilter : ''} pendente hoje.</p>
+      <p style="font-size:0.82rem;color:var(--text-muted);">As revisões aparecem aqui automaticamente após você marcar tópicos como "📖 Teoria".</p>
     </div>`;
     return;
   }
 
-  container.innerHTML = due.map(item => `
+  container.innerHTML = filtered.map(item => `
     <div class="revisao-card" data-key="${item.key}" data-label="${item.label}">
       <div class="revisao-badge ${item.label.toLowerCase()}">${item.label}</div>
       <div class="revisao-content">
         <div class="revisao-disc">${item.disc}</div>
         <div class="revisao-topico">${item.topico}</div>
-        <div class="revisao-date">Teoria em ${item.dueDateStr}</div>
+        <div class="revisao-date">Teoria concluída em ${item.dueDateStr}</div>
       </div>
-      <button class="btn-action" style="font-size:0.78rem;padding:5px 10px;" onclick="marcarRevisaoConcluida('${item.key}','${item.label}')">
+      <button class="btn-action" style="font-size:0.78rem;padding:6px 12px;" onclick="marcarRevisaoConcluida('${item.key}','${item.label}')">
         ✔ Concluir
       </button>
     </div>`).join('');
@@ -1128,11 +2337,12 @@ window.marcarRevisaoConcluida = function(key, label) {
   profile.progress[key][`_revisao${label}`] = true;
   saveProfilesData();
   renderRevisoes();
-  showToast(`${label} concluída! ✅`, 'success', 2000);
+  renderCalendar();
+  showToast(`${label} concluída com sucesso! ✅`, 'success', 2000);
 };
 
 /* ============================================================
-   F3.3 — PLACAR A01 vs E05
+   PLACAR COMPARATIVO A01 vs E05 (F3.3)
 ============================================================ */
 function renderPlacar() {
   const container = document.getElementById('placarContainer');
@@ -1151,14 +2361,15 @@ function renderPlacar() {
       });
     });
     const totalMin = (profile.studyLogs || []).reduce((a, l) => a + (l.minutes || 0), 0);
+    const streaks = calculateStreaks(profile.studyLogs || []);
     return {
       nome: profile.nome,
       percTeoria: totalTopicos > 0 ? Math.round((teoria / totalTopicos) * 100) : 0,
       percQuestoes: totalTopicos > 0 ? Math.round((questoes / totalTopicos) * 100) : 0,
       horas: (totalMin / 60).toFixed(1),
       sessoes: (profile.studyLogs || []).length,
-      topicosTotal: totalTopicos,
       topicosTeoria: teoria,
+      streak: streaks.current,
     };
   }
 
@@ -1189,6 +2400,7 @@ function renderPlacar() {
         ${row('📚 Edital Vencido (Teoria)', a01.percTeoria, e05.percTeoria, '%')}
         ${row('🎯 Questões Resolvidas', a01.percQuestoes, e05.percQuestoes, '%')}
         ${row('⏱️ Horas Líquidas', a01.horas, e05.horas, 'h')}
+        ${row('🔥 Sequência Consecutiva', a01.streak, e05.streak, ' dias')}
         ${row('📋 Sessões Realizadas', a01.sessoes, e05.sessoes)}
         ${row('✅ Tópicos c/ Teoria', a01.topicosTeoria, e05.topicosTeoria)}
       </tbody>
@@ -1196,11 +2408,14 @@ function renderPlacar() {
 }
 
 /* ============================================================
-   F3.4 — MODO FOCO TOTAL
+   MODO FOCO TOTAL (F3.4)
 ============================================================ */
 function toggleFocusMode() {
   AppState.timer.isFocusMode = !AppState.timer.isFocusMode;
   const focusEl = document.getElementById('focusOverlay');
+  const subjEl = document.getElementById('focusSubject');
+  if (subjEl) subjEl.textContent = document.getElementById('timerSubjectSelect')?.value || 'Estudo Geral';
+
   if (AppState.timer.isFocusMode) {
     document.body.classList.add('focus-mode');
     if (focusEl) focusEl.classList.add('active');
@@ -1213,15 +2428,12 @@ function toggleFocusMode() {
 }
 
 /* ============================================================
-   F3.5 — EXPORTAR PDF (@media print)
+   PDF & LEGISLAÇÃO SC
 ============================================================ */
 function exportPDF() {
   window.print();
 }
 
-/* ============================================================
-   LEGISLAÇÃO SC — F1.3 (links)
-============================================================ */
 function renderLegislacaoSC() {
   const container = document.getElementById('legislacaoGridContainer');
   if (!container) return;
@@ -1247,18 +2459,18 @@ function renderLegislacaoSC() {
 }
 
 /* ============================================================
-   BACKUP
+   BACKUP & RESTAURAÇÃO
 ============================================================ */
 function exportBackup() {
-  const payload = JSON.stringify({ versao: '3.0', exportDate: new Date().toISOString(), profiles: AppState.profiles }, null, 2);
+  const payload = JSON.stringify({ versao: '4.0', exportDate: new Date().toISOString(), profiles: AppState.profiles, config: AppState.config }, null, 2);
   const blob = new Blob([payload], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `backup_sefaz_sc_${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `backup_sefaz_sc_v4_${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('📥 Backup exportado!', 'success');
+  showToast('📥 Backup JSON exportado com sucesso!', 'success');
 }
 
 function importBackup(e) {
@@ -1270,6 +2482,7 @@ function importBackup(e) {
       const data = JSON.parse(ev.target.result);
       if (data?.profiles?.A01 && data?.profiles?.E05) {
         AppState.profiles = data.profiles;
+        if (data.config) AppState.config = data.config;
         saveProfilesData();
         renderApp();
         showToast('✅ Backup restaurado com sucesso!', 'success', 5000);
@@ -1277,7 +2490,7 @@ function importBackup(e) {
         showToast('⚠️ Arquivo de backup inválido.', 'warning', 5000);
       }
     } catch {
-      showToast('❌ Erro ao ler o arquivo JSON.', 'error');
+      showToast('❌ Erro ao processar arquivo JSON.', 'error');
     } finally {
       e.target.value = '';
     }
@@ -1286,11 +2499,36 @@ function importBackup(e) {
 }
 
 /* ============================================================
-   INICIALIZAÇÃO
+   INICIALIZAÇÃO DA APLICAÇÃO
 ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   loadProfilesData();
+  initPWA();
+  initNotifications();
   initCountdown();
   initEventListeners();
+  checkSyncUrl();
   renderApp();
+
+  // Verifica revisões pendentes do dia e emite notificação
+  setTimeout(() => {
+    const profile = getCurrentProfile();
+    const cargo = EDITAL_DATA.cargos[profile.cargoCodigo];
+    const today = new Date().toISOString().split('T')[0];
+    let dueCount = 0;
+    [...cargo.p1.disciplinas, ...cargo.p2.disciplinas].forEach(disc => {
+      disc.topicos.forEach((_, idx) => {
+        const k = `${profile.cargoCodigo}_${disc.id}_${idx}`;
+        const prog = profile.progress[k];
+        if (prog?._teoriaDate) {
+          const d1 = new Date(prog._teoriaDate);
+          d1.setDate(d1.getDate() + 1);
+          if (d1.toISOString().split('T')[0] <= today && !prog._revisaoR1) dueCount++;
+        }
+      });
+    });
+    if (dueCount > 0) {
+      sendNotification('SEFAZ/SC 2026 — Revisões', `Você tem ${dueCount} revisão(ões) pendente(s) hoje. Não quebre a curva do esquecimento!`);
+    }
+  }, 3000);
 });

@@ -508,3 +508,188 @@ const EDITAL_DATA = {
     }
   ]
 };
+
+/* ============================================================
+   CLASSIFICADOR DE INCIDÊNCIA FCC (4A.3)
+============================================================ */
+function getTopicFccFreq(topicName, discId = '') {
+  if (!topicName) return 'media';
+  const t = topicName.toLowerCase();
+  
+  // Alta incidência histórica na FCC
+  const altaKeywords = [
+    'crase', 'regência', 'concordância', 'pontuação', 'redação oficial',
+    'controle de constitucionalidade', 'direitos e garantias fundamentais', 'repartição de competências',
+    'licitações e contratos', 'lei nº 14.133', 'improbidade', 'agentes públicos', 'poderes administrativos',
+    'lei de responsabilidade fiscal', 'lc nº 101', 'orçamento público', 'créditos adicionais',
+    'restos a pagar', 'despesa pública', 'receita pública', 'mcasp', 'nbc tsp', 'balanço orçamentário',
+    'plano de contas', 'variações patrimoniais', 'lei nº 6.745', 'lc nº 741', 'lc nº 412',
+    'lei nº 8.137', 'crimes contra a ordem tributária', 'lgpd', 'business intelligence', 'banco de dados'
+  ];
+
+  // Baixa incidência (teorias secundárias ou exóticas)
+  const baixaKeywords = [
+    'contexto histórico', 'figuras de linguagem', 'sistemas de numeração', 'números complexos',
+    'relações internacionais', 'evolução histórica da administração', 'código de ética de ontário'
+  ];
+
+  if (altaKeywords.some(k => t.includes(k))) return 'alta';
+  if (baixaKeywords.some(k => t.includes(k))) return 'baixa';
+  return 'media';
+}
+
+/* ============================================================
+   BANCO DE QUESTÕES FCC — MOCK EXAM & QUIZ (4A.5 & 4C.1)
+============================================================ */
+const FCC_QUESTIONS = [
+  {
+    id: 1,
+    cargo: "todos",
+    disciplina: "Língua Portuguesa",
+    enunciado: "De acordo com as normas de regência e crase da Língua Portuguesa padrão, assinale a alternativa correta:",
+    opcoes: [
+      "O auditor visava ao cumprimento rigoroso das metas fiscais estabelecidas na LRF.",
+      "A autoridade fazendária preferiu adiar a inspeção do que emitir parecer incompleto.",
+      "Informamos à todos os contribuintes que o prazo de adesão se encerra hoje.",
+      "O servidor aspirava o cargo de auditor com determinação inabalável.",
+      "Chegamos na repartição estadual exatamente às 8h da manhã."
+    ],
+    correta: 0,
+    explicacao: "O verbo 'visar' no sentido de ter como objetivo/almejar é transitivo indireto e exige a preposição 'a' (visava ao cumprimento). 'Preferir' rege 'a' (preferiu X a Y, e não do que). Não há crase antes de pronome indefinido 'todos'. 'Aspirar' no sentido de desejar exige 'a'. 'Chegar' rege 'a' e não 'em'."
+  },
+  {
+    id: 2,
+    cargo: "todos",
+    disciplina: "Direito Constitucional",
+    enunciado: "No que concerne ao controle concentrado de constitucionalidade perante o Supremo Tribunal Federal, é correto afirmar:",
+    opcoes: [
+      "A declaração de inconstitucionalidade em controle concentrado produz efeitos erga omnes e ex nunc como regra geral absoluta.",
+      "Governador de Estado possui legitimidade ativa universal, dispensada a demonstração de pertinência temática.",
+      "A Mesa da Assembleia Legislativa de SC é legitimada especial, exigindo-se a demonstração de pertinência temática na propositura de ADI.",
+      "Não se admite modulação temporal dos efeitos da decisão que declara a inconstitucionalidade por razões de segurança jurídica.",
+      "A Ação Declaratória de Constitucionalidade (ADC) pode ter como objeto lei estadual ou municipal."
+    ],
+    correta: 2,
+    explicacao: "Conforme jurisprudência pacífica do STF e art. 103 da CF/88, as Mesas das Assembleias Legislativas e os Governadores de Estado são legitimados especiais, exigindo pertinência temática. A regra de efeitos é ex tunc (com possibilidade de modulação por 2/3). ADC só cabe para lei federal."
+  },
+  {
+    id: 3,
+    cargo: "todos",
+    disciplina: "Direito Administrativo",
+    enunciado: "Sobre a Lei nº 14.133/2021 (Nova Lei de Licitações e Contratos Administrativos), assinale a afirmativa correta:",
+    opcoes: [
+      "A tomada de preços e o convite continuam sendo modalidades licitatórias aplicáveis subsidiariamente.",
+      "O diálogo competitivo é modalidade de licitação aplicável para contratações que envolvam inovação tecnológica ou técnica complexa.",
+      "A fase de habilitação sempre antecede a fase de julgamento das propostas, sem hipótese de inversão de fases.",
+      "A dispensa de licitação em razão do valor não exige prévio procedimento de divulgação eletrônica.",
+      "Os agentes de contratação respondem solidariamente por quaisquer falhas técnicas dos pareceres jurídicos emitidos."
+    ],
+    correta: 1,
+    explicacao: "A Lei 14.133/2021 extinguiu convite e tomada de preços e introduziu o Diálogo Competitivo (art. 6º, XLII e art. 32). A regra geral na 14.133/2021 é o julgamento das propostas antes da habilitação (inversão é a regra)."
+  },
+  {
+    id: 4,
+    cargo: "todos",
+    disciplina: "Legislação SC",
+    enunciado: "Segundo a Lei Complementar Estadual nº 741/2019 de Santa Catarina, a Secretaria de Estado da Fazenda (SEF):",
+    opcoes: [
+      "É subordinada diretamente à Procuradoria-Geral do Estado nas decisões sobre o orçamento estadual.",
+      "Constitui órgão de execução vinculada que atua exclusivamente na fiscalização de trânsito de mercadorias.",
+      "É órgão central de planejamento financeiro, administração tributária, contabilidade pública e auditoria das finanças estaduais.",
+      "Não possui competência para gerir a dívida pública fundada do Estado de Santa Catarina.",
+      "Tem suas atribuições fixadas exclusivamente por portarias do Secretário, sem previsão em lei complementar."
+    ],
+    correta: 2,
+    explicacao: "A LC 741/2019 estabelece a SEF como órgão central dos sistemas de administração financeira, contabilidade pública e administração tributária de Santa Catarina."
+  },
+  {
+    id: 5,
+    cargo: "A01",
+    disciplina: "Administração Financeira e Orçamentária",
+    enunciado: "Nos termos da Lei de Responsabilidade Fiscal (Lei Complementar nº 101/2000), a despesa total com pessoal dos Estados não poderá exceder o seguinte percentual da Receita Corrente Líquida (RCL):",
+    opcoes: [
+      "50%, sendo 40.9% para o Poder Executivo.",
+      "60%, repartidos entre os Poderes Executivo (49%), Judiciário (6%), Legislativo e TC (3%) e MP (2%).",
+      "70%, sem limites específicos por Poder.",
+      "45%, com margem de prudência de 5% adicional.",
+      "55%, sendo vedada qualquer repartição entre os Poderes."
+    ],
+    correta: 1,
+    explicacao: "Art. 19 e 20 da LRF: o limite global para Estados é 60% da RCL, repartido em: 49% Executivo, 6% Judiciário, 3% Legislativo (incluindo TCE) e 2% Ministério Público estadual."
+  },
+  {
+    id: 6,
+    cargo: "A01",
+    disciplina: "Contabilidade Aplicada ao Setor Público",
+    enunciado: "Na Demonstração das Variações Patrimoniais (DVP) elaborada de acordo com o MCASP e as NBC TSP, a arrecadação de tributos deve ser reconhecida como:",
+    opcoes: [
+      "Variação Patrimonial Diminutiva (VPD) extraorçamentária.",
+      "Variação Patrimonial Aumentativa (VPA) pelo regime de competência.",
+      "Variação puramente financeira registrada exclusivamente no Balanço Orçamentário.",
+      "Receita de capital quando vinculada a investimentos governamentais.",
+      "Acréscimo de passivo compensatório transitório."
+    ],
+    correta: 1,
+    explicacao: "No enfoque patrimonial do MCASP/NBC TSP, as receitas tributárias são reconhecidas como VPA (Variação Patrimonial Aumentativa) no momento do fato gerador segundo o regime de competência."
+  },
+  {
+    id: 7,
+    cargo: "E05",
+    disciplina: "Direito Tributário",
+    enunciado: "Nos termos do Código Tributário Nacional (CTN), a suspensão da exigibilidade do crédito tributário ocorre nas hipóteses de:",
+    opcoes: [
+      "Compensação, transação e remissão.",
+      "Depósito do seu montante integral, concessão de liminar em mandado de segurança e parcelamento.",
+      "Prescrição e decadência reconhecidas de ofício pela administração fazendária.",
+      "Pagamento antecipado e homologação do lançamento.",
+      "Conversão de depósito em renda e consignação em pagamento julgada procedente."
+    ],
+    correta: 1,
+    explicacao: "Art. 151 do CTN (mnemônico MODEPACOLA): moratória, depósito do montante integral, reclamações/recursos administrativos, concessão de medida liminar em MS, concessão de tutela de urgência e parcelamento."
+  },
+  {
+    id: 8,
+    cargo: "E05",
+    disciplina: "Direito Penal Tributário",
+    enunciado: "De acordo com a Súmula Vinculante nº 24 do STF, referente aos crimes contra a ordem tributária tipificados no art. 1º, incisos I a IV, da Lei nº 8.137/1990:",
+    opcoes: [
+      "A ação penal pode ter início antes do encerramento do processo administrativo-tributário se houver prova documental incontroversa.",
+      "Não se tipifica crime material contra a ordem tributária antes do lançamento definitivo do tributo.",
+      "O parcelamento posterior à sentença condenatória transitada em julgado extingue a punibilidade.",
+      "O crime é de natureza formal, dispensando a efetiva supressão ou redução de tributo.",
+      "O início da investigação policial depende de prévia autorização judicial motivada."
+    ],
+    correta: 1,
+    explicacao: "Súmula Vinculante nº 24 do STF: 'Não se tipifica crime material contra a ordem tributária, previsto no art. 1º, incisos I a IV, da Lei nº 8.137/90, antes do lançamento definitivo do tributo'."
+  },
+  {
+    id: 9,
+    cargo: "todos",
+    disciplina: "Tecnologia da Informação e Dados",
+    enunciado: "Segundo a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018), o tratamento de dados pessoais pelo Poder Público:",
+    opcoes: [
+      "Independe de qualquer base legal desde que justificado genericamente pelo interesse da administração pública.",
+      "Deve atender a finalidade pública específica, na persecução do interesse público e com respaldo em competência legal ou regulamentar.",
+      "Não está submetido aos princípios da finalidade, adequação e necessidade aplicáveis ao setor privado.",
+      "Pode ser compartilhado irrestritamente entre órgãos públicos sem transparência com o titular.",
+      "Está isento da fiscalização e de sanções pela Autoridade Nacional de Proteção de Dados (ANPD)."
+    ],
+    correta: 1,
+    explicacao: "Art. 23 da LGPD: o tratamento por pessoas jurídicas de direito público deve atender à sua finalidade pública, na persecução do interesse público, com o objetivo de executar as competências legais ou cumprir as atribuições legais do serviço público."
+  },
+  {
+    id: 10,
+    cargo: "todos",
+    disciplina: "Legislação SC",
+    enunciado: "Conforme a Lei Estadual nº 6.745/1985 (Estatuto dos Servidores Públicos Civis de SC), a recondução é:",
+    opcoes: [
+      "O retorno do servidor aposentado à atividade por invalidez cessada.",
+      "O reinvestimento do servidor estável no cargo anteriormente ocupado em decorrência de inabilitação em estágio probatório relativo a outro cargo.",
+      "A transferência de um servidor de um quadro funcional para outro em virtude de extinção do órgão.",
+      "A promoção por merecimento ao último padrão remuneratório da carreira estadual.",
+      "A substituição temporária de chefia por ato exclusivo discricionário do Governador."
+    ],
+    correta: 1,
+    explicacao: "Recondução é o retorno do servidor público estável ao cargo que ocupava anteriormente, em caso de inabilitação no estágio probatório de outro cargo ou reintegração do anterior ocupante."
+  }
+];

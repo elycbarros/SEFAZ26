@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="indigo">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SEFAZ/SC 2026 — Plataforma de Estudos | Auditor A01 & E05</title>
-  <meta name="description" content="Plataforma de estudos para o concurso SEFAZ/SC 2026 — Auditor Estadual de Finanças Públicas, cargos A01 e E05.">
+  <meta name="description" content="Plataforma de estudos avançada para o concurso SEFAZ/SC 2026 — Auditor Estadual de Finanças Públicas (A01 e E05).">
   <meta name="theme-color" content="#090d16">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="css/style.css">
@@ -18,11 +18,11 @@
 <div id="noteModal" class="note-modal-overlay" role="dialog" aria-modal="true" aria-label="Anotações do tópico">
   <div class="note-modal-box">
     <div class="note-modal-header">
-      <h3>📝 Anotações / Flashcard</h3>
+      <h3 id="noteModalTitle">📝 Anotações / Flashcard</h3>
       <button id="btnCloseNoteModal" class="btn-action" style="padding:4px 10px;">✕ Fechar</button>
     </div>
     <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">
-      Anote artigos, mnemônicos, jurisprudência ou qualquer dúvida. Salvo automaticamente.
+      Anote artigos, mnemônicos, jurisprudência ou conceitos-chave. Salvo automaticamente e integrado ao Quiz!
     </p>
     <textarea id="noteTextarea" class="note-textarea" placeholder="Escreva aqui sua anotação..."></textarea>
   </div>
@@ -41,7 +41,7 @@
     </div>
     <p id="focusSubject" style="color:var(--text-muted);margin-bottom:1.5rem;font-size:1rem;"></p>
     <div style="display:flex;gap:1rem;">
-      <button id="btnTimerPauseFocus" class="btn-timer primary" onclick="pauseTimer()">⏸</button>
+      <button id="btnTimerPauseFocus" class="btn-timer primary">⏸</button>
       <button id="btnExitFocus" class="btn-timer" style="font-size:0.85rem;width:auto;padding:0 1rem;">✕ Sair</button>
     </div>
   </div>
@@ -56,7 +56,7 @@
       <div class="logo-icon" aria-hidden="true">SC</div>
       <div class="brand-info">
         <h1>SEFAZ/SC 2026</h1>
-        <p>Auditor Estadual de Finanças Públicas</p>
+        <p>Auditor Estadual de Finanças Públicas • v4.0</p>
       </div>
     </div>
 
@@ -68,8 +68,23 @@
       </div>
     </div>
 
-    <div id="countdownTimer" class="countdown-box">
-      <span class="pulse-dot"></span> Calculando...
+    <!-- Header Actions (Streak, Notification, PWA Install, Countdown) -->
+    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+      <div id="headerStreakBadge" class="streak-badge-header" title="Sequência de dias consecutivos estudando">
+        🔥 0 dias
+      </div>
+
+      <button id="btnToggleNotification" class="btn-icon-header" title="Ativar notificações do navegador">
+        🔔
+      </button>
+
+      <button id="btnInstallPwa" class="btn-pwa-install" style="display:none;" title="Instalar aplicativo no computador/celular">
+        📲 Instalar App
+      </button>
+
+      <div id="countdownTimer" class="countdown-box">
+        <span class="pulse-dot"></span> Calculando...
+      </div>
     </div>
   </div>
 </header>
@@ -81,16 +96,19 @@
 
   <div id="userBannerContainer"></div>
 
-  <!-- Navegação -->
-  <nav class="nav-tabs" aria-label="Módulos">
-    <button id="tabDashboard"  class="nav-tab-btn active" data-tab="dashboard">📊 Visão Geral</button>
-    <button id="tabEdital"     class="nav-tab-btn" data-tab="edital">📑 Edital</button>
-    <button id="tabRevisoes"   class="nav-tab-btn" data-tab="revisoes">🔄 Revisões R1/R7/R30</button>
-    <button id="tabSimulador"  class="nav-tab-btn" data-tab="simulador">🧮 Simulador FCC</button>
-    <button id="tabPomodoro"   class="nav-tab-btn" data-tab="pomodoro">⏱️ Cronômetro</button>
-    <button id="tabLegis"      class="nav-tab-btn" data-tab="legislacao">🏛️ Legislação SC</button>
-    <button id="tabPlacar"     class="nav-tab-btn" data-tab="placar">📊 Placar</button>
-    <button id="tabBackup"     class="nav-tab-btn" data-tab="backup">💾 Backup</button>
+  <!-- Navegação Principal (11 abas organizadas) -->
+  <nav class="nav-tabs" aria-label="Módulos do WebApp">
+    <button id="tabDashboard"    class="nav-tab-btn active" data-tab="dashboard">📊 Visão Geral</button>
+    <button id="tabEdital"       class="nav-tab-btn" data-tab="edital">📑 Edital</button>
+    <button id="tabRevisoes"     class="nav-tab-btn" data-tab="revisoes">🔄 Revisões R1/R7/R30</button>
+    <button id="tabQuiz"         class="nav-tab-btn" data-tab="quiz">🎮 Quiz & Cards</button>
+    <button id="tabSimuladoReal" class="nav-tab-btn" data-tab="simulado-real">📝 Simulado Real</button>
+    <button id="tabSimulador"    class="nav-tab-btn" data-tab="simulador">🧮 Simulador FCC</button>
+    <button id="tabPomodoro"     class="nav-tab-btn" data-tab="pomodoro">⏱️ Cronômetro</button>
+    <button id="tabLegis"        class="nav-tab-btn" data-tab="legislacao">🏛️ Legislação SC</button>
+    <button id="tabPlacar"       class="nav-tab-btn" data-tab="placar">📊 Placar</button>
+    <button id="tabBackup"       class="nav-tab-btn" data-tab="backup">💾 Backup & Sync</button>
+    <button id="tabConfig"       class="nav-tab-btn" data-tab="config">⚙️ Ajustes</button>
   </nav>
 
   <!-- ============================================================
@@ -98,7 +116,19 @@
   ============================================================ -->
   <section id="view-dashboard" class="tab-view active">
 
-    <!-- Métricas -->
+    <!-- Gamificação / Conquistas Banner (4B.3) -->
+    <div id="gamificationBanner" class="gamification-banner">
+      <div class="gamification-left">
+        <span class="gamification-icon">🏆</span>
+        <div>
+          <h4 id="gamificationTitle">Conquistas & Frequência</h4>
+          <p id="gamificationSubtitle" style="font-size:0.82rem;color:var(--text-muted)">Mantenha sua rotina diária para subir de nível rumo à aprovação.</p>
+        </div>
+      </div>
+      <div id="gamificationBadges" class="badges-row"></div>
+    </div>
+
+    <!-- Métricas Principais -->
     <div class="metrics-grid" id="metricsGridContainer">
       <div class="metric-card">
         <div class="metric-header"><span>Horas Líquidas</span><span>⏱️</span></div>
@@ -120,7 +150,7 @@
         <div class="metric-value"><span id="metricExerciciosFeitos">0%</span></div>
         <div class="metric-sub">Tópicos com questões</div>
       </div>
-      <!-- F2.6: Meta Semanal -->
+      <!-- Meta Semanal (F2.6) -->
       <div class="metric-card rose">
         <div class="metric-header">
           <span>Meta Semanal</span>
@@ -132,14 +162,34 @@
         <div class="progress-bar-bg"><div id="metricMetaFill" class="progress-bar-fill rose" style="width:0%"></div></div>
         <div class="metric-sub" id="metricMetaDetalhe">0h / 25h por semana</div>
       </div>
+      <!-- Streak Diário (4B.3) -->
+      <div class="metric-card amber">
+        <div class="metric-header"><span>Sequência de Foco</span><span>🔥</span></div>
+        <div class="metric-value"><span id="metricStreakDays">0 d</span></div>
+        <div class="metric-sub" id="metricStreakRecord">Recorde: 0 dias</div>
+      </div>
     </div>
 
-    <!-- Gráficos + Dicas -->
+    <!-- Gráficos + Painéis Estratégicos -->
     <div class="charts-dicas-grid">
+
+      <!-- 4A.4: Cronograma Automático Inteligente (Semafórico) -->
+      <div class="sim-card cronograma-card">
+        <h3>📅 Cronograma Recomendado FCC</h3>
+        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;">Cálculo de ritmo necessário para vencer o edital até 22/11/2026</p>
+        <div id="cronogramaContainer"></div>
+      </div>
+
+      <!-- 4A.2: Horas Estudadas por Disciplina (Top 5) -->
+      <div class="sim-card">
+        <h3>⏱️ Tempo por Disciplina</h3>
+        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;">Onde suas horas de estudo foram realmente investidas</p>
+        <div id="subjectHoursContainer"></div>
+      </div>
 
       <!-- F2.1: Gráfico de Progresso por Disciplina -->
       <div class="sim-card">
-        <h3>📊 Progresso por Disciplina</h3>
+        <h3>📊 Cobertura do Edital por Matéria</h3>
         <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;">% de tópicos com teoria marcada, do menor ao maior</p>
         <div id="progressChartContainer"></div>
       </div>
@@ -147,20 +197,40 @@
       <!-- F2.2: Gráfico Horas por Semana -->
       <div class="sim-card">
         <h3>📅 Horas Estudadas — Últimos 7 Dias</h3>
-        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;"><span style="color:var(--accent-emerald)">■</span> Meta atingida &nbsp; <span style="color:var(--accent-gold)">■</span> Abaixo da meta</p>
+        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;"><span style="color:var(--accent-emerald)">■</span> Meta diária atingida &nbsp; <span style="color:var(--accent-gold)">■</span> Abaixo da meta</p>
         <div id="weeklyChartContainer"></div>
+      </div>
+
+      <!-- 4B.2: Heatmap Anual de Atividade (GitHub-style) -->
+      <div class="sim-card heatmap-full-card" style="grid-column: 1 / -1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <div>
+            <h3>🔥 Mapa de Calor de Estudos (Consistência Diária)</h3>
+            <p style="color:var(--text-muted);font-size:0.82rem;">Histórico diário de dedicação rumo à SEFAZ/SC</p>
+          </div>
+          <div class="heatmap-legend">
+            <span>Menos</span>
+            <span class="hm-dot l0"></span>
+            <span class="hm-dot l1"></span>
+            <span class="hm-dot l2"></span>
+            <span class="hm-dot l3"></span>
+            <span class="hm-dot l4"></span>
+            <span>Mais</span>
+          </div>
+        </div>
+        <div id="heatmapContainer" class="heatmap-wrapper"></div>
       </div>
 
       <!-- Dicas dinâmicas -->
       <div class="sim-card">
-        <h3>💡 Dicas Estratégicas</h3>
-        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.25rem;">Recomendações para o perfil ativo:</p>
+        <h3>💡 Dicas Estratégicas do Cargo</h3>
+        <p style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:1.25rem;">Recomendações táticas para o perfil ativo:</p>
         <ul id="dashboardTipsContainer" style="list-style:none;display:flex;flex-direction:column;gap:0.85rem;font-size:0.88rem;color:var(--text-secondary);"></ul>
       </div>
 
       <!-- Info da Prova -->
       <div class="sim-card">
-        <h3>🎯 Informações da Prova</h3>
+        <h3>🎯 Edital & Regras da Prova</h3>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;font-size:0.88rem;color:var(--text-secondary);">
           <li>📅 <b>Aplicação:</b> 22/11/2026 — Florianópolis/SC</li>
           <li>🌅 <b>Manhã (4h):</b> P1 — Gerais (80Q, Peso 1)</li>
@@ -173,24 +243,24 @@
   </section>
 
   <!-- ============================================================
-       ABA 2: EDITAL VERTICALIZADO
+       ABA 2: EDITAL VERTICALIZADO (4A.3 badges FCC)
   ============================================================ -->
   <section id="view-edital" class="tab-view">
     <div class="edital-controls">
       <div class="search-filter-group">
         <input type="search" id="editalSearchInput" class="search-input" placeholder="🔍 Buscar tópico, lei, conceito..." autocomplete="off">
-        <!-- F2.4: Filtro "não iniciados" adicionado -->
         <select id="editalFilterSelect" class="filter-select">
           <option value="all">Todos os tópicos</option>
+          <option value="fcc-high">🔥 Alta Incidência FCC</option>
           <option value="pending">⏳ Pendentes</option>
           <option value="done">✅ Concluídos</option>
           <option value="untouched">🆕 Não iniciados</option>
+          <option value="with-notes">📝 Com anotação</option>
         </select>
       </div>
       <div class="edital-bulk-actions">
         <button id="btnExpandAll"  class="btn-action">⬇️ Expandir</button>
         <button id="btnCollapseAll" class="btn-action">⬆️ Colapsar</button>
-        <!-- F3.5: Exportar PDF -->
         <button id="btnExportPDF" class="btn-action" title="Imprimir / Salvar como PDF">🖨️ PDF</button>
       </div>
     </div>
@@ -198,31 +268,137 @@
   </section>
 
   <!-- ============================================================
-       ABA 3: REVISÃO ESPAÇADA (F3.1)
+       ABA 3: REVISÃO ESPAÇADA (F3.1 + 4B.5 filtros de fase)
   ============================================================ -->
   <section id="view-revisoes" class="tab-view">
-    <div style="margin-bottom:1.5rem;">
+    <div style="margin-bottom:1.25rem;">
       <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">🔄 Agenda de Revisão Espaçada</h2>
       <p style="color:var(--text-secondary);font-size:0.9rem;">
         Método R1/R7/R30: após marcar "📖 Teoria" em qualquer tópico, as revisões
-        aparecem aqui nos dias +1, +7 e +30 para combater a curva do esquecimento.
+        são agendadas automaticamente para os dias +1, +7 e +30 contra a curva do esquecimento.
       </p>
     </div>
+
+    <!-- 4B.5: Filtros por Fase -->
+    <div class="revisao-filter-bar">
+      <button class="revisao-filter-btn active" data-filter="all">Todos (<span id="countRevAll">0</span>)</button>
+      <button class="revisao-filter-btn" data-filter="R1">R1 — 24h (<span id="countRevR1">0</span>)</button>
+      <button class="revisao-filter-btn" data-filter="R7">R7 — 7 dias (<span id="countRevR7">0</span>)</button>
+      <button class="revisao-filter-btn" data-filter="R30">R30 — 30 dias (<span id="countRevR30">0</span>)</button>
+    </div>
+
     <div id="revisoesContainer"></div>
   </section>
 
   <!-- ============================================================
-       ABA 4: SIMULADOR FCC — F2.3 (curva normal)
+       ABA 4: QUIZ & FLASHCARDS (4A.5 - NOVA)
+  ============================================================ -->
+  <section id="view-quiz" class="tab-view">
+    <div style="margin-bottom:1.5rem;">
+      <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">🎮 Modo Quiz & Flashcards de Recuperação Ativa</h2>
+      <p style="color:var(--text-secondary);font-size:0.9rem;">
+        Teste sua memória ativa. O app traz anotações salvas por você e conceitos de alta frequência FCC.
+      </p>
+    </div>
+
+    <div class="quiz-container">
+      <div class="quiz-controls-bar">
+        <select id="quizSubjectSelect" class="filter-select" style="min-width:260px;">
+          <option value="all">Todas as Disciplinas</option>
+          <option value="notes-only">📝 Apenas Meus Flashcards (Anotações)</option>
+          <option value="fcc-high">🔥 Tópicos de Alta Frequência FCC</option>
+        </select>
+        <button id="btnNextCard" class="btn-action">Próximo Tópico ❯</button>
+      </div>
+
+      <div id="quizCardWrapper" class="quiz-card-wrapper">
+        <!-- Renderizado dinamicamente -->
+      </div>
+
+      <div class="quiz-stats-summary" id="quizStatsSummary">
+        <span>Taxa de retenção da sessão: <strong id="quizRetentionRate">0%</strong></span>
+        <span>Revisados: <strong id="quizReviewedCount">0</strong></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ABA 5: SIMULADO CRONOMETRADO COMPLETO (4C.1 - NOVA)
+  ============================================================ -->
+  <section id="view-simulado-real" class="tab-view">
+    <div style="margin-bottom:1.5rem;">
+      <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">📝 Simulado Real Cronometrado FCC</h2>
+      <p style="color:var(--text-secondary);font-size:0.9rem;">
+        Treine com questões no estilo e rigor da Fundação Carlos Chagas. Cronometrado, com gabarito comentado e cálculo de nota padrão!
+      </p>
+    </div>
+
+    <div id="simuladoConfigCard" class="sim-card" style="margin-bottom:1.5rem;">
+      <h3>⚙️ Configuração do Simulado</h3>
+      <div style="display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;align-items:center;">
+        <label>
+          <span style="font-size:0.85rem;color:var(--text-muted);display:block;margin-bottom:4px;">Extensão da Prova:</span>
+          <select id="simuladoTamanhoSelect" class="filter-select">
+            <option value="10">Mini-Simulado (10 Questões • ~30 min)</option>
+            <option value="5">Rápido (5 Questões • ~15 min)</option>
+          </select>
+        </label>
+        <button id="btnStartSimulado" class="btn-action primary" style="margin-top:1.2rem;padding:10px 24px;">
+          🚀 Iniciar Simulado Agora
+        </button>
+      </div>
+    </div>
+
+    <!-- Painel ativo do Simulado -->
+    <div id="simuladoActivePanel" style="display:none;">
+      <div class="simulado-header-bar">
+        <div class="simulado-timer-chip">
+          ⏱️ Tempo restante: <strong id="simuladoTimerDisplay">30:00</strong>
+        </div>
+        <div id="simuladoProgressChip" style="font-size:0.88rem;color:var(--text-muted);">
+          Respondidas: 0/10
+        </div>
+        <button id="btnFinishSimulado" class="btn-action danger">
+          🏁 Entregar Simulado
+        </button>
+      </div>
+
+      <div class="simulado-layout">
+        <!-- Questões -->
+        <div id="simuladoQuestionsArea" class="simulado-questions-area"></div>
+
+        <!-- Folha de respostas / Navegador -->
+        <div class="simulado-bubble-sheet">
+          <h4 style="font-size:0.88rem;margin-bottom:0.75rem;color:var(--text-muted);">Gabarito Rápido:</h4>
+          <div id="simuladoBubbleList" class="bubble-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado do Simulado -->
+    <div id="simuladoResultPanel" style="display:none;"></div>
+  </section>
+
+  <!-- ============================================================
+       ABA 6: SIMULADOR FCC (4B.4 Presets de Cenário)
   ============================================================ -->
   <section id="view-simulador" class="tab-view">
     <div class="simulator-container">
       <div class="sim-card">
         <h3>Simulador de Nota Padronizada FCC</h3>
-        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem;">
           Ajuste seus acertos e os parâmetros do grupo para estimar sua nota final.
         </p>
 
-        <div class="sim-input-row">
+        <!-- 4B.4: Presets Rápidos de Cenário -->
+        <div class="preset-buttons-row">
+          <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Cenários Prontos:</span>
+          <button class="btn-preset otimista" onclick="applySimulatorPreset('otimista')">🟢 Otimista (+1 DP)</button>
+          <button class="btn-preset realista" onclick="applySimulatorPreset('realista')">🟡 Realista (Média)</button>
+          <button class="btn-preset corte" onclick="applySimulatorPreset('corte')">🔴 Linha de Corte (150 pts)</button>
+        </div>
+
+        <div class="sim-input-row" style="margin-top:1.25rem;">
           <label for="simP1Acertos"><span>Acertos P1 — Gerais (80Q)</span><strong id="simP1AcertosVal" style="color:var(--primary-light)">60</strong></label>
           <input type="range" id="simP1Acertos" class="sim-slider" min="0" max="80" value="60">
         </div>
@@ -281,7 +457,7 @@
           </div>
         </div>
 
-        <!-- F2.3: Curvas Normais -->
+        <!-- Curvas Normais (F2.3) -->
         <div class="sim-card" style="padding:1.25rem;">
           <h4 style="font-size:0.9rem;margin-bottom:0.5rem;">📈 Distribuição Normal — P1</h4>
           <div id="normalCurveP1"></div>
@@ -295,7 +471,7 @@
   </section>
 
   <!-- ============================================================
-       ABA 5: CRONÔMETRO & HORAS
+       ABA 7: CRONÔMETRO & CALENDÁRIO MENSAL (4C.2)
   ============================================================ -->
   <section id="view-pomodoro" class="tab-view">
     <div class="pomodoro-container">
@@ -325,13 +501,12 @@
           <button id="btnTimerStart" class="btn-timer primary" title="Iniciar">▶</button>
           <button id="btnTimerPause" class="btn-timer primary" style="display:none;" title="Pausar">⏸</button>
           <button id="btnTimerReset" class="btn-timer" title="Reiniciar">↺</button>
-          <!-- F3.4: Foco Total -->
           <button id="btnFocusMode" class="btn-timer" title="Modo Foco Total (Tela Cheia)" style="font-size:0.9rem;">🎯</button>
         </div>
 
-        <p style="font-size:0.78rem;color:var(--text-muted);">Ao concluir, a sessão é salva automaticamente.</p>
+        <p style="font-size:0.78rem;color:var(--text-muted);">Ao concluir, a sessão é salva e alimenta o gráfico semanal e o heatmap.</p>
 
-        <!-- M3: Registro manual -->
+        <!-- Registro manual -->
         <div class="manual-session-form">
           <p style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">➕ Registrar sessão manualmente</p>
           <label for="manualMinutes">Minutos estudados:</label>
@@ -342,11 +517,25 @@
         </div>
       </div>
 
-      <!-- Histórico -->
+      <!-- Lado direito: Histórico + Calendário Mensal (4C.2) -->
       <div class="study-logs-box">
+        <!-- 4C.2: Calendário Mensal Interativo -->
+        <div class="calendar-card" style="margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+            <h4 id="calendarMonthTitle" style="font-size:1rem;color:#fff;">📆 Calendário de Estudos</h4>
+            <div style="display:flex;gap:0.25rem;">
+              <button id="btnCalPrev" class="btn-action" style="padding:2px 8px;font-size:0.75rem;">◀</button>
+              <button id="btnCalNext" class="btn-action" style="padding:2px 8px;font-size:0.75rem;">▶</button>
+            </div>
+          </div>
+          <div id="calendarMonthGrid" class="calendar-grid"></div>
+          <div id="calendarDayDetails" class="calendar-day-details">
+            <span style="color:var(--text-muted);font-size:0.8rem;">Clique em qualquer dia do mês para ver detalhes de estudo e revisões.</span>
+          </div>
+        </div>
+
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem;">
-          <h3>📋 Histórico de Sessões</h3>
-          <!-- F2.5: badges diário/semanal -->
+          <h3>📋 Histórico Recente de Sessões</h3>
           <div id="timerStatsBadges" style="display:flex;gap:0.5rem;flex-wrap:wrap;"></div>
         </div>
         <div id="studyLogsContainer"></div>
@@ -355,7 +544,7 @@
   </section>
 
   <!-- ============================================================
-       ABA 6: LEGISLAÇÃO SC
+       ABA 8: LEGISLAÇÃO SC
   ============================================================ -->
   <section id="view-legislacao" class="tab-view">
     <div style="margin-bottom:1.5rem;">
@@ -366,41 +555,147 @@
   </section>
 
   <!-- ============================================================
-       ABA 7: PLACAR A01 vs E05 (F3.3)
+       ABA 9: PLACAR A01 vs E05
   ============================================================ -->
   <section id="view-placar" class="tab-view">
     <div style="margin-bottom:1.5rem;">
-      <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">📊 Placar — A01 vs E05</h2>
+      <h2 style="font-family:'Outfit',sans-serif;font-size:1.3rem;">📊 Placar Comparativo — A01 vs E05</h2>
       <p style="color:var(--text-secondary);font-size:0.9rem;">Comparação de progresso entre os dois estudantes. Os dados são independentes — apenas as métricas são exibidas lado a lado.</p>
     </div>
-    <div class="sim-card" style="max-width:700px;margin:0 auto;">
+    <div class="sim-card" style="max-width:720px;margin:0 auto;">
       <div id="placarContainer"></div>
     </div>
   </section>
 
   <!-- ============================================================
-       ABA 8: BACKUP
+       ABA 10: BACKUP & SINCRONIZAÇÃO (4B.6 + 4C.3)
   ============================================================ -->
   <section id="view-backup" class="tab-view">
     <div class="backup-card">
-      <h3>💾 Backup e Segurança dos Dados</h3>
+      <h3>💾 Backup, Relatórios e Sincronização em Nuvem / QR</h3>
       <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;line-height:1.6;">
-        Dados de <b>ambos os perfis</b> salvos no navegador via <code>localStorage</code>.
-        Exporte um backup periódico para não perder seu progresso:
+        Seus dados ficam seguros no navegador via <code>localStorage</code> e agora contam com exportação semanal e sincronização entre computadores/celulares sem necessidade de servidor!
       </p>
-      <div style="display:flex;flex-direction:column;gap:1rem;">
-        <button id="btnExportBackup" class="btn-action" style="padding:12px 20px;font-size:0.95rem;justify-content:center;">
-          📥 Baixar Backup Completo (JSON)
-        </button>
+
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        <!-- 4B.6: Exportar Relatório Semanal em Markdown -->
+        <div class="backup-action-box">
+          <div>
+            <strong>📑 Relatório Semanal de Desempenho (.md)</strong>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Gera um relatório completo formatado em Markdown com horas, matérias, revisões e metas para imprimir ou enviar para seu grupo/mentor.</p>
+          </div>
+          <button id="btnExportWeeklyReport" class="btn-action primary">
+            📥 Baixar Relatório (.md)
+          </button>
+        </div>
+
+        <!-- 4C.3: Sincronização via Link / QR Code -->
+        <div class="backup-action-box">
+          <div>
+            <strong>🔗 Sincronização Instantânea via Link / QR Code</strong>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Transfira todo o seu progresso para outro computador ou celular em segundos sem subir arquivos.</p>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button id="btnGenerateSyncLink" class="btn-action">
+              🔗 Copiar Link de Sync
+            </button>
+            <button id="btnShowQrCode" class="btn-action">
+              📱 Gerar QR Code
+            </button>
+          </div>
+        </div>
+
+        <div id="qrCodeContainer" style="display:none;text-align:center;padding:1rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
+          <div id="qrSvgWrapper"></div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;">Aponte a câmera do celular para importar seus dados instantaneamente.</p>
+        </div>
+
+        <!-- Backup JSON Padrão -->
+        <div class="backup-action-box">
+          <div>
+            <strong>📦 Arquivo de Backup Completo (JSON)</strong>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Exporta todos os dados de A01 e E05 em arquivo seguro para restauração.</p>
+          </div>
+          <button id="btnExportBackup" class="btn-action">
+            📥 Exportar JSON
+          </button>
+        </div>
+
         <div class="drop-zone" onclick="document.getElementById('fileImportBackup').click()">
           <span style="font-size:1.5rem;display:block;margin-bottom:0.5rem;">📤</span>
-          <strong>Clique para importar um backup</strong><br>
-          <span style="font-size:0.78rem;color:var(--text-muted);">Selecione o arquivo .json gerado por esta plataforma</span>
+          <strong>Clique para restaurar um backup JSON</strong><br>
+          <span style="font-size:0.78rem;color:var(--text-muted);">Selecione o arquivo .json gerado anteriormente</span>
         </div>
         <input type="file" id="fileImportBackup" accept=".json" style="display:none;">
+
         <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:var(--radius-md);padding:1rem;font-size:0.85rem;color:var(--accent-gold);">
-          ⚠️ <b>Atenção:</b> Importar substitui completamente os dados atuais. Exporte antes de importar.
+          ⚠️ <b>Dica de Segurança:</b> Seus dados pertencem a você. Exporte um backup toda semana para manter seu histórico seguro.
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ABA 11: CONFIGURAÇÕES & AJUSTES (4C.4 - NOVA)
+  ============================================================ -->
+  <section id="view-config" class="tab-view">
+    <div class="sim-card" style="max-width:760px;margin:0 auto;">
+      <h3>⚙️ Configurações & Personalização</h3>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">
+        Adapte a plataforma ao seu ritmo e preferências visuais.
+      </p>
+
+      <div class="config-grid">
+        <!-- Tema Visual -->
+        <div class="config-item">
+          <label><strong>🎨 Tema da Interface:</strong></label>
+          <select id="configThemeSelect" class="filter-select" style="width:100%;margin-top:6px;">
+            <option value="indigo">🌌 Dark Indigo (Padrão Sofisticado)</option>
+            <option value="emerald">🌲 Dark Fazenda (Esmeralda SEFAZ)</option>
+            <option value="navy">⚓ Deep Navy (Azul Executivo)</option>
+            <option value="slate">🪙 Cyber Slate (Alto Contraste)</option>
+          </select>
+        </div>
+
+        <!-- Som do Pomodoro -->
+        <div class="config-item">
+          <label><strong>🔔 Alarme do Cronômetro:</strong></label>
+          <div style="display:flex;gap:0.5rem;align-items:center;margin-top:6px;">
+            <select id="configSoundSelect" class="filter-select" style="flex:1;">
+              <option value="beep">Eletrônico (Beep)</option>
+              <option value="bell">Sino Cristalino (Bell)</option>
+              <option value="chime">Acorde Harmonioso (Chime)</option>
+              <option value="mute">Silencioso</option>
+            </select>
+            <button id="btnTestSound" class="btn-action" style="padding:6px 12px;" title="Testar som">▶ Testar</button>
+          </div>
+        </div>
+
+        <!-- Notificações Nativas -->
+        <div class="config-item">
+          <label><strong>📢 Notificações do Navegador:</strong></label>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+            <span id="configNotifStatus" style="font-size:0.85rem;color:var(--text-muted);">Não solicitada</span>
+            <button id="btnRequestNotif" class="btn-action">Permitir Notificações</button>
+          </div>
+        </div>
+
+        <!-- Tempo padrão Pomodoro -->
+        <div class="config-item">
+          <label><strong>⏱️ Duração Padrão do Bloco de Foco:</strong></label>
+          <select id="configPomoDuration" class="filter-select" style="width:100%;margin-top:6px;">
+            <option value="25">25 minutos (Clássico)</option>
+            <option value="30">30 minutos (Intermediário)</option>
+            <option value="40">40 minutos (Avançado)</option>
+            <option value="50">50 minutos (Universitário)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem;text-align:right;">
+        <button id="btnSaveConfig" class="btn-action primary" style="padding:8px 20px;">
+          💾 Salvar Ajustes
+        </button>
       </div>
     </div>
   </section>
@@ -410,7 +705,7 @@
 <!-- Rodapé -->
 <footer>
   <p>Concurso SEFAZ/SC 2026 — Auditor Estadual de Finanças Públicas | Cargos A01 e E05</p>
-  <p style="margin-top:4px;color:var(--text-muted);font-size:0.75rem;">Banca FCC • Prova em 22/11/2026 • Florianópolis/SC</p>
+  <p style="margin-top:4px;color:var(--text-muted);font-size:0.75rem;">Banca FCC • Prova em 22/11/2026 • Florianópolis/SC • Plataforma v4.0 PWA Offline</p>
 </footer>
 
 <script src="js/data.js"></script>
