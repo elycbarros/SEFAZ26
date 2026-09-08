@@ -4,7 +4,7 @@
   "description": "Plataforma de estudos para o concurso SEFAZ/SC 2026 — Auditor Estadual de Finanças Públicas (A01 e E05)",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0a0f1c",
+  "background_color": "#f4f6fa",
   "theme_color": "#10b981",
   "orientation": "any",
   "icons": [
