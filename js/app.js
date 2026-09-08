@@ -44,6 +44,11 @@ const AppState = {
   filterStatus: 'all',
   openCards: new Set(),
   noteModalKey: null,
+  studyModal: {
+    discId: null,
+    topicIdx: null,
+    key: null,
+  },
   revisaoFilter: 'all',     // 4B.5: 'all' | 'R1' | 'R7' | 'R30'
   pwaPrompt: null,          // 4A.1
   notificationsEnabled: false, // 4B.1
@@ -52,6 +57,8 @@ const AppState = {
     theme: 'emerald',
     sound: 'beep',
     pomoDuration: 25,
+    geminiApiKey: '',
+    geminiModel: 'gemini-2.5-flash-lite',
   },
 
   quiz: {
@@ -107,6 +114,58 @@ const AppState = {
     mode: 'pomodoro',
   },
 };
+
+/* ============================================================
+   HELPERS DE COMPATIBILIDADE E CONTEÚDO DOS TÓPICOS
+============================================================ */
+function getTopicName(topico) {
+  if (!topico) return '';
+  return typeof topico === 'object' ? (topico.nome || '') : String(topico);
+}
+
+function getTopicData(cargoCodigo, discId, topicIdx) {
+  const cargo = EDITAL_DATA.cargos[cargoCodigo];
+  if (!cargo) return null;
+  const disc = cargo.p1.disciplinas.find(d => d.id === discId) || cargo.p2.disciplinas.find(d => d.id === discId);
+  if (!disc || !disc.topicos || !disc.topicos[topicIdx]) return null;
+  const item = disc.topicos[topicIdx];
+  return {
+    cargo,
+    disc,
+    item,
+    nome: getTopicName(item),
+    teoria: typeof item === 'object' ? (item.teoria || '') : '',
+    resumo: typeof item === 'object' ? (item.resumo || '') : '',
+    flashcard: typeof item === 'object' ? (item.flashcard || null) : null,
+  };
+}
+
+function renderStudyContent(rawText, defaultEmptyMsg) {
+  if (!rawText || !rawText.trim()) {
+    return `<div style="text-align:center;padding:2.5rem 1rem;color:var(--text-muted);">
+      <p style="font-size:0.95rem;margin-bottom:0.5rem;color:var(--text);">${defaultEmptyMsg}</p>
+      <span style="font-size:0.8rem;opacity:0.75;">Conteúdo pedagógico em expansão contínua para o Edital FCC 2026.</span>
+    </div>`;
+  }
+  if (rawText.trim().startsWith('<')) {
+    return rawText;
+  }
+  return rawText
+    .split('\n\n')
+    .map(block => {
+      const trimmed = block.trim();
+      if (!trimmed) return '';
+      if (trimmed.startsWith('####')) return `<h4>${trimmed.replace(/^####\s*/, '')}</h4>`;
+      if (trimmed.startsWith('###')) return `<h4>${trimmed.replace(/^###\s*/, '')}</h4>`;
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        const items = trimmed.split('\n').map(l => `<li>${l.replace(/^[-*]\s*/, '')}</li>`).join('');
+        return `<ul>${items}</ul>`;
+      }
+      return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`;
+    })
+    .filter(Boolean)
+    .join('');
+}
 
 /* ============================================================
    UTILIDADES — ícones SVG & datas locais
@@ -727,13 +786,16 @@ function initQuiz() {
 
   [...cargo.p1.disciplinas, ...cargo.p2.disciplinas].forEach(disc => {
     disc.topicos.forEach((topico, idx) => {
+      const topicName = getTopicName(topico);
       const key = `${profile.cargoCodigo}_${disc.id}_${idx}`;
       const note = profile.notes?.[key] || '';
-      const freq = getTopicFccFreq(topico, disc.id);
+      const freq = getTopicFccFreq(topicName, disc.id);
+      const topicoObj = typeof topico === 'object' ? topico : null;
 
       items.push({
         key,
-        topico,
+        topico: topicName,
+        topicoObj,
         disc: disc.nome,
         freq,
         note,
@@ -796,12 +858,21 @@ function renderQuizCard() {
         ${!isFlipped
           ? `<div>
               <span style="display:block;font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">O que você lembra sobre:</span>
-              <strong>${current.topico}</strong>
+              <strong style="font-size:1.05rem;">${current.topico}</strong>
+              ${current.topicoObj?.flashcard?.pergunta ? `
+                <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.04);border-radius:8px;font-size:0.88rem;color:var(--text);border-left:3px solid var(--accent);text-align:left;">
+                  <strong style="color:var(--accent);">Desafio FCC:</strong> ${current.topicoObj.flashcard.pergunta}
+                </div>
+              ` : ''}
             </div>`
           : `<div>
-              <span style="display:block;font-size:0.82rem;color:var(--accent-emerald);margin-bottom:8px;font-weight:700;">VERSO / CONCEITO:</span>
-              <div style="font-size:1rem;font-weight:400;color:#f8fafc;text-align:left;background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);max-height:180px;overflow-y:auto;">
-                ${current.note ? current.note : '<i>Sem anotação pessoal salva. Revise a legislação aplicável e conceitos fundamentais do Edital FCC.</i>'}
+              <span style="display:block;font-size:0.82rem;color:var(--accent-emerald, #10b981);margin-bottom:8px;font-weight:700;">VERSO / CONCEITO:</span>
+              <div style="font-size:0.92rem;font-weight:400;color:#f8fafc;text-align:left;background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid var(--border-subtle);max-height:200px;overflow-y:auto;line-height:1.6;">
+                ${current.topicoObj?.flashcard?.resposta
+                  ? `<div style="margin-bottom:0.75rem;"><strong style="color:var(--primary-light);">Fundamento / Resposta:</strong><br>${current.topicoObj.flashcard.resposta}</div>`
+                  : (current.topicoObj?.resumo ? `<div style="margin-bottom:0.75rem;"><strong style="color:var(--primary-light);">Resumo:</strong><br>${current.topicoObj.resumo}</div>` : '')
+                }
+                ${current.note ? `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px dashed rgba(255,255,255,0.15);"><strong style="color:#fbbf24;">Sua anotação pessoal:</strong><br>${current.note}</div>` : (!current.topicoObj?.flashcard && !current.topicoObj?.resumo ? '<i>Sem anotação pessoal salva. Revise a legislação aplicável e conceitos fundamentais do Edital FCC.</i>' : '')}
               </div>
             </div>`
         }
@@ -1435,9 +1506,20 @@ function initEventListeners() {
     if (nE05) AppState.profiles.E05.nome = nE05;
     if (mE05 > 0) AppState.profiles.E05.metaHorasSemanais = mE05;
 
+    const gKey = document.getElementById('cfgGeminiKey')?.value?.trim();
+    const gModel = document.getElementById('cfgGeminiModel')?.value;
+    if (typeof gKey === 'string') {
+      AppState.config.geminiApiKey = gKey;
+      localStorage.setItem('sefaz_gemini_key', gKey);
+    }
+    if (gModel) {
+      AppState.config.geminiModel = gModel;
+      localStorage.setItem('sefaz_gemini_model', gModel);
+    }
+
     saveProfilesData();
     renderApp();
-    showToast('Ajustes e perfis dos estudantes salvos.', 'success');
+    showToast('Ajustes salvos com sucesso.', 'success');
   });
 
   // Sliders Simulador FCC
@@ -1510,6 +1592,59 @@ function initEventListeners() {
     saveProfilesData();
   });
 
+  // Modal de Estudo (Teoria, Resumo, Flashcards)
+  document.getElementById('btnCloseStudyModal')?.addEventListener('click', closeTopicStudyModal);
+  document.getElementById('topicStudyModal')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeTopicStudyModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('topicStudyModal')?.classList.contains('open')) {
+      closeTopicStudyModal();
+    }
+  });
+
+  document.querySelectorAll('.study-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchStudyTab(btn.dataset.tab));
+  });
+
+  document.getElementById('studyNoteTextarea')?.addEventListener('input', (e) => {
+    const key = AppState.studyModal?.key;
+    if (!key) return;
+    const profile = getCurrentProfile();
+    if (!profile.notes) profile.notes = {};
+    profile.notes[key] = e.target.value;
+    saveProfilesData();
+  });
+
+  ['teoria', 'resumo', 'questoes', 'revisao'].forEach(campo => {
+    const btn = document.getElementById(`btnToggle${campo.charAt(0).toUpperCase() + campo.slice(1)}Done`);
+    if (btn) {
+      btn.addEventListener('click', () => toggleStudyModalField(campo));
+    }
+  });
+
+  document.getElementById('btnPraticarFCC')?.addEventListener('click', practiceTopicQuestions);
+
+  // Ações de IA no Modal de Estudo
+  document.getElementById('btnAiExplainTopic')?.addEventListener('click', () => handleAiAction('explain'));
+  document.getElementById('btnAiGenerateQuestion')?.addEventListener('click', () => handleAiAction('question'));
+  document.getElementById('btnAiMnemonic')?.addEventListener('click', () => handleAiAction('mnemonic'));
+  document.getElementById('btnCopyAiResponse')?.addEventListener('click', () => {
+    const content = document.getElementById('aiResponseContent');
+    if (content && content.innerText) {
+      navigator.clipboard.writeText(content.innerText);
+      showToast('Resposta da IA copiada!', 'success');
+    }
+  });
+
+  // Configurações e teste da IA Gemini
+  document.getElementById('btnToggleGeminiKeyVisibility')?.addEventListener('click', () => {
+    const input = document.getElementById('cfgGeminiKey');
+    if (input) input.type = input.type === 'password' ? 'text' : 'password';
+  });
+
+  document.getElementById('btnTestGemini')?.addEventListener('click', checkGeminiStatus);
+
   // Edição de nome inline
   document.addEventListener('click', (e) => {
     if (e.target?.id === 'btnEditNameInline') {
@@ -1524,6 +1659,110 @@ function initEventListeners() {
       }
     }
   });
+}
+
+/* ============================================================
+   INTEGRAÇÃO & HANDLERS DA INTELIGÊNCIA ARTIFICIAL GEMINI
+============================================================ */
+async function checkGeminiStatus() {
+  const statusEl = document.getElementById('geminiConnectionStatus');
+  const key = document.getElementById('cfgGeminiKey')?.value?.trim();
+  const model = document.getElementById('cfgGeminiModel')?.value || 'gemini-2.5-flash-lite';
+
+  if (statusEl) {
+    statusEl.innerHTML = '<span style="color:var(--accent);">⏳ Verificando servidor Vercel / Google AI...</span>';
+  }
+
+  // 1. Verifica se a Vercel Serverless Function está ativa com a variável GEMINI_API_KEY
+  try {
+    const testResp = await fetch('/api/gemini');
+    if (testResp.ok) {
+      const info = await testResp.json();
+      if (info.serverKeyConfigured) {
+        if (statusEl) {
+          statusEl.innerHTML = '<span style="color:#10b981;font-weight:600;">🟢 Ativo na Vercel (Chave protegida no servidor)</span>';
+        }
+        showToast('IA ativa e protegida na Vercel!', 'success');
+        return;
+      }
+    }
+  } catch (err) {
+    // Continua para o teste via client-side / chave direta
+  }
+
+  // 2. Se não estiver na Vercel ou não houver chave no servidor, testa com a chave inserida
+  if (typeof SEFAZ_AI !== 'undefined') {
+    const res = await SEFAZ_AI.testConnection(key, model);
+    if (statusEl) {
+      if (res.success) {
+        statusEl.innerHTML = `<span style="color:#10b981;font-weight:600;">🟢 Conexão OK (${res.source === 'vercel-gateway' ? 'Vercel Serverless' : 'Google AI Studio'})</span>`;
+        showToast('Conexão com Gemini estabelecida com sucesso!', 'success');
+      } else {
+        statusEl.innerHTML = `<span style="color:#ef4444;font-weight:600;">🔴 ${res.error || 'Aguardando GEMINI_API_KEY na Vercel'}</span>`;
+        showToast(res.error || 'Configure GEMINI_API_KEY na Vercel.', 'info', 5000);
+      }
+    }
+  }
+}
+
+async function handleAiAction(type) {
+  const modalData = AppState.studyModal;
+  if (!modalData?.key) return;
+
+  const profile = getCurrentProfile();
+  const data = getTopicData(profile.cargoCodigo, modalData.discId, modalData.topicIdx);
+  if (!data) return;
+
+  const container = document.getElementById('aiResponseContainer');
+  const loading = document.getElementById('aiResponseLoading');
+  const content = document.getElementById('aiResponseContent');
+  const titleEl = document.getElementById('aiResponseTitle');
+
+  if (!container || !loading || !content) return;
+
+  container.style.display = 'block';
+  loading.style.display = 'flex';
+  content.innerHTML = '';
+
+  const buttons = document.querySelectorAll('.btn-ai-action');
+  buttons.forEach(b => b.disabled = true);
+
+  try {
+    let result;
+    if (type === 'explain') {
+      if (titleEl) titleEl.textContent = `📖 Explicação FCC: ${data.nome}`;
+      result = await SEFAZ_AI.explainTopic(data.nome, data.disc.nome);
+    } else if (type === 'question') {
+      if (titleEl) titleEl.textContent = `🎯 Questão Inédita FCC: ${data.nome}`;
+      result = await SEFAZ_AI.generateQuestion(data.nome, data.disc.nome);
+    } else {
+      if (titleEl) titleEl.textContent = `💡 Mnemônicos & Dicas FCC: ${data.nome}`;
+      const prompt = `Crie mnemônicos inteligentes, palavras-chave e esquemas comparativos para memorização do tópico:\nDisciplina: ${data.disc.nome}\nTópico: ${data.nome}`;
+      result = await SEFAZ_AI.generate({
+        prompt,
+        systemInstruction: SEFAZ_AI.SYSTEM_INSTRUCTIONS.tutorFCC,
+        temperature: 0.4
+      });
+    }
+
+    loading.style.display = 'none';
+
+    if (result.success) {
+      content.innerHTML = renderStudyContent(result.text, '');
+    } else {
+      content.innerHTML = `
+        <div class="study-callout atencao">
+          <strong>Atenção:</strong> ${result.error}
+          ${result.needsApiKey ? '<br><br><small>Dica: Na Vercel, configure a variável <code>GEMINI_API_KEY</code> em <b>Project Settings -> Environment Variables</b>.</small>' : ''}
+        </div>
+      `;
+    }
+  } catch (err) {
+    loading.style.display = 'none';
+    content.innerHTML = `<div class="study-callout atencao"><strong>Erro:</strong> ${err.message}</div>`;
+  } finally {
+    buttons.forEach(b => b.disabled = false);
+  }
 }
 
 function populateConfigInputs() {
@@ -1542,6 +1781,11 @@ function populateConfigInputs() {
   if (cfgTheme) cfgTheme.value = AppState.config.theme || 'emerald';
   if (cfgSound) cfgSound.value = AppState.config.sound || 'beep';
   if (cfgPomo) cfgPomo.value = AppState.config.pomoDuration || 25;
+
+  const cfgGeminiKey = document.getElementById('cfgGeminiKey');
+  const cfgGeminiModel = document.getElementById('cfgGeminiModel');
+  if (cfgGeminiKey) cfgGeminiKey.value = AppState.config.geminiApiKey || '';
+  if (cfgGeminiModel) cfgGeminiModel.value = AppState.config.geminiModel || 'gemini-2.5-flash-lite';
 }
 
 function renderApp() {
@@ -1774,9 +2018,10 @@ function renderEditalVerticalizado() {
   function shouldShow(t, idx, disc) {
     const key = `${profile.cargoCodigo}_${disc.id}_${idx}`;
     const p = profile.progress[key] || {};
+    const topicName = getTopicName(t);
 
     const matchSearch = AppState.searchTerm === '' ||
-      t.toLowerCase().includes(AppState.searchTerm) ||
+      topicName.toLowerCase().includes(AppState.searchTerm) ||
       disc.nome.toLowerCase().includes(AppState.searchTerm);
     if (!matchSearch) return false;
 
@@ -1784,7 +2029,7 @@ function renderEditalVerticalizado() {
     if (AppState.filterStatus === 'done')       return !!(p.teoria && p.questoes);
     if (AppState.filterStatus === 'untouched')  return !p.teoria && !p.resumo && !p.questoes && !p.revisao;
     if (AppState.filterStatus === 'with-notes') return !!(profile.notes?.[key]);
-    if (AppState.filterStatus === 'fcc-high')   return getTopicFccFreq(t, disc.id) === 'alta';
+    if (AppState.filterStatus === 'fcc-high')   return getTopicFccFreq(topicName, disc.id) === 'alta';
     return true;
   }
 
@@ -1825,11 +2070,12 @@ function renderEditalVerticalizado() {
           <div class="topicos-list">`;
 
       disc.topicos.forEach((topico, idx) => {
-        if (hasFilter && !visible.includes(topico)) return;
+        const topicName = getTopicName(topico);
+        if (hasFilter && !visible.some(v => getTopicName(v) === topicName)) return;
         const key = `${profile.cargoCodigo}_${disc.id}_${idx}`;
         const prog = profile.progress[key] || {};
         const hasNote = !!(profile.notes?.[key]);
-        const freq = getTopicFccFreq(topico, disc.id);
+        const freq = getTopicFccFreq(topicName, disc.id);
 
         let freqBadge = '';
         if (freq === 'alta') {
@@ -1840,8 +2086,12 @@ function renderEditalVerticalizado() {
 
         html += `
           <div class="topico-item" data-key="${key}">
-            <div class="topico-texto">
-              <span style="color:var(--text-muted);font-size:0.78rem;margin-right:6px;">#${idx + 1}</span>${topico}${freqBadge}
+            <div class="topico-texto clickable" onclick="openTopicStudyModal('${disc.id}', ${idx})" title="Clique para abrir Teoria, Resumo e Flashcard deste tópico">
+              <span style="color:var(--text-muted);font-size:0.78rem;margin-right:6px;">#${idx + 1}</span>
+              <span>${topicName}</span>${freqBadge}
+              <button class="btn-topic-study" onclick="event.stopPropagation(); openTopicStudyModal('${disc.id}', ${idx})" title="Abrir conteúdo pedagógico">
+                ${ic('book', 12)} Estudar
+              </button>
             </div>
             <div class="topico-acoes">
               <label class="check-label ${prog.teoria   ? 'checked' : ''}" data-key="${key}" data-campo="teoria">Teoria</label>
@@ -1967,6 +2217,179 @@ function closeNoteModal() {
   if (modal) modal.classList.remove('open');
   renderEditalVerticalizado();
   renderGamificationBadges();
+}
+
+/* ============================================================
+   MODAL DE CONTEÚDO DE ESTUDO (TEORIA, RESUMO, FLASHCARD)
+============================================================ */
+window.openTopicStudyModal = function(discId, topicIdx) {
+  const profile = getCurrentProfile();
+  const data = getTopicData(profile.cargoCodigo, discId, topicIdx);
+  if (!data) return;
+
+  const key = `${profile.cargoCodigo}_${discId}_${topicIdx}`;
+  AppState.studyModal = { discId, topicIdx, key };
+
+  const modal = document.getElementById('topicStudyModal');
+  if (!modal) return;
+
+  // Cabeçalho
+  const titleEl = document.getElementById('studyModalTitle');
+  const discEl = document.getElementById('studyModalDisc');
+  const badgeEl = document.getElementById('studyModalFreqBadge');
+
+  if (titleEl) titleEl.textContent = data.nome;
+  if (discEl) discEl.textContent = data.disc.nome;
+
+  const freq = getTopicFccFreq(data.nome, discId);
+  if (badgeEl) {
+    if (freq === 'alta') {
+      badgeEl.innerHTML = `<span class="fcc-badge alta" title="Alta incidência histórica na FCC">Alta FCC</span>`;
+    } else if (freq === 'media') {
+      badgeEl.innerHTML = `<span class="fcc-badge media" title="Média incidência FCC">Média FCC</span>`;
+    } else {
+      badgeEl.innerHTML = `<span class="fcc-badge baixa" title="Baixa incidência FCC">Baixa FCC</span>`;
+    }
+  }
+
+  // Teoria
+  const teoriaEl = document.getElementById('studyTeoriaContent');
+  if (teoriaEl) {
+    teoriaEl.innerHTML = renderStudyContent(
+      data.teoria,
+      '📖 <strong>Teoria completa em elaboração</strong> para este tópico do edital.'
+    );
+  }
+
+  // Resumo
+  const resumoEl = document.getElementById('studyResumoContent');
+  if (resumoEl) {
+    resumoEl.innerHTML = renderStudyContent(
+      data.resumo,
+      '📝 <strong>Resumo esquematizado em elaboração</strong> para revisão rápida.'
+    );
+  }
+
+  // Flashcard
+  const flashEl = document.getElementById('studyFlashcardContent');
+  if (flashEl) {
+    if (data.flashcard) {
+      const pergunta = typeof data.flashcard === 'object' ? data.flashcard.pergunta : 'Desafio / Conceito-Chave:';
+      const resposta = typeof data.flashcard === 'object' ? data.flashcard.resposta : data.flashcard;
+      flashEl.innerHTML = `
+        <div class="study-card-box pergunta">
+          <div class="label-header">${ic('target', 14)} Desafio / O que a FCC cobra:</div>
+          <div>${pergunta}</div>
+        </div>
+        <div class="study-card-box resposta">
+          <div class="label-header" style="color:#60a5fa;">${ic('check', 14)} Resposta / Fundamento Doutrinário e Legal:</div>
+          <div>${resposta}</div>
+        </div>
+      `;
+    } else if (data.resumo) {
+      flashEl.innerHTML = `
+        <div class="study-card-box pergunta">
+          <div class="label-header">${ic('target', 14)} Tópico de Revisão:</div>
+          <div><strong>${data.nome}</strong></div>
+        </div>
+        <div class="study-card-box resposta">
+          <div class="label-header" style="color:#60a5fa;">${ic('check', 14)} Pontos Fundamentais:</div>
+          <div>${renderStudyContent(data.resumo, '')}</div>
+        </div>
+      `;
+    } else {
+      flashEl.innerHTML = `
+        <div style="text-align:center;padding:2.5rem 1rem;color:var(--text-muted);">
+          <p style="font-size:0.95rem;margin-bottom:0.5rem;color:var(--text);">💡 <strong>Flashcard FCC em elaboração</strong> para este tópico.</p>
+          <span style="font-size:0.8rem;opacity:0.75;">Adicione suas anotações na aba ao lado para memorização ativa!</span>
+        </div>
+      `;
+    }
+  }
+
+  // Anotações
+  const noteArea = document.getElementById('studyNoteTextarea');
+  if (noteArea) {
+    noteArea.value = profile.notes?.[key] || '';
+  }
+
+  // Sync Footer Status
+  syncStudyModalFooterButtons(key);
+
+  // Tab ativa inicial (teoria)
+  switchStudyTab('teoria');
+
+  modal.classList.add('open');
+};
+
+window.closeTopicStudyModal = function() {
+  const modal = document.getElementById('topicStudyModal');
+  if (modal) modal.classList.remove('open');
+  AppState.studyModal = { discId: null, topicIdx: null, key: null };
+  renderEditalVerticalizado();
+  renderGamificationBadges();
+  renderDashboardMetrics();
+};
+
+function switchStudyTab(tabName) {
+  document.querySelectorAll('.study-tab-btn').forEach(btn => {
+    const isTarget = btn.dataset.tab === tabName;
+    btn.classList.toggle('active', isTarget);
+    btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
+  });
+  document.querySelectorAll('.study-tab-panel').forEach(panel => {
+    panel.classList.toggle('active', panel.id === `studyTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+  });
+}
+
+function syncStudyModalFooterButtons(key) {
+  const profile = getCurrentProfile();
+  const prog = profile.progress[key] || {};
+  ['teoria', 'resumo', 'questoes', 'revisao'].forEach(campo => {
+    const btn = document.getElementById(`btnToggle${campo.charAt(0).toUpperCase() + campo.slice(1)}Done`);
+    if (btn) {
+      btn.classList.toggle('checked', !!prog[campo]);
+    }
+  });
+}
+
+function toggleStudyModalField(campo) {
+  const key = AppState.studyModal?.key;
+  if (!key) return;
+  const profile = getCurrentProfile();
+  if (!profile.progress[key]) {
+    profile.progress[key] = { teoria: false, resumo: false, questoes: false, revisao: false };
+  }
+  const newVal = !profile.progress[key][campo];
+  profile.progress[key][campo] = newVal;
+
+  if (campo === 'teoria' && newVal) {
+    if (!profile.progress[key]._teoriaDate) {
+      profile.progress[key]._teoriaDate = localDateKey(new Date());
+    }
+  } else if (campo === 'teoria' && !newVal) {
+    delete profile.progress[key]._teoriaDate;
+  }
+
+  saveProfilesData();
+  syncStudyModalFooterButtons(key);
+  showToast(newVal ? `${campo.charAt(0).toUpperCase() + campo.slice(1)} marcado!` : `${campo.charAt(0).toUpperCase() + campo.slice(1)} desmarcado.`);
+}
+
+function practiceTopicQuestions() {
+  const discId = AppState.studyModal?.discId;
+  closeTopicStudyModal();
+  switchTab('mock-exam');
+  if (discId) {
+    const sel = document.getElementById('mockFilterDisciplina');
+    if (sel) {
+      const hasOption = Array.from(sel.options).some(o => o.value === discId);
+      if (hasOption) {
+        sel.value = discId;
+        sel.dispatchEvent(new Event('change'));
+      }
+    }
+  }
 }
 
 /* ============================================================
@@ -2314,7 +2737,7 @@ function renderRevisoes() {
         dueDate.setDate(dueDate.getDate() + days);
         const dueDateStr = localDateKey(dueDate);
         if (dueDateStr <= today && !prog[`_revisao${label}`]) {
-          allDue.push({ key, topico, disc: disc.nome, label, dueDateStr, prog });
+          allDue.push({ key, topico: getTopicName(topico), disc: disc.nome, label, dueDateStr, prog });
         }
       });
     });

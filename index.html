@@ -99,6 +99,9 @@
     <symbol id="i-chevron-right" viewBox="0 0 24 24">
       <path d="m9 5 7 7-7 7"/>
     </symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24">
+      <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3zM19 3l-.9 2.1a1 1 0 0 1-.6.6L15 6l2.1.9a1 1 0 0 1 .6.6L19 10l.9-2.1a1 1 0 0 1 .6-.6L23 6l-2.1-.9a1 1 0 0 1-.6-.6z"/>
+    </symbol>
   </defs>
 </svg>
 
@@ -116,6 +119,127 @@
       Anote artigos, mnemônicos, jurisprudência ou conceitos-chave. Salvo automaticamente e integrado ao Quiz.
     </p>
     <textarea id="noteTextarea" class="note-textarea" placeholder="Escreva aqui sua anotação..."></textarea>
+  </div>
+</div>
+
+<!-- Modal de Conteúdo de Estudo (Teoria, Resumo, Flashcard e Anotações) -->
+<div id="topicStudyModal" class="note-modal-overlay study-modal-overlay" role="dialog" aria-modal="true" aria-label="Conteúdo de estudo do tópico" data-od-id="od-modal-estudo">
+  <div class="note-modal-box study-modal-box">
+    <div class="study-modal-header">
+      <div class="study-modal-title-wrap">
+        <div class="study-modal-badges">
+          <span id="studyModalDisc" class="badge-tag highlight">Disciplina</span>
+          <span id="studyModalFreqBadge"></span>
+        </div>
+        <h3 id="studyModalTitle">Nome do Tópico</h3>
+      </div>
+      <button id="btnCloseStudyModal" class="btn-action" aria-label="Fechar modal">× Fechar</button>
+    </div>
+
+    <!-- Abas de Navegação -->
+    <div class="study-modal-tabs" role="tablist">
+      <button class="study-tab-btn active" data-tab="teoria" role="tab" aria-selected="true">
+        <svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-book"/></svg> Teoria Completa
+      </button>
+      <button class="study-tab-btn" data-tab="resumo" role="tab" aria-selected="false">
+        <svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-doc"/></svg> Resumo Esquematizado
+      </button>
+      <button class="study-tab-btn" data-tab="flashcard" role="tab" aria-selected="false">
+        <svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-target"/></svg> Flashcard FCC
+      </button>
+      <button class="study-tab-btn" data-tab="anotacoes" role="tab" aria-selected="false">
+        <svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-note"/></svg> Minhas Anotações
+      </button>
+      <button class="study-tab-btn ai-tab" data-tab="ia" role="tab" aria-selected="false">
+        <svg class="ic" viewBox="0 0 24 24" width="15" height="15"><use href="#i-sparkles"/></svg> Assistente IA (Gemini)
+      </button>
+    </div>
+
+    <!-- Conteúdo das Abas -->
+    <div class="study-modal-body">
+      <!-- Painel Teoria -->
+      <div id="studyTabTeoria" class="study-tab-panel active">
+        <div id="studyTeoriaContent" class="study-markdown-content"></div>
+      </div>
+
+      <!-- Painel Resumo -->
+      <div id="studyTabResumo" class="study-tab-panel">
+        <div id="studyResumoContent" class="study-markdown-content"></div>
+      </div>
+
+      <!-- Painel Flashcard -->
+      <div id="studyTabFlashcard" class="study-tab-panel">
+        <div id="studyFlashcardContent" class="study-flashcard-wrap"></div>
+      </div>
+
+      <!-- Painel Anotações -->
+      <div id="studyTabAnotacoes" class="study-tab-panel">
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">
+          Seus apontamentos pessoais sobre este tópico. Salvos automaticamente e integrados ao Quiz.
+        </p>
+        <textarea id="studyNoteTextarea" class="note-textarea" placeholder="Escreva aqui mnemônicos, artigos fundamentais ou dúvidas..."></textarea>
+      </div>
+
+      <!-- Painel Assistente IA Gemini -->
+      <div id="studyTabIa" class="study-tab-panel">
+        <div class="ai-study-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <svg class="ic" viewBox="0 0 24 24" width="18" height="18" style="color:var(--accent);"><use href="#i-sparkles"/></svg>
+            <strong style="font-size:0.95rem;color:#f8fafc;">Tutor Especialista FCC — Gemini Flash Lite</strong>
+          </div>
+          <span class="badge-tag highlight" id="aiGatewayBadge">Pronto</span>
+        </div>
+
+        <p style="font-size:0.83rem;color:var(--text-muted);margin:0.5rem 0 1rem;">
+          Obtenha explicações doutrinárias aprofundadas com foco na banca FCC, macetes e questões inéditas em tempo real.
+        </p>
+
+        <div class="ai-action-buttons">
+          <button id="btnAiExplainTopic" class="btn-ai-action">
+            <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-sparkles"/></svg> Explicar Tópico (Foco FCC)
+          </button>
+          <button id="btnAiGenerateQuestion" class="btn-ai-action">
+            <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-target"/></svg> Gerar Questão Inédita FCC
+          </button>
+          <button id="btnAiMnemonic" class="btn-ai-action">
+            <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-doc"/></svg> Mnemônico & Dica Prática
+          </button>
+        </div>
+
+        <div id="aiResponseContainer" class="ai-response-box" style="display:none;margin-top:1rem;">
+          <div class="ai-response-header">
+            <span id="aiResponseTitle" style="font-weight:600;font-size:0.85rem;color:var(--primary-light);">Resposta da IA</span>
+            <button id="btnCopyAiResponse" class="btn-action" style="font-size:0.75rem;padding:3px 8px;" title="Copiar resposta">Copiar</button>
+          </div>
+          <div id="aiResponseLoading" class="ai-loading-spinner" style="display:none;">
+            <div class="spinner-dot"></div>
+            <span>Consultando Gemini Flash Lite...</span>
+          </div>
+          <div id="aiResponseContent" class="study-markdown-content" style="max-height:360px;overflow-y:auto;padding-right:4px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rodapé de Ações Rápidas de Estudo -->
+    <div class="study-modal-footer">
+      <div class="study-status-toggles">
+        <button id="btnToggleTeoriaDone" class="btn-study-check" data-campo="teoria">
+          <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-check"/></svg> Teoria
+        </button>
+        <button id="btnToggleResumoDone" class="btn-study-check" data-campo="resumo">
+          <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-check"/></svg> Resumo
+        </button>
+        <button id="btnToggleQuestoesDone" class="btn-study-check" data-campo="questoes">
+          <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-check"/></svg> Questões
+        </button>
+        <button id="btnToggleRevisaoDone" class="btn-study-check" data-campo="revisao">
+          <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-check"/></svg> Revisão
+        </button>
+      </div>
+      <button id="btnPraticarFCC" class="btn-action primary" style="font-size:0.82rem;padding:6px 14px;">
+        <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><use href="#i-target"/></svg> Praticar no Simulado
+      </button>
+    </div>
   </div>
 </div>
 
@@ -764,6 +888,46 @@
             <option value="50">50 minutos (universitário)</option>
           </select>
         </div>
+
+        <!-- Seção Especial: Inteligência Artificial Google Gemini -->
+        <div class="config-item full-width" style="grid-column: 1 / -1; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem; margin-top: 0.5rem;">
+          <h4 style="display:flex;align-items:center;gap:8px;color:var(--accent);margin-bottom:0.25rem;">
+            <svg class="ic" viewBox="0 0 24 24" width="18" height="18"><use href="#i-sparkles"/></svg>
+            Inteligência Artificial — Google Gemini Flash Lite
+          </h4>
+          <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.5;">
+            Potencialize seus estudos com o Tutor FCC e Gerador de Questões Inéditas. Na Vercel, o backend utiliza a variável <code>GEMINI_API_KEY</code> automaticamente. Caso utilize localmente ou no GitHub Pages, informe sua chave pessoal abaixo.
+          </p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+            <div>
+              <label for="cfgGeminiKey" style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:4px;">Chave da API Gemini (Google AI Studio):</label>
+              <div style="display:flex;gap:0.5rem;">
+                <input type="password" id="cfgGeminiKey" class="search-input" style="flex:1;" placeholder="AIzaSy..." autocomplete="off">
+                <button id="btnToggleGeminiKeyVisibility" class="btn-action" type="button" title="Mostrar/Ocultar chave" style="padding:0 10px;">👁️</button>
+              </div>
+              <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:4px;">
+                Chave gratuita em: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">aistudio.google.com</a>
+              </span>
+            </div>
+
+            <div>
+              <label for="cfgGeminiModel" style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:4px;">Modelo de Inteligência Artificial:</label>
+              <select id="cfgGeminiModel" class="filter-select" style="width:100%;">
+                <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite (Mais rápido & econômico — Padrão)</option>
+                <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Avançado)</option>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Legado)</option>
+              </select>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:0.5rem;flex-wrap:wrap;">
+                <span id="geminiConnectionStatus" style="font-size:0.8rem;color:var(--text-muted);">Status: não testado</span>
+                <button id="btnTestGemini" class="btn-action" type="button" style="padding:5px 12px;font-size:0.78rem;">
+                  <svg class="ic" viewBox="0 0 24 24" width="13" height="13"><use href="#i-sparkles"/></svg> Testar Conexão
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div style="margin-top:2rem;text-align:right;">
@@ -781,6 +945,7 @@
 </footer>
 
 <script src="js/data.js"></script>
+<script src="js/ai.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

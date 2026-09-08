@@ -514,6 +514,9 @@ const EDITAL_DATA = {
 ============================================================ */
 function getTopicFccFreq(topicName, discId = '') {
   if (!topicName) return 'media';
+  if (typeof topicName === 'object' && topicName !== null) {
+    topicName = topicName.nome || '';
+  }
   const t = topicName.toLowerCase();
   
   // Alta incidência histórica na FCC
