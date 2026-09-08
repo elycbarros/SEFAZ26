@@ -27,6 +27,14 @@
 'use strict';
 
 /* ============================================================
+   VERSÃO DE CONFIGURAÇÃO
+   Incremente CONFIG_VERSION sempre que alterar o tema padrão
+   ou qualquer outra configuração de aparência. Isso garante
+   que usuários com localStorage antigo recebam o novo padrão.
+============================================================ */
+const CONFIG_VERSION = 2; // v2: tema alterado para claro (emerald)
+
+/* ============================================================
    ESTADO GLOBAL
 ============================================================ */
 const AppState = {
@@ -135,7 +143,21 @@ function loadProfilesData() {
 
     const savedConfig = localStorage.getItem('sefaz_config');
     if (savedConfig) {
-      AppState.config = { ...AppState.config, ...JSON.parse(savedConfig) };
+      const parsed = JSON.parse(savedConfig);
+      if (parsed._version === CONFIG_VERSION) {
+        // Versão compatível: restaura config normalmente
+        AppState.config = { ...AppState.config, ...parsed };
+      } else {
+        // Versão antiga: preserva apenas preferências não-visuais (som, pomodoro)
+        // e reseta tema para o padrão atual do código
+        AppState.config = {
+          ...AppState.config,          // padrões do código (tema emerald)
+          sound: parsed.sound ?? AppState.config.sound,
+          pomoDuration: parsed.pomoDuration ?? AppState.config.pomoDuration,
+          // _version será gravado na próxima chamada a saveProfilesData()
+        };
+        console.info(`[SEFAZ] Config migrado da v${parsed._version ?? 0} → v${CONFIG_VERSION}. Tema resetado para padrão.`);
+      }
     }
   } catch (e) {
     console.error('Erro ao carregar dados do LocalStorage:', e);
@@ -147,7 +169,8 @@ function saveProfilesData() {
     localStorage.setItem('sefaz_active_profile', AppState.activeProfileKey);
     localStorage.setItem('sefaz_profiles_data_v3', JSON.stringify(AppState.profiles));
     localStorage.setItem('sefaz_open_cards', JSON.stringify([...AppState.openCards]));
-    localStorage.setItem('sefaz_config', JSON.stringify(AppState.config));
+    // Sempre grava a versão atual junto com o config
+    localStorage.setItem('sefaz_config', JSON.stringify({ ...AppState.config, _version: CONFIG_VERSION }));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
       showToast('Armazenamento cheio! Exporte um backup JSON.', 'warning', 6000);
