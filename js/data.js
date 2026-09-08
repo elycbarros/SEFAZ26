@@ -691,5 +691,605 @@ const FCC_QUESTIONS = [
     ],
     correta: 1,
     explicacao: "Recondução é o retorno do servidor público estável ao cargo que ocupava anteriormente, em caso de inabilitação no estágio probatório de outro cargo ou reintegração do anterior ocupante."
+  },
+  {
+    id: 11,
+    cargo: "todos",
+    disciplina: "Língua Portuguesa",
+    enunciado: "Assinale a alternativa em que a pontuação está plenamente de acordo com a norma-padrão da língua escrita:",
+    opcoes: [
+      "Os auditores fiscais que, concluíram a auditoria da folha de pagamento, emitiram o relatório ontem.",
+      "A Secretaria de Estado da Fazenda, cumprindo o cronograma estabelecido na LRF, divulgou o relatório de gestão fiscal.",
+      "O orçamento estadual foi aprovado pelos deputados, embora houvesse muitas divergências quanto às emendas.",
+      "Não se deve esquecer de que, a transparência pública é preceito fundamental do Estado Democrático.",
+      "Todos os servidores públicos de SC que participaram do certame, foram convocados."
+    ],
+    correta: 1,
+    explicacao: "A oração reduzida de gerúndio intercalada ('cumprindo o cronograma estabelecido na LRF') está corretamente isolada por vírgulas entre o sujeito e o predicado. Na A, há vírgula separando sujeito e verbo. Na D, vírgula após conjunção integrante. Na E, oração adjetiva restritiva pontuada incorretamente."
+  },
+  {
+    id: 12,
+    cargo: "todos",
+    disciplina: "Língua Portuguesa",
+    enunciado: "Em relação à concordância verbal e nominal, assinale a opção correta segundo a norma culta:",
+    opcoes: [
+      "Houveram muitos incidentes durante a tramitação da lei orçamentária anual.",
+      "Mais de um auditor discordaram dos critérios adotados na apuração do resultado primário.",
+      "Trata-se de relatórios técnicos que devem ser anexados ao processo de prestação de contas.",
+      "Fazem dez anos que o Estado de Santa Catarina não realizava concurso para o cargo.",
+      "É proibido a entrada de pessoas não autorizadas na sala de controle fiscal."
+    ],
+    correta: 2,
+    explicacao: "Na C, 'Trata-se de...' tem sujeito indeterminado com verbo na 3ª do singular (índice de indeterminação do sujeito). Na A, 'haver' no sentido de existir é impessoal (houve). Na B, 'mais de um' exige singular (discordou). Na D, 'fazer' indicando tempo é impessoal (faz dez anos). Na E, com artigo 'a entrada', deve concordar: 'é proibida a entrada'."
+  },
+  {
+    id: 13,
+    cargo: "todos",
+    disciplina: "Direito Constitucional",
+    enunciado: "A respeito dos direitos e garantias fundamentais e dos remédios constitucionais, assinale a afirmativa correta:",
+    opcoes: [
+      "O mandado de segurança coletivo pode ser impetrado por partido político sem representação no Congresso Nacional, desde que legalmente registrado há mais de um ano.",
+      "O habeas data é a ação constitucional adequada para retificar dados do impetrante constantes de registros públicos, quando não se prefira fazê-lo por processo sigiloso.",
+      "A criação de associações e a de cooperativas dependem de autorização prévia do Poder Executivo estadual.",
+      "A casa é asilo inviolável do indivíduo, não sendo permitida a entrada durante a noite mesmo em caso de flagrante delito.",
+      "A ação popular pode ser ajuizada por qualquer pessoa jurídica de direito privado sem fins lucrativos sediada no Estado."
+    ],
+    correta: 1,
+    explicacao: "Art. 5º, LXXII, 'b', da CF/88: o Habeas Data destina-se para a retificação de dados, quando não se prefira fazê-lo por processo sigiloso, judicial ou administrativo. Partido para MS coletivo exige representação no Congresso. Ação popular é privativa de cidadão (pessoa física com título eleitoral ativo)."
+  },
+  {
+    id: 14,
+    cargo: "todos",
+    disciplina: "Direito Constitucional",
+    enunciado: "Conforme as regras de repartição de competências na CF/88, compete concorrentemente à União, aos Estados e ao Distrito Federal legislar sobre:",
+    opcoes: [
+      "Direito civil, comercial, penal, processual e eleitoral.",
+      "Direito tributário, financeiro, penitenciário, econômico e urbanístico.",
+      "Direito do trabalho, desapropriação e trânsito.",
+      "Diretrizes e bases da educação nacional e comércio interestadual.",
+      "Seguridade social, normas gerais de licitação e propaganda comercial."
+    ],
+    correta: 1,
+    explicacao: "Art. 24, I, da CF/88: legislar sobre direito tributário, financeiro, penitenciário, econômico e urbanístico é competência legislativa concorrente da União, dos Estados e do DF. As demais alternativas contêm matérias privativas da União (art. 22)."
+  },
+  {
+    id: 15,
+    cargo: "todos",
+    disciplina: "Direito Administrativo",
+    enunciado: "Com as alterações promovidas pela Lei nº 14.230/2021 na Lei de Improbidade Administrativa (Lei nº 8.429/1992):",
+    opcoes: [
+      "Passou-se a admitir expressamente a configuração de ato de improbidade administrativa culposo em caso de dano ao erário.",
+      "Exige-se a demonstração de dolo específico para a configuração de qualquer ato de improbidade administrativa tipificado na lei.",
+      "O prazo prescricional para ajuizamento da ação passou a ser de 10 anos a contar da data do conhecimento do fato pela corregedoria.",
+      "A perda da função pública atinge indistintamente qualquer vínculo que o agente mantenha com a Administração, sem restrições.",
+      "Revogou-se integralmente o capítulo relativo aos atos que atentam contra os princípios da administração pública."
+    ],
+    correta: 1,
+    explicacao: "A Lei 14.230/2021 revogou a modalidade culposa de improbidade (anterior art. 10) e passou a exigir dolo específico (vontade livre e consciente de alcançar o resultado ilícito) para todos os tipos (arts. 9º, 10 e 11). A prescrição é de 8 anos a contar da ocorrência do fato."
+  },
+  {
+    id: 16,
+    cargo: "todos",
+    disciplina: "Direito Administrativo",
+    enunciado: "No âmbito dos poderes da administração pública, o poder de polícia caracteriza-se por:",
+    opcoes: [
+      "Ser sempre indelegável a pessoas jurídicas de direito privado, ainda que integrantes da administração indireta.",
+      "Possuir como atributos predominantes a discricionariedade, a autoexecutoriedade e a coercibilidade, observados os limites legais.",
+      "Possibilitar a aplicação de sanções funcionais a servidores públicos estáveis por infração aos seus deveres de cargo.",
+      "Inexistir na modalidade preventiva, operando exclusivamente de forma repressiva após a prática do ato infracional.",
+      "Exigir prévia ordem judicial como requisito indispensável para a interdição cautelar de estabelecimentos comerciais."
+    ],
+    correta: 1,
+    explicacao: "O poder de polícia estatal tem como atributos clássicos a discricionariedade (como regra), a autoexecutoriedade (a administração executa diretamente suas decisões) e a coercibilidade (imposição forçada). O STF fixou a tese de que é constitucional a delegação de atos de fiscalização e sanção a empresas estatais prestadoras de serviço público em regime não concorrencial."
+  },
+  {
+    id: 17,
+    cargo: "todos",
+    disciplina: "Legislação SC",
+    enunciado: "A Lei Complementar Estadual nº 412/2008 de Santa Catarina, que instituiu o Regime Próprio de Previdência dos Servidores do Estado (RPPS/SC), define como órgão gestor único:",
+    opcoes: [
+      "A Secretaria de Estado da Fazenda (SEF/SC).",
+      "O Instituto de Previdência do Estado de Santa Catarina (IPREV).",
+      "A Procuradoria-Geral do Estado (PGE/SC).",
+      "A Diretoria de Gestão de Pessoas da Secretaria de Estado da Administração.",
+      "O Tribunal de Contas do Estado de Santa Catarina (TCE/SC)."
+    ],
+    correta: 1,
+    explicacao: "Conforme a LC 412/2008 de Santa Catarina, o IPREV (Instituto de Previdência do Estado de Santa Catarina) é a entidade autárquica gestora única do RPPS/SC, responsável pela concessão e manutenção dos benefícios previdenciários dos servidores estaduais."
+  },
+  {
+    id: 18,
+    cargo: "todos",
+    disciplina: "Tecnologia da Informação e Dados",
+    enunciado: "Em bancos de dados relacionais e modelagem multidimensional utilizada em Business Intelligence (BI):",
+    opcoes: [
+      "O esquema Star Schema (estrela) possui tabelas dimensões normalizadas na 3ª Forma Normal com múltiplos níveis de hierarquia.",
+      "A tabela fato contém métricas numéricas quantitativas do negócio (fatos) e chaves estrangeiras que apontam para as tabelas dimensões.",
+      "A instrução SQL 'GROUP BY' é executada antes da cláusula 'WHERE' na ordem lógica de processamento do SGBD.",
+      "As chaves primárias compostas não são permitidas pelo modelo relacional tradicional de Codd.",
+      "O modelo Snowflake (floco de neve) é caracterizado pela total desnormalização de todas as suas tabelas satélites."
+    ],
+    correta: 1,
+    explicacao: "No modelo dimensional de Kimball (Data Warehouse/BI), a tabela fato armazena as medidas/métricas quantitativas e chaves estrangeiras que conectam às dimensões de contexto. O Star Schema desnormaliza as dimensões; o Snowflake normaliza as dimensões."
+  },
+  {
+    id: 19,
+    cargo: "todos",
+    disciplina: "Tecnologia da Informação e Dados",
+    enunciado: "No contexto de Inteligência Artificial e Modelos de Linguagem de Larga Escala (LLMs), o mecanismo de 'RAG' (Retrieval-Augmented Generation) tem como objetivo principal:",
+    opcoes: [
+      "Treinar o modelo fundacional a partir do zero utilizando exclusivamente dados proprietários em supercomputadores.",
+      "Aumentar o contexto de entrada do modelo consultando uma base de conhecimento externa e vetorial antes de gerar a resposta.",
+      "Comprimir os pesos da rede neural através de quantização de 16 bits para 4 bits sem perda de acurácia.",
+      "Substituir o algoritmo de backpropagation em redes neurais profundas por árvores de decisão determinísticas.",
+      "Garantir a total ausência de latência nas chamadas de API através de processamento local no navegador."
+    ],
+    correta: 1,
+    explicacao: "O RAG (Retrieval-Augmented Generation) recupera documentos relevantes de uma base de conhecimento (ex: legislação, manuais) via busca semântica/vetorial e os insere no prompt da LLM para reduzir alucinações e fornecer respostas fundamentadas e atualizadas."
+  },
+  {
+    id: 20,
+    cargo: "todos",
+    disciplina: "Matemática Financeira e Estatística",
+    enunciado: "Um investimento de R$ 100.000,00 foi aplicado à taxa de juros compostos de 10% ao ano, durante 2 anos. O montante final acumulado ao término do período é de:",
+    opcoes: [
+      "R$ 120.000,00",
+      "R$ 121.000,00",
+      "R$ 122.100,00",
+      "R$ 115.000,00",
+      "R$ 133.100,00"
+    ],
+    correta: 1,
+    explicacao: "Fórmula dos juros compostos: M = C * (1 + i)^t. M = 100.000 * (1 + 0,10)^2 = 100.000 * 1,21 = R$ 121.000,00. Os juros somam R$ 21.000,00."
+  },
+  {
+    id: 21,
+    cargo: "A01",
+    disciplina: "Administração Financeira e Orçamentária",
+    enunciado: "De acordo com a Lei nº 4.320/1964 e a CF/88, os créditos adicionais destinados a despesas urgentes e imprevistas, em caso de guerra, comoção intestina ou calamidade pública, são denominados:",
+    opcoes: [
+      "Suplementares.",
+      "Especiais.",
+      "Extraordinários.",
+      "Ordinários.",
+      "Condicionais."
+    ],
+    correta: 2,
+    explicacao: "Art. 41 da Lei 4.320/1964 e art. 167, § 3º da CF/88: créditos suplementares reforçam dotação orçamentária existente; especiais destinam-se a despesas sem dotação específica; extraordinários destinam-se a despesas urgentes e imprevistas (guerra, comoção interna ou calamidade pública), abertos por Medida Provisória ou Decreto."
+  },
+  {
+    id: 22,
+    cargo: "A01",
+    disciplina: "Administração Financeira e Orçamentária",
+    enunciado: "Segundo a Lei de Responsabilidade Fiscal (LC 101/2000), o Relatório de Gestão Fiscal (RGF) deve ser emitido ao final de cada:",
+    opcoes: [
+      "Bimestre, por todos os Poderes e órgãos autônomos.",
+      "Quadrimestre, pelos titulares dos Poderes e órgãos referidos no art. 20 da LRF.",
+      "Mês, exclusivamente pelo Poder Executivo estadual.",
+      "Semestre, apenas pelos Municípios com população superior a 500 mil habitantes.",
+      "Exercício financeiro, coincidindo com o balanço geral do Estado."
+    ],
+    correta: 1,
+    explicacao: "Art. 54 da LRF: o RGF (Relatório de Gestão Fiscal) é emitido ao final de cada quadrimestre pelos titulares de cada Poder e órgão (Executivo, Judiciário, Legislativo, MP e Defensoria). O RREO (Relatório Resumido da Execução Orçamentária) é que é bimestral."
+  },
+  {
+    id: 23,
+    cargo: "A01",
+    disciplina: "Administração Financeira e Orçamentária",
+    enunciado: "O princípio orçamentário segundo o qual todas as receitas e todas as despesas públicas devem constar do orçamento em seus valores brutos, vedadas quaisquer deduções, é o princípio da:",
+    opcoes: [
+      "Universalidade.",
+      "Totalidade.",
+      "Exclusividade.",
+      "Não afetação das receitas de impostos.",
+      "Orçamento Bruto."
+    ],
+    correta: 4,
+    explicacao: "Art. 6º da Lei 4.320/1964: 'Todas as receitas e despesas constarão da Lei de Orçamento pelos seus totais, vedadas quaisquer deduções'. Trata-se do Princípio do Orçamento Bruto. Já a Universalidade determina que todas as receitas e despesas devem estar na lei orçamentária."
+  },
+  {
+    id: 24,
+    cargo: "A01",
+    disciplina: "Contabilidade Aplicada ao Setor Público",
+    enunciado: "No Plano de Contas Aplicado ao Setor Público (PCASP), as classes 1, 2, 3 e 4 pertencem, respectivamente, aos seguintes subsistemas de informações:",
+    opcoes: [
+      "Orçamentário (1 e 2) e Controle (3 e 4).",
+      "Patrimonial (1 - Ativo, 2 - Passivo, 3 - VPD, 4 - VPA).",
+      "Controle (1 e 2) e Orçamentário (3 e 4).",
+      "Financeiro (1 e 3) e Patrimonial (2 e 4).",
+      "Compensado (1 e 2) e Extraorçamentário (3 e 4)."
+    ],
+    correta: 1,
+    explicacao: "No PCASP: Classe 1 (Ativo), Classe 2 (Passivo e Patrimônio Líquido), Classe 3 (Variações Patrimoniais Diminutivas - VPD) e Classe 4 (Variações Patrimoniais Aumentativas - VPA) integram a natureza de informação PATRIMONIAL. As classes 5 e 6 são orçamentárias; 7 e 8 são de controle."
+  },
+  {
+    id: 25,
+    cargo: "A01",
+    disciplina: "Contabilidade Aplicada ao Setor Público",
+    enunciado: "Segundo a NBC TSP 34 e as normas do Conselho Federal de Contabilidade aplicadas ao setor público, a informação de custos na administração pública visa prioritariamente:",
+    opcoes: [
+      "Calcular o lucro tributável das entidades estatais dependentes.",
+      "Subsidiar a tomada de decisões, a apuração da eficiência na alocação de recursos públicos e a prestação de contas (accountability).",
+      "Determinar o montante da despesa de pessoal para fins de limitação da LRF.",
+      "Ajustar as tabelas de vencimentos funcionais pelo índice oficial de inflação.",
+      "Emitir notas de empenho ordinárias no encerramento do exercício financeiro."
+    ],
+    correta: 1,
+    explicacao: "A NBC TSP 34 (Custos no Setor Público) estabelece que o sistema de informação de custos objetiva apoiar os gestores na tomada de decisão, possibilitar a avaliação de desempenho e eficiência dos programas públicos e dar transparência ao custo dos serviços entregues à sociedade."
+  },
+  {
+    id: 26,
+    cargo: "A01",
+    disciplina: "Administração Geral e Pública",
+    enunciado: "A abordagem da Nova Gestão Pública (New Public Management - NPM) caracteriza-se por defender:",
+    opcoes: [
+      "O reforço das estruturas burocráticas weberianas rígidas com foco exclusivo na conformidade formal dos processos.",
+      "A orientação para resultados, foco no cidadão-usuário, descentralização administrativa e introdução de mecanismos contratuais e de incentivo.",
+      "A centralização de todas as compras governamentais em ministérios centrais sem autonomia setorial.",
+      "A eliminação definitiva de quaisquer formas de controle social ou transparência pública.",
+      "A estatização integral de todos os setores de prestação de serviços não essenciais."
+    ],
+    correta: 1,
+    explicacao: "A Administração Pública Gerencial / New Public Management (NPM) preconiza a transição do foco em processos e controles a priori para a gestão por resultados, avaliação de desempenho, contratualização e centralidade no cidadão."
+  },
+  {
+    id: 27,
+    cargo: "A01",
+    disciplina: "Administração Geral e Pública",
+    enunciado: "Na ferramenta Balanced Scorecard (BSC), desenvolvida por Kaplan e Norton, a estratégia organizacional é desdobrada nas seguintes quatro perspectivas:",
+    opcoes: [
+      "Operacional, Tática, Estratégica e Normativa.",
+      "Financeira, Clientes, Processos Internos e Aprendizado/Crescimento.",
+      "Custos, Preços, Mercados e Concorrentes.",
+      "Planejamento, Organização, Direção e Controle.",
+      "Ambiente Interno, Macroambiente, Stakeholders e Acionistas."
+    ],
+    correta: 1,
+    explicacao: "O Balanced Scorecard (BSC) equilibra indicadores financeiros e não-financeiros através de 4 perspectivas clássicas: Financeira, Clientes (ou Sociedade, no setor público), Processos Internos e Aprendizado & Crescimento."
+  },
+  {
+    id: 28,
+    cargo: "A01",
+    disciplina: "Administração Financeira e Orçamentária",
+    enunciado: "Conforme a Lei nº 4.320/1964, a despesa orçamentária percorre regularmente os seguintes três estágios de execução:",
+    opcoes: [
+      "Fixação, arrecadação e recolhimento.",
+      "Empenho, liquidação e pagamento.",
+      "Previsão, lançamento e arrecadação.",
+      "Licitação, homologação e adjudicação.",
+      "Contratação, medição e faturamento."
+    ],
+    correta: 1,
+    explicacao: "Os estágios da despesa orçamentária são: Empenho (art. 58), Liquidação (art. 63) e Pagamento (art. 64) da Lei 4.320/1964. Já fixação, arrecadação e recolhimento referem-se à receita pública."
+  },
+  {
+    id: 29,
+    cargo: "A01",
+    disciplina: "Contabilidade Aplicada ao Setor Público",
+    enunciado: "No Balanço Orçamentário elaborado sob a égide do MCASP, o superávit orçamentário do exercício financeiro corresponde à diferença positiva entre:",
+    opcoes: [
+      "O Ativo Financeiro e o Passivo Financeiro no encerramento do exercício.",
+      "As Receitas Orçamentárias Realizadas e as Despesas Orçamentárias Executadas (empenhadas/liquidadas).",
+      "As Variações Patrimoniais Aumentativas e as Variações Patrimoniais Diminutivas.",
+      "O saldo dos Restos a Pagar Processados e os Não Processados.",
+      "A dívida fundada consolidada e a receita corrente líquida."
+    ],
+    correta: 1,
+    explicacao: "O resultado orçamentário (superávit ou déficit) no Balanço Orçamentário decorre do confronto entre as receitas orçamentárias realizadas e as despesas orçamentárias executadas (empenhadas/liquidadas). Diferença entre ativo e passivo financeiro é o superávit financeiro do Balanço Patrimonial."
+  },
+  {
+    id: 30,
+    cargo: "A01",
+    disciplina: "Administração Financeira e Orçamentária",
+    enunciado: "De acordo com o art. 42 da LRF, é vedado ao titular de Poder ou órgão, nos últimos dois quadrimestres do seu mandato:",
+    opcoes: [
+      "Realizar concurso público para provimento de cargos efetivos essenciais.",
+      "Contrair obrigação de despesa que não possa ser cumprida integralmente dentro dele, ou que tenha parcelas a serem pagas no exercício seguinte sem que haja suficiente disponibilidade de caixa.",
+      "Autorizar qualquer remanejamento orçamentário por meio de créditos suplementares.",
+      "Promover licitações sob a modalidade pregão eletrônico.",
+      "Pagar faturas de fornecedores com prazo de entrega superior a trinta dias."
+    ],
+    correta: 1,
+    explicacao: "Art. 42 da LRF (regra de final de mandato): 'É vedado ao titular de Poder ou órgão referido no art. 20, nos últimos dois quadrimestres do seu mandato, contrair obrigação de despesa que não possa ser cumprida integralmente dentro dele, ou que tenha parcelas a serem pagas no exercício seguinte sem que haja suficiente disponibilidade de caixa'."
+  },
+  {
+    id: 31,
+    cargo: "E05",
+    disciplina: "Direito Tributário",
+    enunciado: "A respeito das limitações constitucionais ao poder de tributar, a imunidade tributária recíproca (art. 150, VI, 'a', da CF/88):",
+    opcoes: [
+      "Aplica-se indistintamente a tributos de qualquer espécie, abrangendo impostos, taxas e contribuições de melhoria.",
+      "Veda à União, aos Estados, ao DF e aos Municípios instituir impostos sobre o patrimônio, renda ou serviços uns dos outros.",
+      "Estende-se irrestritamente a empresas públicas que explorem atividade econômica em concorrência com o setor privado.",
+      "Impede a cobrança de IPTU sobre imóveis de propriedade de autarquias públicas mesmo quando alugados a particulares para exploração comercial.",
+      "Pode ser revogada por emenda constitucional aprovada por maioria absoluta nas duas casas do Congresso."
+    ],
+    correta: 1,
+    explicacao: "A imunidade recíproca restringe-se aos IMPOSTOS (art. 150, VI, 'a') sobre patrimônio, renda e serviços dos entes federativos e suas autarquias/fundações vinculadas às finalidades essenciais. Não abrange taxas nem se estende a estatais que exploram atividade econômica concorrencial (art. 150, § 3º)."
+  },
+  {
+    id: 32,
+    cargo: "E05",
+    disciplina: "Direito Tributário",
+    enunciado: "Nos termos do Código Tributário Nacional (CTN), assinale a hipótese que acarreta a EXTINÇÃO do crédito tributário:",
+    opcoes: [
+      "A concessão de liminar em mandado de segurança.",
+      "A moratória concedida em caráter geral.",
+      "A compensação tributária realizada nos termos da lei.",
+      "O parcelamento deferido pela autoridade fazendária.",
+      "O recurso administrativo interposto tempestivamente pelo sujeito passivo."
+    ],
+    correta: 2,
+    explicacao: "Art. 156, II, do CTN: a compensação é modalidade de EXTINÇÃO do crédito tributário. Liminar em MS, moratória, parcelamento e recursos administrativos são hipóteses de SUSPENSÃO da exigibilidade (art. 151 do CTN)."
+  },
+  {
+    id: 33,
+    cargo: "E05",
+    disciplina: "Direito Tributário",
+    enunciado: "Sobre o lançamento tributário e suas modalidades segundo o CTN, é correto afirmar que:",
+    opcoes: [
+      "No lançamento de ofício, o contribuinte antecipa o pagamento antes de qualquer exame prévio da autoridade administrativa.",
+      "No lançamento por homologação, a legislação impõe ao devedor o dever de antecipar o pagamento sem prévio exame da autoridade fazendária.",
+      "O lançamento é ato puramente discricionário da autoridade administrativa fiscal.",
+      "O IPTU e o IPVA são exemplos típicos de tributos lançados exclusivamente por homologação.",
+      "O lançamento efetuado não pode ser alterado sob nenhuma hipótese após a notificação do contribuinte."
+    ],
+    correta: 1,
+    explicacao: "Art. 150 do CTN: lançamento por homologação (ou autolançamento) ocorre quanto aos tributos cuja legislação atribua ao sujeito passivo o dever de antecipar o pagamento sem prévio exame da autoridade. O lançamento é ato vinculado e obrigatório (art. 142)."
+  },
+  {
+    id: 34,
+    cargo: "E05",
+    disciplina: "Direito Penal Tributário",
+    enunciado: "Nos termos da Lei nº 8.137/1990, o pagamento integral dos tributos e acessórios devidos pelo contribuinte investigado por crime contra a ordem tributária:",
+    opcoes: [
+      "Apenas atenua a pena privativa de liberdade em um sexto a um terço.",
+      "Extingue a punibilidade do crime, se efetuado antes ou mesmo após o recebimento da denúncia, conforme pacífico entendimento dos Tribunais Superiores.",
+      "Depende de expressa concordância do Ministério Público para surtir efeitos penais benéficos.",
+      "Não impede o prosseguimento da ação penal pelo crime de falsidade documental conexo.",
+      "Converte a pena de reclusão em pena restritiva de direitos automaticamente."
+    ],
+    correta: 1,
+    explicacao: "Conforme art. 9º da Lei 10.684/2003 e jurisprudência pacífica do STF e STJ, o pagamento integral do débito tributário extingue a punibilidade dos crimes contra a ordem tributária tipificados nos arts. 1º e 2º da Lei 8.137/90, a qualquer tempo, mesmo após o recebimento da denúncia ou trânsito em julgado."
+  },
+  {
+    id: 35,
+    cargo: "E05",
+    disciplina: "Direito Constitucional",
+    enunciado: "A respeito do controle de constitucionalidade exercido pelos Tribunais de Justiça dos Estados (art. 125, § 2º, da CF/88):",
+    opcoes: [
+      "Cabe ADI estadual perante o Tribunal de Justiça tendo por parâmetro norma da Constituição Federal de repetição não obrigatória.",
+      "É cabível a propositura de Ação Direta de Inconstitucionalidade de lei municipal em face da Constituição Estadual.",
+      "O Tribunal de Justiça pode julgar ADI estadual proposta exclusivamente pelo Governador do Estado.",
+      "Não cabe recurso extraordinário ao STF contra decisão de Tribunal de Justiça proferida em ADI estadual.",
+      "A declaração de inconstitucionalidade pelo TJ vincula automaticamente o Supremo Tribunal Federal."
+    ],
+    correta: 1,
+    explicacao: "Art. 125, § 2º da CF/88: cabe aos Estados a instituição de representação de inconstitucionalidade de leis ou atos normativos estaduais ou municipais em face da Constituição Estadual perante o Tribunal de Justiça."
+  },
+  {
+    id: 36,
+    cargo: "E05",
+    disciplina: "Direito Administrativo",
+    enunciado: "Em tema de responsabilidade civil do Estado no ordenamento jurídico brasileiro (art. 37, § 6º, da CF/88):",
+    opcoes: [
+      "A responsabilidade objetiva do Estado baseia-se na teoria do risco integral em todas as situações de conduta comissiva ou omissiva.",
+      "As pessoas jurídicas de direito público e as de direito privado prestadoras de serviços públicos responderão pelos danos que seus agentes causarem a terceiros, assegurado o direito de regresso contra o responsável nos casos de dolo ou culpa.",
+      "O particular lesado deve ajuizar a ação indenizatória diretamente e exclusivamente contra o servidor causador do dano.",
+      "A culpa exclusiva da vítima não exclui e nem atenua a responsabilidade civil objetiva da Fazenda Pública.",
+      "A responsabilidade do Estado por omissão genérica prescinde da demonstração de culpa do serviço (faute du service)."
+    ],
+    correta: 1,
+    explicacao: "Art. 37, § 6º da CF/88 consagra a teoria do risco administrativo (responsabilidade objetiva do Estado, com direito de regresso contra o agente nos casos de dolo ou culpa). O STF fixou tese em repercussão geral (Tema 940) vedando a propositura da ação diretamente contra o servidor (dupla garantia)."
+  },
+  {
+    id: 37,
+    cargo: "E05",
+    disciplina: "Direito Tributário",
+    enunciado: "A decadência do direito de a Fazenda Pública constituir o crédito tributário relativamente a tributos sujeitos a lançamento por homologação, quando inocorrente dolo, fraude ou simulação e havendo pagamento antecipado parcial, rege-se:",
+    opcoes: [
+      "Pelo art. 173, I, do CTN (5 anos a contar do primeiro dia do exercício seguinte àquele em que o lançamento poderia ter sido efetuado).",
+      "Pelo art. 150, § 4º, do CTN (5 anos a contar da ocorrência do fato gerador).",
+      "Pelo prazo prescricional do Código Civil de 10 anos.",
+      "Por prazo decadencial de 3 anos contado da emissão da certidão de dívida ativa.",
+      "Por regra de imprescritibilidade nos termos da jurisprudência do STF."
+    ],
+    correta: 1,
+    explicacao: "Conforme jurisprudência pacífica do STJ (Súmula 555 e Tema Repetitivo 163): nos tributos sujeitos a lançamento por homologação, havendo pagamento antecipado (ainda que a menor), aplica-se a regra do art. 150, § 4º do CTN (5 anos da data do fato gerador). Não havendo qualquer pagamento, aplica-se o art. 173, I (primeiro dia do exercício seguinte)."
+  },
+  {
+    id: 38,
+    cargo: "E05",
+    disciplina: "Legislação SC",
+    enunciado: "A Lei Estadual nº 7.541/1988 de Santa Catarina, que dispõe sobre as taxas no Estado, estabelece que a taxa por atos de polícia e prestação de serviços públicos:",
+    opcoes: [
+      "Pode ter base de cálculo própria e idêntica à que tenha servido para a instituição de imposto estadual.",
+      "Tem como fato gerador o exercício regular do poder de polícia ou a utilização, efetiva ou potencial, de serviço público específico e divisível prestado ao contribuinte ou posto à sua disposição.",
+      "Pode ser cobrada pelo serviço de iluminação pública geral do município.",
+      "É dispensada de previsão expressa das alíquotas em tabela anexa à lei.",
+      "Incide livremente sobre o patrimônio e a renda das microempresas e empresas de pequeno porte."
+    ],
+    correta: 1,
+    explicacao: "Art. 77 do CTN e Lei 7.541/1988 de SC reproduzem o comando constitucional do art. 145, II: taxas decorrem do exercício regular do poder de polícia ou da utilização de serviços públicos específicos e divisíveis. Taxa não pode ter base de cálculo idêntica à de imposto (art. 145, § 2º)."
+  },
+  {
+    id: 39,
+    cargo: "E05",
+    disciplina: "Direito Tributário",
+    enunciado: "Sobre a Certidão da Dívida Ativa (CDA) e a Execução Fiscal regida pela Lei nº 6.830/1980, assinale a opção correta:",
+    opcoes: [
+      "A dívida regularmente inscrita goza da presunção absoluta (jure et de jure) de certeza e liquidez, não admitindo prova em contrário.",
+      "A presunção de certeza e liquidez da dívida ativa é relativa e pode ser ilidida por prova inequívoca a cargo do executado ou de terceiro que a aproveite.",
+      "A penhora de dinheiro na execução fiscal deve ser realizada por oficial de justiça presencialmente, sendo vedado o bloqueio judicial eletrônico.",
+      "O prazo para o executado embargar a execução fiscal é de 15 dias contados da juntada do mandado de citação.",
+      "A nulidade da CDA não pode ser suprida pela Fazenda Pública em nenhuma hipótese."
+    ],
+    correta: 1,
+    explicacao: "Art. 204 do CTN e art. 3º da Lei 6.830/1980 (LEF): a dívida regularmente inscrita goza de presunção de certeza e liquidez, tendo o efeito de prova pré-constituída. Essa presunção é relativa (juris tantum) e pode ser elidida por prova inequívoca a cargo do executado. O prazo de embargos na LEF é de 30 dias contados da garantia do juízo (art. 16)."
+  },
+  {
+    id: 40,
+    cargo: "E05",
+    disciplina: "Direito Penal",
+    enunciado: "No crime de concussão (art. 316 do Código Penal) e corrupção passiva (art. 317 do CP), o elemento diferenciador dos núcleos dos tipos é que na concussão o servidor:",
+    opcoes: [
+      "Solicita vantagem indevida, enquanto na corrupção ele a aceita de livre vontade.",
+      "Exige, para si ou para outrem, direta ou indiretamente, ainda que fora da função ou antes de assumi-la, mas em razão dela, vantagem indevida.",
+      "Recebe propina paga por particular mediante violência física iminente.",
+      "Promete praticar ato legal em troca de favorecimento pessoal.",
+      "Apropria-se de dinheiro público de que tem a posse em razão do cargo."
+    ],
+    correta: 1,
+    explicacao: "No art. 316 do Código Penal (Concussão), o verbo núcleo é EXIGIR vantagem indevida. No art. 317 (Corrupção Passiva), os verbos são SOLICITAR ou RECEBER vantagem indevida, ou ACEITAR promessa de tal vantagem. Apropriar-se é peculato (art. 312)."
+  },
+  {
+    id: 41,
+    cargo: "todos",
+    disciplina: "Língua Portuguesa",
+    enunciado: "Identifique a alternativa que apresenta oração na voz passiva analítica:",
+    opcoes: [
+      "Os auditores analisaram meticulosamente todos os livros fiscais da empresa autuada.",
+      "Apensaram-se os documentos solicitados à ata final da reunião de julgamento.",
+      "Os cálculos da nota padronizada foram homologados pela comissão organizadora do concurso.",
+      "Trabalhou-se com afinco durante todo o período de fiscalização estadual.",
+      "Muitos candidatos se queixaram do nível de exigência das provas da FCC."
+    ],
+    correta: 2,
+    explicacao: "Na voz passiva analítica, temos o verbo auxiliar (ser/estar) conjugado + particípio do verbo principal: 'foram homologados' + agente da passiva 'pela comissão organizadora'. A opção B é voz passiva sintética (com pronome apassivador 'se')."
+  },
+  {
+    id: 42,
+    cargo: "todos",
+    disciplina: "Direito Constitucional",
+    enunciado: "Conforme o art. 37, inciso XVI, da CF/88, é vedada a acumulação remunerada de cargos públicos, exceto, quando houver compatibilidade de horários, a de:",
+    opcoes: [
+      "Três cargos de professor em regime parcial.",
+      "Dois cargos de auditor fiscal da receita estadual.",
+      "Dois cargos de professor; a de um cargo de professor com outro técnico ou científico; e a de dois cargos ou empregos privativos de profissionais de saúde, com profissões regulamentadas.",
+      "Um cargo de procurador do Estado com o de secretário municipal executivo.",
+      "Dois cargos administrativos em fundações públicas estaduais."
+    ],
+    correta: 2,
+    explicacao: "Art. 37, XVI da CF/88: ressalvados os casos previstos, é vedada a acumulação remunerada de cargos, exceto, havendo compatibilidade de horários: a) dois cargos de professor; b) um de professor com outro técnico ou científico; c) dois cargos/empregos privativos de profissionais de saúde, com profissões regulamentadas."
+  },
+  {
+    id: 43,
+    cargo: "todos",
+    disciplina: "Direito Administrativo",
+    enunciado: "De acordo com a Lei nº 14.133/2021, o julgamento por 'menor preço' ou 'maior desconto' considerará o menor dispêndio para a Administração, e o critério de 'maior retorno econômico' é utilizado exclusivamente no contrato de:",
+    opcoes: [
+      "Fornecimento contínuo de materiais de consumo.",
+      "Eficiência.",
+      "Concessão patrocinada de rodovias estaduais.",
+      "Empreitada integral por preço unitário.",
+      "Locação sob medida (built to suit)."
+    ],
+    correta: 1,
+    explicacao: "Art. 36 da Lei 14.133/2021: o critério de julgamento por maior retorno econômico é utilizado exclusivamente para a celebração de contrato de eficiência e considerará a maior economia para a Administração decorrente da execução do contrato."
+  },
+  {
+    id: 44,
+    cargo: "todos",
+    disciplina: "Legislação SC",
+    enunciado: "Segundo o Estatuto dos Servidores Públicos Civis de Santa Catarina (Lei Estadual nº 6.745/1985), o estágio probatório dos servidores nomeados para cargo de provimento efetivo tem a duração legal de:",
+    opcoes: [
+      "1 ano de efetivo exercício.",
+      "2 anos de efetivo exercício.",
+      "3 anos de efetivo exercício, em conformidade com a redação dada pelo art. 41 da Constituição Federal.",
+      "5 anos ininterruptos.",
+      "6 meses após a posse solene."
+    ],
+    correta: 2,
+    explicacao: "Embora a lei estadual originária de 1985 previsse prazo menor, por força do art. 41 da CF/88 (com redação dada pela EC 19/1998) e jurisprudência pacífica do STF, o prazo do estágio probatório é de 3 anos de efetivo exercício para a aquisição da estabilidade."
+  },
+  {
+    id: 45,
+    cargo: "todos",
+    disciplina: "Tecnologia da Informação e Dados",
+    enunciado: "No contexto da LGPD (Lei nº 13.709/2018), a pessoa natural indicada pelo controlador e operador para atuar como canal de comunicação entre o controlador, os titulares dos dados e a ANPD é denominada:",
+    opcoes: [
+      "Auditor Externo de Segurança da Informação.",
+      "Encarregado pelo Tratamento de Dados Pessoais (DPO - Data Protection Officer).",
+      "Suboperador Autorizado de Tecnologia.",
+      "Procurador Digital de Integridade Fazendária.",
+      "Custodiante de Chaves Criptográficas."
+    ],
+    correta: 1,
+    explicacao: "Art. 5º, VIII e art. 41 da LGPD: o Encarregado (Data Protection Officer - DPO) é a pessoa indicada pelo controlador para atuar como canal de comunicação entre o controlador, os titulares dos dados e a Autoridade Nacional de Proteção de Dados (ANPD)."
+  },
+  {
+    id: 46,
+    cargo: "A01",
+    disciplina: "Administração Financeira e Orçamentária",
+    enunciado: "A regra de ouro das finanças públicas, consagrada no art. 167, inciso III, da Constituição Federal, estabelece a vedação de:",
+    opcoes: [
+      "Realizar despesas com pessoal que superem a receita corrente líquida do bimestre anterior.",
+      "Realizar operações de créditos que excedam o montante das despesas de capital, ressalvadas as autorizadas mediante créditos suplementares ou especiais com finalidade precisa, aprovados pelo Poder Legislativo por maioria absoluta.",
+      "Vincular receitas de impostos estaduais à saúde e à educação.",
+      "Emitir títulos da dívida pública estadual sem parecer prévio do Tribunal de Contas.",
+      "Pagar juros e amortizações da dívida fundada com recursos ordinários do tesouro."
+    ],
+    correta: 1,
+    explicacao: "A Regra de Ouro (art. 167, III da CF) veda a realização de operações de crédito (endividamento) em montante superior ao das despesas de capital (investimentos, inversões financeiras e amortização da dívida), salvo autorização expressa em créditos adicionais aprovados por maioria absoluta."
+  },
+  {
+    id: 47,
+    cargo: "A01",
+    disciplina: "Contabilidade Aplicada ao Setor Público",
+    enunciado: "No Balanço Financeiro da Lei nº 4.320/1964 e do MCASP, a inscrição de Restos a Pagar no encerramento do exercício é demonstrada como:",
+    opcoes: [
+      "Receita Extraorçamentária para compensar a despesa orçamentária empenhada.",
+      "Despesa Orçamentária Corrente adicional.",
+      "Dedução direta da receita patrimonial do exercício.",
+      "Variação Patrimonial Diminutiva não orçamentária.",
+      "Resultado Primário consolidado."
+    ],
+    correta: 0,
+    explicacao: "No Balanço Financeiro, como a despesa foi empenhada e constou na coluna de desembolsos orçamentários, a contrapartida da inscrição dos Restos a Pagar figura como Receita Extraorçamentária para equilibrar o fluxo financeiro do balanço."
+  },
+  {
+    id: 48,
+    cargo: "E05",
+    disciplina: "Direito Tributário",
+    enunciado: "Segundo o Código Tributário Nacional, a responsabilidade de terceiros pelo crédito tributário (art. 134 e 135 do CTN):",
+    opcoes: [
+      "É sempre solidária e independente de qualquer atuação com excesso de poderes ou infração de lei.",
+      "Atribui responsabilidade pessoal e exclusiva aos diretores, gerentes ou representantes de pessoas jurídicas de direito privado pelos créditos decorrentes de atos praticados com excesso de poderes ou infração de lei, contrato social ou estatutos.",
+      "Exime os pais pelos tributos devidos por seus filhos menores.",
+      "Não se aplica aos administradores de bens de terceiros sob nenhuma hipótese.",
+      "Depende de prévia condenação criminal com trânsito em julgado para ser exigida na via tributária."
+    ],
+    correta: 1,
+    explicacao: "Art. 135, III do CTN: são pessoalmente responsáveis pelos créditos correspondentes a obrigações tributárias resultantes de atos praticados com excesso de poderes ou infração de lei, contrato social ou estatutos os diretores, gerentes ou representantes de pessoas jurídicas de direito privado."
+  },
+  {
+    id: 49,
+    cargo: "E05",
+    disciplina: "Direito Financeiro",
+    enunciado: "A respeito do regime das Emendas Parlamentares Impositivas individuais ao projeto de lei orçamentária (art. 166 da CF/88 e legislação de SC):",
+    opcoes: [
+      "A execução das programações orçamentárias de emendas individuais é meramente facultativa pelo Poder Executivo.",
+      "As emendas individuais são de execução orçamentária e financeira obrigatória, devendo metade do seu valor ser destinado a ações e serviços públicos de saúde.",
+      "É vedado o cancelamento das programações de emendas em qualquer hipótese, mesmo com impedimento de ordem técnica insuperável.",
+      "As emendas parlamentares independem de indicação prévia do beneficiário ou do objeto a ser financiado.",
+      "Não estão sujeitas a limites percentuais em relação à receita corrente líquida estadual."
+    ],
+    correta: 1,
+    explicacao: "Art. 166, §§ 9º e 11 da CF/88 (e modelo estadual de SC): as emendas individuais são impositivas (execução obrigatória), limitadas a percentual da RCL, sendo que metade do montante aprovado deve ser destinado a ações e serviços públicos de saúde (ASPS)."
+  },
+  {
+    id: 50,
+    cargo: "todos",
+    disciplina: "Matemática Financeira e Raciocínio Lógico",
+    enunciado: "Se a proposição composta 'Se o auditor concluiu o relatório, então o imposto foi cobrado' é FALSA, então é logicamente VERDADEIRO que:",
+    opcoes: [
+      "O auditor não concluiu o relatório e o imposto foi cobrado.",
+      "O auditor concluiu o relatório e o imposto não foi cobrado.",
+      "Tanto a conclusão do relatório quanto a cobrança do imposto ocorreram.",
+      "Nem o auditor concluiu o relatório, nem o imposto foi cobrado.",
+      "O imposto foi cobrado independentemente do relatório."
+    ],
+    correta: 1,
+    explicacao: "Uma condicional 'P -> Q' só é FALSA em um único caso: quando o antecedente (P) é VERDADEIRO e o consequente (Q) é FALSO (caso 'Vera Fischer'). Logo, é verdadeiro que 'O auditor concluiu o relatório' (V) e 'O imposto NÃO foi cobrado' (~Q = V)."
   }
 ];

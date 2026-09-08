@@ -341,6 +341,8 @@
           <select id="simuladoTamanhoSelect" class="filter-select">
             <option value="10">Mini-Simulado (10 Questões • ~30 min)</option>
             <option value="5">Rápido (5 Questões • ~15 min)</option>
+            <option value="20">Simulado Médio (20 Questões • ~60 min)</option>
+            <option value="50">Simulado Completo P1/P2 (50 Questões • ~150 min)</option>
           </select>
         </label>
         <button id="btnStartSimulado" class="btn-action primary" style="margin-top:1.2rem;padding:10px 24px;">
@@ -646,6 +648,26 @@
       </p>
 
       <div class="config-grid">
+        <!-- 4. Setup dos 2 Estudantes -->
+        <div class="config-item" style="border-color:rgba(99,102,241,0.35);background:rgba(99,102,241,0.06);">
+          <h4 style="font-size:1rem;margin-bottom:0.75rem;color:#fff;">👥 Perfis dos Estudantes & Rotina de Estudos</h4>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">Defina os nomes reais de cada candidato e suas respectivas metas semanais de dedicação:</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+            <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
+              <label style="font-size:0.82rem;color:var(--primary-light);font-weight:700;display:block;margin-bottom:4px;">⚙️ Estudante A01 (Adm / Eng):</label>
+              <input type="text" id="cfgNomeA01" class="search-input" style="width:100%;margin-bottom:8px;" placeholder="Nome do Estudante A01">
+              <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Meta Semanal de Horas:</label>
+              <input type="number" id="cfgMetaA01" class="search-input" min="5" max="80" style="width:100%;" placeholder="Ex: 25">
+            </div>
+            <div style="background:rgba(255,255,255,0.03);padding:0.75rem;border-radius:8px;border:1px solid var(--border-subtle);">
+              <label style="font-size:0.82rem;color:var(--accent-gold);font-weight:700;display:block;margin-bottom:4px;">⚖️ Estudante E05 (Direito):</label>
+              <input type="text" id="cfgNomeE05" class="search-input" style="width:100%;margin-bottom:8px;" placeholder="Nome do Estudante E05">
+              <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Meta Semanal de Horas:</label>
+              <input type="number" id="cfgMetaE05" class="search-input" min="5" max="80" style="width:100%;" placeholder="Ex: 25">
+            </div>
+          </div>
+        </div>
+
         <!-- Tema Visual -->
         <div class="config-item">
           <label><strong>🎨 Tema da Interface:</strong></label>

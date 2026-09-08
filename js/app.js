@@ -1424,7 +1424,7 @@ function initEventListeners() {
   document.getElementById('fileImportBackup')?.addEventListener('change', importBackup);
   document.getElementById('btnExportPDF')?.addEventListener('click', exportPDF);
 
-  // Configurações (4C.4)
+  // Configurações (4C.4) e Setup dos 2 Estudantes (Opção 4)
   document.getElementById('configThemeSelect')?.addEventListener('change', (e) => applyTheme(e.target.value));
   document.getElementById('btnTestSound')?.addEventListener('click', () => {
     AppState.config.sound = document.getElementById('configSoundSelect')?.value || 'beep';
@@ -1433,8 +1433,20 @@ function initEventListeners() {
   document.getElementById('btnSaveConfig')?.addEventListener('click', () => {
     AppState.config.sound = document.getElementById('configSoundSelect')?.value || 'beep';
     AppState.config.pomoDuration = parseInt(document.getElementById('configPomoDuration')?.value || '25', 10);
+
+    const nA01 = document.getElementById('cfgNomeA01')?.value?.trim();
+    const mA01 = parseInt(document.getElementById('cfgMetaA01')?.value, 10);
+    const nE05 = document.getElementById('cfgNomeE05')?.value?.trim();
+    const mE05 = parseInt(document.getElementById('cfgMetaE05')?.value, 10);
+
+    if (nA01) AppState.profiles.A01.nome = nA01;
+    if (mA01 > 0) AppState.profiles.A01.metaHorasSemanais = mA01;
+    if (nE05) AppState.profiles.E05.nome = nE05;
+    if (mE05 > 0) AppState.profiles.E05.metaHorasSemanais = mE05;
+
     saveProfilesData();
-    showToast('Ajustes salvos!', 'success');
+    renderApp();
+    showToast('✅ Ajustes e perfis dos estudantes salvos!', 'success');
   });
 
   // Sliders Simulador FCC
@@ -1512,9 +1524,24 @@ function initEventListeners() {
   });
 }
 
-/* ============================================================
-   RENDER PRINCIPAL
-============================================================ */
+function populateConfigInputs() {
+  const nA01 = document.getElementById('cfgNomeA01');
+  const mA01 = document.getElementById('cfgMetaA01');
+  const nE05 = document.getElementById('cfgNomeE05');
+  const mE05 = document.getElementById('cfgMetaE05');
+  const cfgTheme = document.getElementById('configThemeSelect');
+  const cfgSound = document.getElementById('configSoundSelect');
+  const cfgPomo = document.getElementById('configPomoDuration');
+
+  if (nA01) nA01.value = AppState.profiles.A01.nome;
+  if (mA01) mA01.value = AppState.profiles.A01.metaHorasSemanais || 25;
+  if (nE05) nE05.value = AppState.profiles.E05.nome;
+  if (mE05) mE05.value = AppState.profiles.E05.metaHorasSemanais || 25;
+  if (cfgTheme) cfgTheme.value = AppState.config.theme || 'indigo';
+  if (cfgSound) cfgSound.value = AppState.config.sound || 'beep';
+  if (cfgPomo) cfgPomo.value = AppState.config.pomoDuration || 25;
+}
+
 function renderApp() {
   updateProfileButtonsUI();
   renderUserBanner();
@@ -1533,6 +1560,7 @@ function renderApp() {
   renderLegislacaoSC();
   updateSimulatorCalculations();
   renderRevisoes();
+  populateConfigInputs();
   applyTheme(AppState.config.theme || 'indigo');
 }
 
