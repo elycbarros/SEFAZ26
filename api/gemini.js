@@ -42,7 +42,8 @@ module.exports = async (req, res) => {
 
     // Chave de API: prioriza a enviada pelo cliente no header; senão usa a variável de ambiente Vercel
     const clientKey = req.headers['x-gemini-key'];
-    const apiKey = clientKey || process.env.GEMINI_API_KEY;
+    let apiKey = (clientKey || process.env.GEMINI_API_KEY || '').trim();
+    apiKey = apiKey.replace(/^["']|["']$/g, '');
 
     if (!apiKey) {
       return res.status(401).json({
